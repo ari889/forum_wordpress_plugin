@@ -1,6 +1,59 @@
 (function(){
     $(document).ready(function(){
         /**
+         * add answer
+         */
+        let answer_counter = 0;
+        $(document).on('click', '#add-answer', function(e){
+            e.preventDefault();
+            $('#answer-wrapper').append('<li class="list-group-item d-flex flex-row justify-content-between align-items-center" id="answer'+answer_counter+'">\n' +
+                '                                <input name="answer[]" type="text" class="form-control" placeholder="Add answer" id="correct-answer'+answer_counter+'">\n' +
+                '                                <input name="correct-answer" type="radio" class="mx-2" value="'+answer_counter+'">\n' +
+                '                                <button type="button" class="btn btn-danger" data-dismiss="answer'+answer_counter+'" id="dismiss-answer">X</button>\n' +
+                '                            </li>');
+            answer_counter++;
+        });
+
+        /**
+         * if user submit answer form
+         */
+        $(document).on('submit', '#answer-form', function(e){
+            e.preventDefault();
+            let form = $(this);
+            let form_data = new FormData(this);
+            form_data.append('action', 'rz_submit_user_answer');
+            form_data.append('nonce', rzAdminSubmitAnswer.rz_admin_submit_answer_nonce);
+            $.ajax({
+                url: rzAdminSubmitAnswer.ajax_url,
+                method: 'POST',
+                data: form_data,
+                contentType: false,
+                processData: false,
+                dataType: 'JSON',
+                success: function(data){
+                    console.log(data);
+                    if(data.error == true){
+                        $('#answer-form-error').html(data.message);
+                    }else{
+                        form[0].reset();
+                        answer_counter = 0;
+                        $('#answer-wrapper').html('');
+                        $('#answer-form-error').html(data.message);
+                    }
+                }
+            });
+        });
+
+        /**
+         * dismiss answer
+         */
+        $(document).on('click', '#dismiss-answer', function(e){
+           e.preventDefault();
+           let dismiss = $(this).data('dismiss');
+           $('#'+dismiss).remove();
+        });
+
+        /**
          * view modal data
          */
         var answer_modal = new bootstrap.Modal(document.getElementById('view-answer-modal'));
@@ -53,17 +106,6 @@
                     swal('success', 'Status updated.');
                 }
             });
-        });
-
-
-        /**
-         * add question
-         */
-        let answer_counter = 0;
-        $(document).on('click', '#add-question', function(e){
-            e.preventDefault();
-
-            $('#add-qnswers-wrapper').html('');
         });
     });
 })(jQuery)

@@ -48,6 +48,7 @@ function imit_rz_init(){
     $rz_partner_program = $wpdb->prefix.'rz_user_programs';
     $rz_point_table = $wpdb->prefix.'rz_point_table';
     $rz_quizzes = $wpdb->prefix.'rz_quizzes';
+    $rz_quiz_questions = $wpdb->prefix.'rz_quiz_questions';
 
     require_once (ABSPATH.'wp-admin/includes/upgrade.php');
 
@@ -267,6 +268,19 @@ function imit_rz_init(){
     $sql[] = "CREATE TABLE {$rz_quizzes} (
         id INT (11) NOT NULL AUTO_INCREMENT,
         quiz_name VARCHAR (250) NOT NULL,
+        status VARCHAR (100) DEFAULT ('1'),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id)
+    );";
+
+
+    $sql[] = "CREATE TABLE {$rz_quiz_questions} (
+        id INT (11) NOT NULL AUTO_INCREMENT,
+        quiz_id INT (11) NOT NULL,
+        question VARCHAR (250) NOT NULL,
+        answers VARCHAR (250) NOT NULL,
+        correct_answer VARCHAR (250) NOT NULL,
         status VARCHAR (100) DEFAULT ('1'),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -782,6 +796,16 @@ add_action('admin_enqueue_scripts', function($hook){
             'ajax_url' => admin_url('admin-ajax.php'),
             'rz_change_answer_status_nonce' => $rz_change_answer_status_nonce
         ] );
+
+        /**
+         * admin submit answer
+         */
+        $rz_admin_submit_answer_nonce = wp_create_nonce( 'rz-admin-submit-answer-nonce' );
+        wp_localize_script( 'imit-admin-js', 'rzAdminSubmitAnswer', [
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'rz_admin_submit_answer_nonce' => $rz_admin_submit_answer_nonce
+        ] );
+
     }
 
 });
@@ -1107,7 +1131,6 @@ add_shortcode('imit-tags-archive', function(){
                                 'orderby' => 'count',
                                 'order' => 'DESC',
                                 'number' => 40,
-                                'offset' => $offset,
                             ));
 
                             foreach($tags as $tag){
