@@ -1,0 +1,57 @@
+.edit-form{
+    padding: 20px;
+    margin-right: 20px;
+    background-color: #fff;
+}
+.edit-form .edit-form-header{
+    border-bottom: 1px solid #ddd;
+}
+.edit-form .edit-form-header .edit-form-title{
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+.edit-form .edit-form-body{
+    margin: 20px 0;
+}
+.edit-form .edit-form-body .upload-team-image{
+    padding: 5px 10px;
+    font-size: 16px;
+    border: none;
+    background-color: #3498db;
+    color: #fff;
+    border-radius: 3px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+.edit-form .edit-form-body label{
+    display: block;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+.edit-form .edit-form-body input[type="text"]{
+    width: 100%;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+.edit-form .edit-form-body input[type="number"]{
+    width: 100%;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+.status-success{
+    background-color: #27ae60;
+    color: #fff;
+}
+.status-danger{
+    background-color: #e74c3c;
+    color: #fff;
+}
+.status-pending{
+    background-color: #1abc9c;
+    color: #fff;
+}
+.status-badge{
+    padding: 3px 7px;
+    font-size: 14px;
+    border-radius: 3px;
+}
