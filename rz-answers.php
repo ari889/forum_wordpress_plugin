@@ -175,3 +175,42 @@ function imit_rz_change_answer_status(){
     }
     die();
 }
+
+
+/**
+ * delete answer
+ */
+add_action('wp_ajax_rz_delete_answer', function(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+
+    if(wp_verify_nonce( $nonce, 'rz-delete-answer-nonce' )){
+        $answer_id = sanitize_key( $_POST['answer_id'] );
+        $user_id = get_current_user_id();
+
+
+        if(!empty($answer_id) && !empty($user_id)){
+            $wpdb->query("DELETE FROM {$wpdb->prefix}rz_comment_reply_likes WHERE reply_id IN (SELECT id FROM {$wpdb->prefix}rz_comment_replays WHERE comment_id IN( SELECT id FROM {$wpdb->prefix}rz_answer_comments WHERE answer_id = '{$answer_id}'))");
+
+            $wpdb->query("DELETE FROM {$wpdb->prefix}rz_comment_replays WHERE comment_id IN( SELECT id FROM {$wpdb->prefix}rz_answer_comments WHERE answer_id = '{$answer_id}')");
+
+            $wpdb->query("DELETE FROM {$wpdb->prefix}rz_answer_comment_votes WHERE comment_id IN (SELECT id FROM {$wpdb->prefix}rz_answer_comments WHERE answer_id = '{$answer_id}')");
+
+            $wpdb->delete($wpdb->prefix.'rz_answer_comments', [
+                'answer_id' => $answer_id
+            ]);
+
+            $wpdb->delete($wpdb->prefix.'rz_vote', [
+                'answer_id' => $answer_id
+            ]);
+
+            $wpdb->delete($wpdb->prefix.'rz_answers', [
+                'id' => $answer_id
+            ]);
+
+            exit('done');
+        }
+
+    }
+    die();
+});

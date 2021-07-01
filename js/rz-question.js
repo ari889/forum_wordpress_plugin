@@ -187,29 +187,5 @@
                 });
             }
         }
-
-
-        /**
-         * if user click delete questions
-         */
-        $(document).on('click', '#delete-question', function(e){
-            e.preventDefault();
-            let post_id = $(this).data('post_id');
-            swal({
-                title: "Are you sure to delete this question?",
-                text: "Once deleted, you will not be able to recover this imaginary file!",
-                icon: 'warning',
-                buttons: true,
-                dangerMode: true,
-            }).then((willDelete) => {
-                if(willDelete){
-                    swal("Poof! Your imaginary file has been deleted!", {
-                        icon: "success",
-                    });
-                }else{
-                    swal("Your imaginary file is safe!");
-                }
-            });
-        });
     });
 })(jQuery)

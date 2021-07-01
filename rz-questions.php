@@ -482,7 +482,7 @@ add_shortcode('imit-questions', function(){
                       $user_id = get_the_author_meta('ID');
                       $answer_count = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND user_id != '$user_id'", ARRAY_A);
                       ?>
-                      <li class="news-feed-list mt-3">
+                      <li class="news-feed-list mt-3" id="question<?php echo $post_id; ?>">
                           <div class="card rz-br rz-border">
                               <div class="card-body p-0">
                                   <div class="p-4">
@@ -559,7 +559,7 @@ add_shortcode('imit-questions', function(){
                                                     <i class="fas fa-ellipsis-h"></i>
                                                 </a>
                                                 <ul class="dropdown-menu" aria-labelledby="more-option-feed">
-                                                    <li><a class="dropdown-item imit-font fz-14 text-dark" href="#" id="delete-question" data-post_id="<?php echo $post_id; ?>">Delete</a></li>
+                                                    <li><a class="dropdown-item imit-font fz-14 text-dark" href="#" id="delete-question" data-question_id="<?php echo $post_id; ?>">Delete</a></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -612,7 +612,7 @@ add_shortcode('imit-questions', function(){
                     $user_id = get_the_author_meta('ID');
                     $answer_count = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND user_id != '$user_id'", ARRAY_A);
                     ?>
-                    <li class="news-feed-list mt-3">
+                    <li class="news-feed-list mt-3" id="question<?php echo $post_id; ?>">
                         <div class="card rz-br">
                             <div class="card-body p-0">
                                 <div class="p-4">
@@ -679,20 +679,20 @@ add_shortcode('imit-questions', function(){
                                     <i class="fas fa-eye"></i>
                                     <span class="counter imit-font fw-500"><span class="counter"><?php echo getPostViews(get_the_ID()) ?></span></span>
                                 </div>
-<!--                                <div class="other text-dark d-flex flex-row justify-content-end align-items-center">-->
-<!--                                    <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>-->
-<!--                                    <div class="dropdown">-->
-<!--                                        <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">-->
-<!--                                            <i class="fas fa-ellipsis-h"></i>-->
-<!--                                        </a>-->
-<!---->
-<!--                                        <ul class="dropdown-menu" aria-labelledby="more-option-feed">-->
-<!--                                            <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Action</a></li>-->
-<!--                                            <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Another action</a></li>-->
-<!--                                            <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Something else here</a></li>-->
-<!--                                        </ul>-->
-<!--                                    </div>-->
-<!--                                </div>-->
+                                <?php if(is_user_logged_in(  ) && $user_id === get_current_user_id(  )){
+                                    ?>
+                                    <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
+                                        <div class="dropdown">
+                                            <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </a>
+                                            <ul class="dropdown-menu" aria-labelledby="more-option-feed">
+                                                <li><a class="dropdown-item imit-font fz-14 text-dark" href="#" id="delete-question" data-question_id="<?php echo $post_id; ?>">Delete</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <?php
+                                } ?>
                             </div>
                         </div>
                     </li>
@@ -741,7 +741,7 @@ add_shortcode('imit-questions', function(){
                     $user_id = get_the_author_meta('ID');
                     $answer_count = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND user_id != '$user_id'", ARRAY_A);
                     ?>
-                    <li class="news-feed-list mt-3">
+                    <li class="news-feed-list mt-3" id="question<?php echo $post_id; ?>">
                         <div class="card rz-br">
                             <div class="card-body p-0">
                                 <div class="p-4">
@@ -808,20 +808,20 @@ add_shortcode('imit-questions', function(){
                                     <i class="fas fa-eye"></i>
                                     <span class="counter imit-font fw-500"><span class="counter"><?php echo getPostViews(get_the_ID()) ?></span></span>
                                 </div>
-<!--                                <div class="other text-dark d-flex flex-row justify-content-end align-items-center">-->
-<!--                                    <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>-->
-<!--                                    <div class="dropdown">-->
-<!--                                        <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">-->
-<!--                                            <i class="fas fa-ellipsis-h"></i>-->
-<!--                                        </a>-->
-<!---->
-<!--                                        <ul class="dropdown-menu" aria-labelledby="more-option-feed">-->
-<!--                                            <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Action</a></li>-->
-<!--                                            <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Another action</a></li>-->
-<!--                                            <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Something else here</a></li>-->
-<!--                                        </ul>-->
-<!--                                    </div>-->
-<!--                                </div>-->
+                                <?php if(is_user_logged_in(  ) && $user_id === get_current_user_id(  )){
+                                    ?>
+                                    <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
+                                        <div class="dropdown">
+                                            <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fas fa-ellipsis-h"></i>
+                                            </a>
+                                            <ul class="dropdown-menu" aria-labelledby="more-option-feed">
+                                                <li><a class="dropdown-item imit-font fz-14 text-dark" href="#" id="delete-question" data-question_id="<?php echo $post_id; ?>">Delete</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <?php
+                                } ?>
                             </div>
                         </div>
                     </li>
@@ -832,3 +832,41 @@ add_shortcode('imit-questions', function(){
       }
       die();
   }
+
+
+  /**
+   * delete question
+   */
+  add_action('wp_ajax_rz_delete_question', function(){
+      global $wpdb;
+       $nonce = $_POST['nonce'];
+       if(wp_verify_nonce($nonce, 'rz-delete-question-nonce')){
+           $post_id = sanitize_key( $_POST['question_id'] );
+           $user_id = get_current_user_id();
+
+           if(!empty($post_id) && !empty($user_id)){
+                $wpdb->query("DELETE FROM {$wpdb->prefix}rz_comment_reply_likes WHERE reply_id IN (SELECT id FROM {$wpdb->prefix}rz_comment_replays WHERE comment_id IN (SELECT id FROM {$wpdb->prefix}rz_answer_comments WHERE answer_id IN (SELECT id FROM {$wpdb->prefix}rz_answers WHERE post_id = '{$post_id}')))");
+
+                $wpdb->query("DELETE FROM {$wpdb->prefix}rz_comment_replays WHERE comment_id IN (SELECT id FROM {$wpdb->prefix}rz_answer_comments WHERE answer_id IN (SELECT id FROM {$wpdb->prefix}rz_answers WHERE post_id = '{$post_id}'))");
+
+                $wpdb->query("DELETE FROM {$wpdb->prefix}rz_answer_comment_votes WHERE comment_id IN (SELECT id FROM {$wpdb->prefix}rz_answer_comments WHERE answer_id IN (SELECT id FROM {$wpdb->prefix}rz_answers WHERE post_id = '{$post_id}'))");
+
+                $wpdb->query("DELETE FROM {$wpdb->prefix}rz_answer_comments WHERE answer_id IN (SELECT id FROM {$wpdb->prefix}rz_answers WHERE post_id = '{$post_id}')");
+
+
+                $wpdb->query("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id IN (SELECT id FROM {$wpdb->prefix}rz_answers WHERE post_id = '{$post_id}')");
+
+
+                $wpdb->delete($wpdb->prefix.'rz_answers', [
+                    'post_id' => $post_id
+                ]);
+
+                wp_delete_attachment($post_id, true);
+
+                wp_delete_post($post_id, true);
+
+                exit('done');
+           }
+       }
+      die();
+  });

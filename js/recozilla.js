@@ -1394,6 +1394,83 @@
 
 
         /**
+         * if user click delete answer
+         */
+        $(document).on('click', '#delete-answer', function(e){
+            e.preventDefault();
+            let answer_id = $(this).data('answer_id');
+            swal({
+                title: "Are you sure to delete this answer?",
+                text: "Once deleted, you will not be able to recover this imaginary file!",
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if(willDelete){
+                    $.ajax({
+                        url: rzDeleteAnswer.ajax_url,
+                        method: 'POST',
+                        data: {'action': 'rz_delete_answer', 'nonce': rzDeleteAnswer.rz_delete_answer_nonce, 'answer_id' : answer_id},
+                        success: function(data){
+                            console.log(data);
+                            if(data == 'done'){
+                                $('#answer'+answer_id).html('<div class="text-center"><i class="fas fa-trash text-danger fz-20"></i><p class="mb-0 fz-16 rz-secondary-color">Answer deleted!</p></div>');
+                                swal("Poof! Your imaginary file has been deleted!", {
+                                    icon: "success",
+                                });
+                            }else{
+                                swal("Failed! Something went wrong.", {
+                                    icon: "warning",
+                                });
+                            }
+                        }
+                    });
+                }else{
+                    swal("Your imaginary file is safe!");
+                }
+            });
+        });
+
+        /**
+         * if user click delete question
+         */
+        $(document).on('click', '#delete-question', function(e){
+            e.preventDefault();
+            let question_id = $(this).data('question_id');
+
+            swal({
+                title: "Are you sure to delete this Question?",
+                text: "Once deleted, you will not be able to recover this imaginary file!",
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if(willDelete){
+                    $.ajax({
+                        url: rzDeleteQuestion.ajax_url,
+                        method: 'POST',
+                        data: {'action': 'rz_delete_question', 'nonce': rzDeleteQuestion.rz_delete_question_nonce, 'question_id' : question_id},
+                        success: function(data){
+                            console.log(data);
+                            if(data == 'done'){
+                                $('#question'+question_id).html('<div class="text-center"><i class="fas fa-trash text-danger fz-20"></i><p class="mb-0 fz-16 rz-secondary-color">Question deleted!</p></div>');
+                                swal("Poof! Your imaginary file has been deleted!", {
+                                    icon: "success",
+                                });
+                            }else{
+                                swal("Failed! Something went wrong.", {
+                                    icon: "warning",
+                                });
+                            }
+                        }
+                    });
+                }else{
+                    swal("Your imaginary file is safe!");
+                }
+            });
+        });
+
+        /**
          * opend modal with user data
          */
          let login_modal = new bootstrap.Modal(document.getElementById('send-message-modal'));

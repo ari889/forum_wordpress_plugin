@@ -216,6 +216,11 @@ add_action('wp_ajax_imit_add_comment_up_vote', function(){
                 'comment_id' => $comment_id
             ]);
 
+            $wpdb->delete($wpdb->prefix.'rz_answer_comment_votes', [
+                'comment_id' => $comment_id
+            ]);
+
+
             $wpdb->delete($wpdb->prefix.'rz_answer_comments', [
                 'id' => $comment_id,
                 'user_id' => $user_id

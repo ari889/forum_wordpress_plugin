@@ -836,6 +836,24 @@ add_action('wp_enqueue_scripts', function(){
         'rz_delete_comment_nonce' => $rz_delete_comment_nonce
     ] );
 
+    /**
+     * delete answer
+     */
+    $rz_delete_answer_nonce = wp_create_nonce( 'rz-delete-answer-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzDeleteAnswer', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_delete_answer_nonce' => $rz_delete_answer_nonce
+    ] );
+
+    /**
+     * delete question nonce
+     */
+    $rz_delete_question_nonce = wp_create_nonce( 'rz-delete-question-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzDeleteQuestion', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_delete_question_nonce' => $rz_delete_question_nonce
+    ] );
+
 
 
 
