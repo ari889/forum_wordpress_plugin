@@ -1,5 +1,23 @@
 (function($){
     $(document).ready(function(){
+
+
+        /**
+         * user activity show
+         */
+         user_activity_show();
+        function user_activity_show(){
+            $.ajax({
+                url: rzActivity.ajax_url,
+                method: 'POST',
+                data: {'action': 'imit_fetch_activity', 'nonce': rzActivity.rz_activity_view_nonce},
+                success: function(data){
+                    $('#show_user_activity').html(data);
+                    setTimeout(user_activity_show, 3000);
+                }
+            });
+        }
+
         /**
          * tab content
          */
@@ -7,17 +25,27 @@
         let page_num = 1;
         let win = $(window);
         let postReachMax = false;
+        let news_feed_click = false;
+        let popular_question_click = false;
+        let most_answer_click = false;
         $(document).on('click', '.tab-link', function(e){
             e.preventDefault();
             target = $(this).data('target');
-            page_num = 1;
-            postReachMax = false;
-            if(target == "news-feed"){
+            if(target == "news-feed" && news_feed_click == false){
+                page_num = 1;
+                postReachMax = false;
                 get_news_feed_data(target);
-            }else if(target == 'popular-questions'){
+                news_feed_click = true;
+            }else if(target == 'popular-questions' && popular_question_click == false){
+                page_num = 1;
+                postReachMax = false;
                 get_popular_question(target);
-            }else if(target == 'most-answered'){
+                popular_question_click = true;
+            }else if(target == 'most-answered' && most_answer_click == false){
+                page_num = 1;
+                postReachMax = false;
                 get_most_answered_question(target);
+                most_answer_click = true;
             }
             $('.tab-link').removeClass('active');
             $(this).addClass('active');
@@ -57,10 +85,17 @@
                     success: function(data){
                         if(data == 'newsReachmax'){
                             postReachMax = true;
-                            $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                            if(action == 'html'){
+                                $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
                                 '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
+                            }else{
+                                $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                '                                    <i class="fas fa-blog"></i>\n' +
+                                '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                '                                </li>');
+                            }
                         }else{
                             if(action == 'html'){
                                 $('#'+target+' #'+target+'-ul').html(data);
@@ -89,10 +124,17 @@
                     success: function(data){
                         if(data == 'popularPostReachmax'){
                             postReachMax = true;
-                            $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                            if(action == 'html'){
+                                $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
                                 '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
+                            }else{
+                                $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                '                                    <i class="fas fa-blog"></i>\n' +
+                                '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                '                                </li>');
+                            }
                         }else{
                             if(action == 'html'){
                                 $('#'+target+' #'+target+'-ul').html(data);
@@ -121,10 +163,17 @@
                     success: function(data){
                         if(data == 'mostAnsweredPostReachmax'){
                             postReachMax = true;
-                            $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                            if(action == 'html'){
+                                $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
                                 '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
+                            }else{
+                                $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                '                                    <i class="fas fa-blog"></i>\n' +
+                                '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                '                                </li>');
+                            }
                         }else{
                             if(action == 'html'){
                                 $('#'+target+' #'+target+'-ul').html(data);
@@ -138,5 +187,29 @@
                 });
             }
         }
+
+
+        /**
+         * if user click delete questions
+         */
+        $(document).on('click', '#delete-question', function(e){
+            e.preventDefault();
+            let post_id = $(this).data('post_id');
+            swal({
+                title: "Are you sure to delete this question?",
+                text: "Once deleted, you will not be able to recover this imaginary file!",
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if(willDelete){
+                    swal("Poof! Your imaginary file has been deleted!", {
+                        icon: "success",
+                    });
+                }else{
+                    swal("Your imaginary file is safe!");
+                }
+            });
+        });
     });
 })(jQuery)

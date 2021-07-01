@@ -166,7 +166,6 @@
             e.preventDefault();
             let answer_id = $(this).data('answer_id');
             let button = $(this);
-            let counter = $('#counter'+answer_id).text();
             $.ajax({
                 url: rzAddVote.ajax_url,
                 method: 'POST',
@@ -174,28 +173,23 @@
                 dataType: 'JSON',
                 success: function(data){
                     console.log(data);
-                    if(data.data_res == true){
-                        button.addClass('active');
-                        counter++;
-                        $('#counter'+answer_id).text(counter);
-                        if(counter < 0){
-                            $('#counter'+answer_id).removeClass('text-success');
-                            $('#counter'+answer_id).addClass('text-danger');
-                        }else{
-                            $('#counter'+answer_id).addClass('text-success');
-                            $('#counter'+answer_id).removeClass('text-danger');
-                        }
+                    $('#counter'+answer_id).text(data.counter);
+                    if(data.counter < 0){
+                        $('#counter'+answer_id).removeClass('text-success');
+                        $('#counter'+answer_id).addClass('text-danger');
                     }else{
-                        button.removeClass('active');
-                        counter--;
-                        $('#counter'+answer_id).text(counter);
-                        if(counter < 0){
-                            $('#counter'+answer_id).removeClass('text-success');
-                            $('#counter'+answer_id).addClass('text-danger');
-                        }else{
-                            $('#counter'+answer_id).addClass('text-success');
-                            $('#counter'+answer_id).removeClass('text-danger');
-                        }
+                        $('#counter'+answer_id).addClass('text-success');
+                        $('#counter'+answer_id).removeClass('text-danger');
+                    }
+                    if(data.up_vote == true){
+                        $('#vote'+answer_id+' #up-vote').addClass('active');
+                        $('#vote'+answer_id+' #down-vote').removeClass('active');
+                    }else if(data.down_vote == true){
+                        $('#vote'+answer_id+' #down-vote').addClass('active');
+                        $('#vote'+answer_id+' #up-vote').removeClass('active');
+                    }else{
+                        $('#vote'+answer_id+' #up-vote').removeClass('active');
+                        $('#vote'+answer_id+' #down-vote').removeClass('active');
                     }
                 }
             });
@@ -209,7 +203,6 @@
             e.preventDefault();
             let answer_id = $(this).data('answer_id');
             let button = $(this);
-            let counter = $('#counter'+answer_id).text();
             $.ajax({
                 url: rzAddVote.ajax_url,
                 method: 'POST',
@@ -217,28 +210,23 @@
                 dataType: 'JSON',
                 success: function(data){
                     console.log(data);
-                    if(data.data_res == true){
-                        button.addClass('active');
-                        counter--;
-                        $('#counter'+answer_id).text(counter);
-                        if(counter < 0){
-                            $('#counter'+answer_id).removeClass('text-success');
-                            $('#counter'+answer_id).addClass('text-danger');
-                        }else{
-                            $('#counter'+answer_id).addClass('text-success');
-                            $('#counter'+answer_id).removeClass('text-danger');
-                        }
+                    $('#counter'+answer_id).text(data.counter);
+                    if(data.counter < 0){
+                        $('#counter'+answer_id).removeClass('text-success');
+                        $('#counter'+answer_id).addClass('text-danger');
                     }else{
-                        button.removeClass('active');
-                        counter++;
-                        $('#counter'+answer_id).text(counter);
-                        if(counter < 0){
-                            $('#counter'+answer_id).removeClass('text-success');
-                            $('#counter'+answer_id).addClass('text-danger');
-                        }else{
-                            $('#counter'+answer_id).addClass('text-success');
-                            $('#counter'+answer_id).removeClass('text-danger');
-                        }
+                        $('#counter'+answer_id).addClass('text-success');
+                        $('#counter'+answer_id).removeClass('text-danger');
+                    }
+                    if(data.up_vote == true){
+                        $('#vote'+answer_id+' #up-vote').addClass('active');
+                        $('#vote'+answer_id+' #down-vote').removeClass('active');
+                    }else if(data.down_vote == true){
+                        $('#vote'+answer_id+' #down-vote').addClass('active');
+                        $('#vote'+answer_id+' #up-vote').removeClass('active');
+                    }else{
+                        $('#vote'+answer_id+' #up-vote').removeClass('active');
+                        $('#vote'+answer_id+' #down-vote').removeClass('active');
                     }
                 }
             });
@@ -274,7 +262,6 @@
             e.preventDefault();
             let comment_id = $(this).data('comment_id');
             let button = $(this);
-            let counter = $('#comment-counter'+comment_id).text();
             $.ajax({
                 url: rzAddCommentUpVote.ajax_url,
                 method: 'POST',
@@ -282,28 +269,23 @@
                 dataType: 'JSON',
                 success: function(data){
                     console.log(data);
-                    if(data.data_res == true){
-                        button.addClass('active');
-                        counter++;
-                        $('#comment-counter'+comment_id).text(counter);
-                        if(counter < 0){
-                            $('#comment-counter'+comment_id).removeClass('text-success');
-                            $('#comment-counter'+comment_id).addClass('text-danger');
-                        }else{
-                            $('#comment-counter'+comment_id).addClass('text-success');
-                            $('#comment-counter'+comment_id).removeClass('text-danger');
-                        }
+                    $('#comment-counter'+comment_id).text(data.counter);
+                    if(data.counter < 0){
+                        $('#comment-counter'+comment_id).removeClass('text-success');
+                        $('#comment-counter'+comment_id).addClass('text-danger');
                     }else{
-                        button.removeClass('active');
-                        counter--;
-                        $('#comment-counter'+comment_id).text(counter);
-                        if(counter < 0){
-                            $('#comment-counter'+comment_id).removeClass('text-success');
-                            $('#comment-counter'+comment_id).addClass('text-danger');
-                        }else{
-                            $('#comment-counter'+comment_id).addClass('text-success');
-                            $('#comment-counter'+comment_id).removeClass('text-danger');
-                        }
+                        $('#comment-counter'+comment_id).addClass('text-success');
+                        $('#comment-counter'+comment_id).removeClass('text-danger');
+                    }
+                    if(data.up_vote == true){
+                        $('#comment-action'+comment_id+' #up-vote-comment').addClass('active');
+                        $('#comment-action'+comment_id+' #down-vote-comment').removeClass('active');
+                    }else if(data.down_vote == true){
+                        $('#comment-action'+comment_id+' #down-vote-comment').addClass('active');
+                        $('#comment-action'+comment_id+' #up-vote-comment').removeClass('active');
+                    }else{
+                        $('#comment-action'+comment_id+' #up-vote-comment').removeClass('active');
+                        $('#comment-action'+comment_id+' #down-vote-comment').removeClass('active');
                     }
                 }
             });
@@ -324,49 +306,27 @@
                 dataType: 'JSON',
                 success: function(data){
                     console.log(data);
-                    if(data.data_res == true){
-                        button.addClass('active');
-                        counter--;
-                        $('#comment-counter'+comment_id).text(counter);
-                        if(counter < 0){
-                            $('#comment-counter'+comment_id).removeClass('text-success');
-                            $('#comment-counter'+comment_id).addClass('text-danger');
-                        }else{
-                            $('#comment-counter'+comment_id).addClass('text-success');
-                            $('#comment-counter'+comment_id).removeClass('text-danger');
-                        }
+                    $('#comment-counter'+comment_id).text(data.counter);
+                    if(data.counter < 0){
+                        $('#comment-counter'+comment_id).removeClass('text-success');
+                        $('#comment-counter'+comment_id).addClass('text-danger');
                     }else{
-                        button.removeClass('active');
-                        counter++;
-                        $('#comment-counter'+comment_id).text(counter);
-                        if(counter < 0){
-                            $('#comment-counter'+comment_id).removeClass('text-success');
-                            $('#comment-counter'+comment_id).addClass('text-danger');
-                        }else{
-                            $('#comment-counter'+comment_id).addClass('text-success');
-                            $('#comment-counter'+comment_id).removeClass('text-danger');
-                        }
+                        $('#comment-counter'+comment_id).addClass('text-success');
+                        $('#comment-counter'+comment_id).removeClass('text-danger');
+                    }
+                    if(data.up_vote == true){
+                        $('#comment-action'+comment_id+' #up-vote-comment').addClass('active');
+                        $('#comment-action'+comment_id+' #down-vote-comment').removeClass('active');
+                    }else if(data.down_vote == true){
+                        $('#comment-action'+comment_id+' #down-vote-comment').addClass('active');
+                        $('#comment-action'+comment_id+' #up-vote-comment').removeClass('active');
+                    }else{
+                        $('#comment-action'+comment_id+' #up-vote-comment').removeClass('active');
+                        $('#comment-action'+comment_id+' #down-vote-comment').removeClass('active');
                     }
                 }
             });
         });
-
-
-        /**
-         * user activity show
-         */
-         user_activity_show();
-        function user_activity_show(){
-            $.ajax({
-                url: rzActivity.ajax_url,
-                method: 'POST',
-                data: {'action': 'imit_fetch_activity', 'nonce': rzActivity.rz_activity_view_nonce},
-                success: function(data){
-                    $('#show_user_activity').html(data);
-                    setTimeout(user_activity_show, 3000);
-                }
-            });
-        }
 
 
         /**
@@ -482,8 +442,6 @@
             let replay_id = $(this).data('replay_id');
 
             let button = $(this);
-
-            let counter = $('#replay-counter'+replay_id).text();
             $.ajax({
                 url: rzAddReplayLike.ajax_url,
                 method: 'POST',
@@ -491,28 +449,23 @@
                 dataType: 'JSON',
                 success: function(data){
                     console.log(data);
-                    if(data.data_res == true){
-                        button.addClass('active');
-                        counter++;
-                        $('#replay-counter'+replay_id).text(counter);
-                        if(counter < 0){
-                            $('#replay-counter'+replay_id).removeClass('text-success');
-                            $('#replay-counter'+replay_id).addClass('text-danger');
-                        }else{
-                            $('#replay-counter'+replay_id).addClass('text-success');
-                            $('#replay-counter'+replay_id).removeClass('text-danger');
-                        }
+                    $('#replay-counter'+replay_id).text(data.counter);
+                    if(data.counter < 0){
+                        $('#replay-counter'+replay_id).removeClass('text-success');
+                        $('#replay-counter'+replay_id).addClass('text-danger');
                     }else{
-                        button.removeClass('active');
-                        counter--;
-                        $('#replay-counter'+replay_id).text(counter);
-                        if(counter < 0){
-                            $('#replay-counter'+replay_id).removeClass('text-success');
-                            $('#replay-counter'+replay_id).addClass('text-danger');
-                        }else{
-                            $('#replay-counter'+replay_id).addClass('text-success');
-                            $('#replay-counter'+replay_id).removeClass('text-danger');
-                        }
+                        $('#replay-counter'+replay_id).addClass('text-success');
+                        $('#replay-counter'+replay_id).removeClass('text-danger');
+                    }
+                    if(data.up_reply == true){
+                        $('#question-reply-action'+replay_id+' #like-replay').addClass('active');
+                        $('#question-reply-action'+replay_id+' #dislike-replay').removeClass('active');
+                    }else if(data.down_reply == true){
+                        $('#question-reply-action'+replay_id+' #dislike-replay').addClass('active');
+                        $('#question-reply-action'+replay_id+' #like-replay').removeClass('active');
+                    }else{
+                        $('#question-reply-action'+replay_id+' #like-replay').removeClass('active');
+                        $('#question-reply-action'+replay_id+' #dislike-replay').removeClass('active');
                     }
                 }
             });
@@ -527,8 +480,6 @@
             let replay_id = $(this).data('replay_id');
 
             let button = $(this);
-
-            let counter = $('#replay-counter'+replay_id).text();
             $.ajax({
                 url: rzAddReplayLike.ajax_url,
                 method: 'POST',
@@ -536,28 +487,23 @@
                 dataType: 'JSON',
                 success: function(data){
                     console.log(data);
-                    if(data.data_res == true){
-                        button.addClass('active');
-                        counter--;
-                        $('#replay-counter'+replay_id).text(counter);
-                        if(counter < 0){
-                            $('#replay-counter'+replay_id).removeClass('text-success');
-                            $('#replay-counter'+replay_id).addClass('text-danger');
-                        }else{
-                            $('#replay-counter'+replay_id).addClass('text-success');
-                            $('#replay-counter'+replay_id).removeClass('text-danger');
-                        }
+                    $('#replay-counter'+replay_id).text(data.counter);
+                    if(data.counter < 0){
+                        $('#replay-counter'+replay_id).removeClass('text-success');
+                        $('#replay-counter'+replay_id).addClass('text-danger');
                     }else{
-                        button.removeClass('active');
-                        counter++;
-                        $('#replay-counter'+replay_id).text(counter);
-                        if(counter < 0){
-                            $('#replay-counter'+replay_id).removeClass('text-success');
-                            $('#replay-counter'+replay_id).addClass('text-danger');
-                        }else{
-                            $('#replay-counter'+replay_id).addClass('text-success');
-                            $('#replay-counter'+replay_id).removeClass('text-danger');
-                        }
+                        $('#replay-counter'+replay_id).addClass('text-success');
+                        $('#replay-counter'+replay_id).removeClass('text-danger');
+                    }
+                    if(data.up_reply == true){
+                        $('#question-reply-action'+replay_id+' #like-replay').addClass('active');
+                        $('#question-reply-action'+replay_id+' #dislike-replay').removeClass('active');
+                    }else if(data.down_reply == true){
+                        $('#question-reply-action'+replay_id+' #dislike-replay').addClass('active');
+                        $('#question-reply-action'+replay_id+' #like-replay').removeClass('active');
+                    }else{
+                        $('#question-reply-action'+replay_id+' #like-replay').removeClass('active');
+                        $('#question-reply-action'+replay_id+' #dislike-replay').removeClass('active');
                     }
                 }
             });
@@ -1199,6 +1145,176 @@
         });
 
 
+        /**
+                 * if user click discuss replay button
+                 */
+        $(document).on('click', '#discuss-replay-button', function(e){
+            e.preventDefault();
+            let comment_id = $(this).data('comment_id');
+            $('.discuss-replay-form'+comment_id).slideToggle('fast');
+        });
+
+        /**
+         * search terms
+         */
+        $(document).on('submit', '#search-terms', function(e){
+            e.preventDefault();
+            let form_data = new FormData(this);
+            form_data.append('action', 'rz_search_terms_by_name');
+            form_data.append('nonce', rzSearchTerm.rz_search_term_by_name_nonce);
+            $('#search-terms input[name="search-terms"]').attr('disabled', true);
+
+            $.ajax({
+                url: rzSearchTerm.ajax_url,
+                method: 'POST',
+                data: form_data,
+                contentType: false,
+                processData: false,
+                success: function(data){
+                    $('#fetch-all-terms').html(data);
+                    $('#search-terms input[name="search-terms"]').attr('disabled', false);
+                }
+            });
+        });
+
+
+        /**
+         * if user click notification bell
+         */
+        $(document).on('click', '#notification-bell', function(e){
+            e.preventDefault();
+            $('.dropdown-notification').fadeToggle('fast');
+        });
+
+        $(document).mouseup(function(e) 
+        {
+            var container = $(".dropdown-notification");
+
+            // if the target of the click isn't the container nor a descendant of the container
+            if (!container.is(e.target) && container.has(e.target).length === 0) 
+            {
+                container.hide();
+            }
+        });
+
+        /**
+         * if user click dropdown-notification
+         */
+        $(document).on('click', '.dropdown-notification .tab-link', function(e){
+            e.preventDefault();
+            let target = $(this).data('target');
+            if(target == 'notification-tab'){
+                get_all_notification(target);
+            }else if(target == 'inbox-tab'){
+                get_all_message(target);
+            }
+            $('.dropdown-notification .tab-link').removeClass('active');
+            $(this).addClass('active');
+            $('.tab-content').hide();
+            $('#'+target).fadeIn('fast');
+        });
+
+        /**
+         * get all notification
+         */
+         get_all_notification('notification-tab');
+        function get_all_notification(target){
+            $.ajax({
+                url: rzGetNotification.ajax_url,
+                method: 'POST',
+                data: {'action' : 'rz_get_all_notification', 'nonce' : rzGetNotification.rz_get_all_notification_nonce},
+                success: function(data){
+                    console.log(data);
+                    $('#'+target+' #'+target+'-ul').html(data);
+                }
+            });
+        }
+
+        /**
+         * get all message
+         */
+        function get_all_message(target){
+            $.ajax({
+                url: rzGetMessage.ajax_url,
+                method: 'POST',
+                data: {'action' : 'rz_get_all_message', 'nonce' : rzGetMessage.rz_get_all_message_nonce},
+                success: function(data){
+                    console.log(data);
+                    $('#'+target+' #'+target+'-ul').html(data);
+                }
+            });
+        }
+
+        /**
+         * live check notification
+         */
+         get_all_live_notification();
+        function get_all_live_notification(){
+            $.ajax({
+                url: rzGetLiveNotifiation.ajax_url,
+                method: 'POST',
+                data: {'action' : 'rz_get_live_notification', 'nonce' : rzGetLiveNotifiation.rz_get_live_notification_nonce},
+                success: function(data){
+                    console.log(data);
+                    if(data == 'exists'){
+                        $('#notification-active').html('<span></span>');
+                    }
+                    setTimeout(get_all_live_notification, 3000);
+                }
+            });
+        }
+
+
+        /**
+         * if user click see quiz button
+         */
+        $(document).on('click', '#show-quiz', function(e){
+            e.preventDefault();
+            let quiz_id = $(this).data('quiz_id');
+            $('#quiz-start'+quiz_id).slideToggle();
+        });
+
+        /**
+         * if user click next question
+         */
+        let count = 1
+        $(document).on('click', '#next-question', function(e){
+            e.preventDefault();
+            let quiz_id = $(this).data('quiz_id');
+            let target = $(this).data('target');
+            let answer = $('#question'+(target - 1)+' input[type="radio"]:checked').val();
+            if(typeof(answer) == 'undefined'){
+                $("#question"+(target - 1)+" #message-error").text("Please chose an asnwer.");
+            }else{
+                $('#quiz-start'+quiz_id+' #counter').html(count + 1);
+                $("#question"+(target - 1)+" #message-error").text('');
+                $('.question').hide();
+                $('#question'+target).fadeIn('fast');
+            }
+        });
+
+        /**
+         * if user submit quiz form
+         */
+        $(document).on('submit', '#quiz-submission-form', function(e){
+            e.preventDefault();
+            let form_data = new FormData(this);
+            let quiz_id = $(this).data('quiz_id');
+            form_data.append('action', 'rz_submit_quiz_for_result');
+            form_data.append('nonce', rzGetQuizResult.rz_get_quiz_result_nonce);
+            form_data.append('quiz_id', quiz_id);
+            $.ajax({
+                url: rzGetQuizResult.ajax_url,
+                method: 'POST',
+                data: form_data,
+                contentType: false,
+                processData: false,
+                success: function(data){
+                    console.log(data);
+                }
+            });
+        });
+
 
         /**
          * opend modal with user data
@@ -1241,7 +1357,6 @@
                 }
             });
         });
-
 
 
 

@@ -12,7 +12,7 @@ add_shortcode('imit-user-profile', function(){
     ob_start();
     ?>
     <section class="profile-info">
-        <div class="container">
+        <div class="rz-mid">
             <div class="row">
                 <div class="col-md-3">
                     <div class="card rz-border rz-br mt-3">
@@ -140,7 +140,7 @@ add_shortcode('imit-user-profile', function(){
 
                     <div class="join rz-br rz-bg-color rounded-2 p-3 mt-3" style="background-image: url('<?php echo plugins_url('images/Group 237.png', __FILE__); ?>');">
                         <h3 class="title m-0 text-white imit-font fz-20 fw-500">Join our Partner Program and earn money on Recozilla</h3>
-                        <a href="<?php echo site_url(); ?>/user" class="btn bg-white fz-12 rz-color imit-font fw-500 mt-3">Join Now</a>
+                        <a href="<?php echo site_url(); ?>/join-partner-program/" class="btn bg-white fz-12 rz-color imit-font fw-500 mt-3">Join Now</a>
                     </div>
                 </div>
                 <div class="col-md-9">
@@ -269,7 +269,7 @@ add_shortcode('imit-user-profile', function(){
                             ?>
                             <div class="tab-content" id="partner-program" style="display: none;">
                                 <div class="card rz-border rz-br mt-3 programme">
-                                    <div class="card-header rz-br py-3 rz-light-bg">
+                                    <div class="card-header rz-br py-3 rz-light-bg p-3">
                                         <h3 class="m-0 title rz-color fw-500">Join Partner Program</h3>
                                     </div>
                                     <div class="card-body">
@@ -306,8 +306,8 @@ add_shortcode('imit-user-profile', function(){
                     if(is_user_logged_in() && get_current_user_id() == um_profile_id()){
                         ?>
                         <div class="tab-content" id="user-points" style="display: none;">
-                            <div class="card rz-border mt-3">
-                                <div class="card-header rz-light-bg border-0">
+                            <div class="card rz-border mt-3 rz-br">
+                                <div class="card-header rz-light-bg border-0 p-3" style="border-top-left-radius: inherit !important;border-top-right-radious: inherit !important;">
                                     <h3 class="m-0 rz-color fz-20 fw-500 imit-font">Points Earned</h3>
                                 </div>
                                 <div class="card-body">
@@ -335,7 +335,7 @@ add_shortcode('imit-user-profile', function(){
                                             <span class="text-secondary imit-font fz-14 d-block">Pointes Redeemed</span>
                                         </li>
                                         <li class="point-list-item rounded py-2 px-3 bg-light text-center list-unstyled w-100">
-                                            <p class="mb-0 rz-color imit-font rz-color fw-500"><?php echo $user_profile_data->points; ?></p>
+                                            <p class="mb-0 rz-color imit-font rz-color fw-500"><?php if(!empty($user_profile_data)){echo $user_profile_data->points;}else{echo 0;}; ?></p>
                                             <span class="text-secondary imit-font fz-14 d-block">Pointes Outstanding</span>
                                         </li>
                                     </ul>
@@ -1080,9 +1080,9 @@ function imit_rz_question_asked_posts(){
             $answer_count = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' ORDER BY id DESC", ARRAY_A);
             ?>
             <li class="news-feed-list mt-3">
-                <div class="card">
+                <div class="card rz-br">
                     <div class="card-body p-0">
-                        <div class="p-3">
+                        <div class="p-4">
                             <div class="created-at rz-secondary-color fz-14 imit-font">Asked on: <?php the_time(); ?></div>
                             <a href="<?php the_permalink(); ?>" class="question-title imit-font fw-500 text-decoration-none text-dark"><span class="rz-color mr-1">Q.</span> <?php the_title(); ?></a>
                             <div class="rz-br my-3">
@@ -1098,13 +1098,13 @@ function imit_rz_question_asked_posts(){
                             </ul>
                         </div>
                     </div>
-                    <div class="card-footer d-flex flex-row justify-content-between align-items-center">
+                    <div class="card-footer d-flex flex-row justify-content-between align-items-center p-3 border-top-0">
                         <div class="views text-dark fz-14">
                             <i class="fas fa-eye"></i>
                             <span class="counter imit-font fw-500"><span class="counter"><?php echo getPostViews(get_the_ID()) ?></span></span>
                         </div>
                         <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
-                            <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>
+                            <!-- <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a> -->
                             <div class="dropdown">
                                 <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-ellipsis-h"></i>
@@ -1160,9 +1160,9 @@ function rz_answered_questions(){
             $answer_count = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' ORDER BY id DESC", ARRAY_A);
             ?>
             <li class="news-feed-list mt-3">
-                <div class="card">
+                <div class="card rz-br">
                     <div class="card-body p-0">
-                        <div class="p-3">
+                        <div class="p-4">
                             <div class="created-at rz-secondary-color fz-14 imit-font">Asked on: <?php the_time(); ?></div>
                             <a href="<?php the_permalink(); ?>" class="question-title imit-font fw-500 text-decoration-none text-dark"><span class="rz-color mr-1">Q.</span> <?php the_title(); ?></a>
                             <div class="rz-br my-3">
@@ -1178,13 +1178,13 @@ function rz_answered_questions(){
                             </ul>
                         </div>
                     </div>
-                    <div class="card-footer d-flex flex-row justify-content-between align-items-center">
+                    <div class="card-footer d-flex flex-row justify-content-between align-items-center p-3 border-top-0">
                         <div class="views text-dark fz-14">
                             <i class="fas fa-eye"></i>
                             <span class="counter imit-font fw-500"><span class="counter"><?php echo getPostViews(get_the_ID()) ?></span></span>
                         </div>
                         <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
-                            <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>
+                            <!-- <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a> -->
                             <div class="dropdown">
                                 <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-ellipsis-h"></i>
@@ -1239,9 +1239,9 @@ function rz_voted_questions_data(){
             $answer_count = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' ORDER BY id DESC", ARRAY_A);
             ?>
             <li class="news-feed-list mt-3">
-                <div class="card">
+                <div class="card rz-br">
                     <div class="card-body p-0">
-                        <div class="p-3">
+                        <div class="p-4">
                             <div class="created-at rz-secondary-color fz-14 imit-font">Asked on: <?php the_time(); ?></div>
                             <a href="<?php the_permalink(); ?>" class="question-title imit-font fw-500 text-decoration-none text-dark"><span class="rz-color mr-1">Q.</span> <?php the_title(); ?></a>
                             <div class="rz-br my-3">
@@ -1257,13 +1257,13 @@ function rz_voted_questions_data(){
                             </ul>
                         </div>
                     </div>
-                    <div class="card-footer d-flex flex-row justify-content-between align-items-center">
+                    <div class="card-footer d-flex flex-row justify-content-between align-items-center border-top-0 p-3">
                         <div class="views text-dark fz-14">
                             <i class="fas fa-eye"></i>
                             <span class="counter imit-font fw-500"><span class="counter"><?php echo getPostViews(get_the_ID()) ?></span></span>
                         </div>
                         <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
-                            <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>
+                            <!-- <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a> -->
                             <div class="dropdown">
                                 <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-ellipsis-h"></i>
@@ -1318,9 +1318,9 @@ function rz_all_commented_questions(){
                 $answer_count = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' ORDER BY id DESC", ARRAY_A);
                 ?>
                 <li class="news-feed-list mt-3">
-                    <div class="card">
+                    <div class="card rz-br">
                         <div class="card-body p-0">
-                            <div class="p-3">
+                            <div class="p-4">
                                 <div class="created-at rz-secondary-color fz-14 imit-font">Asked on: <?php the_time(); ?></div>
                                 <a href="<?php the_permalink(); ?>" class="question-title imit-font fw-500 text-decoration-none text-dark"><span class="rz-color mr-1">Q.</span> <?php the_title(); ?></a>
                                 <div class="rz-br my-3">
@@ -1336,7 +1336,7 @@ function rz_all_commented_questions(){
                                 </ul>
                             </div>
                         </div>
-                        <div class="card-footer d-flex flex-row justify-content-between align-items-center">
+                        <div class="card-footer d-flex flex-row justify-content-between align-items-center border-top-0 p-3">
                             <div class="views text-dark fz-14">
                                 <i class="fas fa-eye"></i>
                                 <span class="counter imit-font fw-500"><span class="counter"><?php echo getPostViews(get_the_ID()) ?></span></span>

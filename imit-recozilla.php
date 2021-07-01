@@ -322,6 +322,15 @@ function imit_theme_support(){
         'public'       => true,
     ] );
 
+    register_taxonomy( 'question_category', 'rz_post_question', [
+        'public' => true,
+        'hierarchical' => true,
+        'default_term' => [
+            'name' => 'Uncategorised',
+            'slug' => 'uncategorised',
+        ]
+    ] );
+
     /**
      * register discuss post type
      */
@@ -762,6 +771,54 @@ add_action('wp_enqueue_scripts', function(){
     ] );
 
 
+    /**
+     * search terms
+     */
+    $rz_search_term_by_name_nonce = wp_create_nonce( 'rz-search-terms-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzSearchTerm', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_search_term_by_name_nonce' => $rz_search_term_by_name_nonce
+    ] );
+
+    /**
+     * get all notification
+     */
+    $rz_get_all_notification_nonce = wp_create_nonce( 'rz-get-all-notification-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzGetNotification', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_get_all_notification_nonce' => $rz_get_all_notification_nonce
+    ] );
+
+
+    /**
+     * get all message nonce
+     */
+    $rz_get_all_message_nonce = wp_create_nonce( 'rz-get-all-message-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzGetMessage', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_get_all_message_nonce' => $rz_get_all_message_nonce
+    ] );
+
+    /**
+     * get live notification
+     */
+    $rz_get_live_notification_nonce = wp_create_nonce( 'rz-live-notification-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzGetLiveNotifiation', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_get_live_notification_nonce' => $rz_get_live_notification_nonce
+    ] );
+
+    /**
+     * delete question
+     */
+    $rz_get_quiz_result_nonce = wp_create_nonce( 'rz-get-quiz-result-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzGetQuizResult', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_get_quiz_result_nonce' => $rz_get_quiz_result_nonce
+    ] );
+
+
+
 });
 
 /**
@@ -777,6 +834,31 @@ add_action('admin_enqueue_scripts', function($hook){
         wp_enqueue_script( 'imit-bootstrap-js', PLUGINS_URL('js/bootstrap.bundle.min.js', __FILE__), ['imit-jquery-js'], true, true );
         wp_enqueue_script( 'imit-sweet-alert-js', PLUGINS_URL('js/sweetalert.min.js', __FILE__), ['imit-jquery-js'], true, true );
         wp_enqueue_script( 'imit-admin-js', PLUGINS_URL('js/admin.js', __FILE__), ['imit-jquery-js'], true, true );
+
+        if($hook === 'quiz_page_rzmanageQuestions'){
+            wp_enqueue_script( 'imit-admin-question-js', PLUGINS_URL('js/admin-question.js', __FILE__), ['imit-jquery-js'], true, true );
+
+            /**
+             * get answer info
+             */
+            $rz_view_question_nonce = wp_create_nonce( 'rz-view-question-nonce' );
+            wp_localize_script( 'imit-admin-js', 'rzViewQuestion', [
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'rz_view_question_nonce' => $rz_view_question_nonce
+            ] );
+
+            /**
+             * edit question
+             */
+            $rz_edit_question_nonce = wp_create_nonce( 'rz-edit-question-nonce' );
+            wp_localize_script( 'imit-admin-js', 'rzEditQuestion', [
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'rz_edit_question_nonce' => $rz_edit_question_nonce
+            ] );
+
+        }else if($hook === 'manage-answer_page_rzAllAnswers'){
+            wp_enqueue_script( 'imit-admin-asnwer-js', PLUGINS_URL('js/admin-answer.js', __FILE__), ['imit-jquery-js'], true, true );
+        }
 
         /**
          * get answer info
@@ -804,6 +886,15 @@ add_action('admin_enqueue_scripts', function($hook){
         wp_localize_script( 'imit-admin-js', 'rzAdminSubmitAnswer', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'rz_admin_submit_answer_nonce' => $rz_admin_submit_answer_nonce
+        ] );
+
+        /**
+         * get all anwers based on quiz
+         */
+        $rz_answer_on_quiz_nonce = wp_create_nonce( 'rz-answer-using-quiz-nonce' );
+        wp_localize_script( 'imit-admin-js', 'rzAnsUsingQuiz', [
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'rz_answer_on_quiz_nonce' => $rz_answer_on_quiz_nonce
         ] );
 
     }
@@ -956,108 +1047,92 @@ require_once 'rz-quiz.php';
  * quiez shortcode
  */
 add_shortcode('rz-quiz', function(){
+    global $wpdb;
     ob_start();
+
+    $get_all_quizes = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_quizzes ORDER BY id DESC", ARRAY_A);
     ?>
-    <div class="container quiz_main_section">
+    <div class="rz-mid quiz_main_section">
         <div class="row">
             <div class="col-md-8">
                 <!-- quiz colum start -->
                 <div class="main-column">
-                    <div class="quiz_heading">
+                    <div class="quiz_heading pb-0">
                         <h2 class="text-left rz-color fz-24 fw-500">Test your Knowledge</h2>
                     </div>
-                    <!-- quize open box -->
-                    <div class="quiz_result_box p-3 rz-border rounded">
-                        <div class="test_heading">
-                            <p class="quiz-text-number rz-s-p fz-20 p-10 fw-500">Quiz 1: Yoga Test</p>
-                            <p class="time_date float-end rz-s-p p-10">Added on: 3pm April 25 ,2021</p>
-                        </div>
-
-                        <div class="quiz-question p-10">
-                            <span class="question-img float-start"><img src="asset/img/Vector.png" alt=""></span>
-                            <h2 class="fw-500 fz-32 rz-color">. “ How many timesa year doesmoon revolved earth”?</h2>
-                        </div>
-                        <p class="quiz-ans-title rz-s-p mb-0">Your answer</p>
-                        <p class="quiz-time"><i class="fa fa-times-circle"></i><span class="rz-s-p">60 Times</span></p>
-                        <p class="quiz-ans-title  mb-0">Your answer</p>
-                        <p class="quiz-time"><i class="fa fa-times-circle"></i><span class="rz-s-p" >40 Times</span></p>
-                        <div class="row">
-                            <div class="col-md-4"></div>
-                            <div class="col-md-4"><p class="text-center achived_number rz-s-p">1 of 10 Questions</p></div>
-                            <div class="col-md-4 float-end"><p class="text-center next-number rz-s-p"> Next Question</p></div>
-                        </div>
-                    </div>
-                    <!-- quiz opne box end  -->
+                    
 
                     <!-- quiz close box  -->
-                    <div class="qiz_close_box">
-                        <div class="test_heading">
-                            <p class="quiz-text-number rz-s-p fz-20 p-10 fw-500">Quiz 1: Yoga Test</p>
-                            <p class="time_date float-end rz-s-p p-10">Added on: 3pm April 25 ,2021</p>
-                        </div>
-                    </div>
-                    <div class="qiz_close_box">
-                        <div class="test_heading">
-                            <p class="quiz-text-number rz-s-p fz-20 p-10 fw-500">Quiz 1: Yoga Test</p>
-                            <p class="time_date float-end rz-s-p p-10">Added on: 3pm April 25 ,2021</p>
-                        </div>
-                    </div>
-                    <div class="qiz_close_box">
-                        <div class="test_heading">
-                            <p class="quiz-text-number rz-s-p fz-20 p-10 fw-500">Quiz 1: Yoga Test</p>
-                            <p class="time_date float-end rz-s-p p-10">Added on: 3pm April 25 ,2021</p>
-                        </div>
-                    </div>
-                    <div class="qiz_close_box">
-                        <div class="test_heading">
-                            <p class="quiz-text-number rz-s-p fz-20 p-10 fw-500">Quiz 1: Yoga Test</p>
-                            <p class="time_date float-end rz-s-p p-10">Added on: 3pm April 25 ,2021</p>
-                        </div>
-                    </div>
-                    <div class="qiz_close_box">
-                        <div class="test_heading">
-                            <p class="quiz-text-number rz-s-p fz-20 p-10 fw-500">Quiz 1: Yoga Test</p>
-                            <p class="time_date float-end rz-s-p p-10">Added on: 3pm April 25 ,2021</p>
-                        </div>
-                    </div>
-                    <div class="qiz_close_box">
-                        <div class="test_heading">
-                            <p class="quiz-text-number rz-s-p fz-20 p-10 fw-500">Quiz 1: Yoga Test</p>
-                            <p class="time_date float-end rz-s-p p-10">Added on: 3pm April 25 ,2021</p>
-                        </div>
-                    </div>
-                    <div class="qiz_close_box">
-                        <div class="test_heading">
-                            <p class="quiz-text-number rz-s-p fz-20 p-10 fw-500">Quiz 1: Yoga Test</p>
-                            <p class="time_date float-end rz-s-p p-10">Added on: 3pm April 25 ,2021</p>
-                        </div>
-                    </div>
-                    <div class="qiz_close_box">
-                        <div class="test_heading">
-                            <p class="quiz-text-number rz-s-p fz-20 p-10 fw-500">Quiz 1: Yoga Test</p>
-                            <p class="time_date float-end rz-s-p p-10">Added on: 3pm April 25 ,2021</p>
-                        </div>
-                    </div>
-                    <div class="qiz_close_box">
-                        <div class="test_heading">
-                            <p class="quiz-text-number rz-s-p fz-20 p-10 fw-500">Quiz 1: Yoga Test</p>
-                            <p class="time_date float-end rz-s-p p-10">Added on: 3pm April 25 ,2021</p>
-                        </div>
-                    </div>
-                    <div class="qiz_close_box">
-                        <div class="test_heading">
-                            <p class="quiz-text-number rz-s-p fz-20 p-10 fw-500">Quiz 1: Yoga Test</p>
-                            <p class="time_date float-end rz-s-p p-10">Added on: 3pm April 25 ,2021</p>
-                        </div>
-                    </div>
-                    <div class="qiz_close_box">
-                        <div class="test_heading">
-                            <p class="quiz-text-number rz-s-p fz-20 p-10 fw-500">Quiz 1: Yoga Test</p>
-                            <p class="time_date float-end rz-s-p p-10">Added on: 3pm April 25 ,2021</p>
-                        </div>
-                    </div>
+                    <?php 
+                    if(count($get_all_quizes) > 0){
+                        foreach($get_all_quizes as $quiz){
+                            $quiz_id = $quiz['id'];
+                            ?>
+                            <!-- quize open box -->
+                            <div class="p-0 rz-border rounded bg-white mt-3">
+                                <div class="test_heading d-flex flex-row justify-content-between align-items-center p-3" data-quiz_id="<?php echo $quiz['id']; ?>" id="show-quiz" style="cursor: pointer;">
+                                    <p class="quiz-text-number rz-s-p fz-20 p-10 fw-500 mb-0 rz-secondary-color">Quiz 1: <?php echo $quiz['quiz_name']; ?></p>
+                                    <p class="time_date float-end rz-s-p p-10 mb-0 rz-secondary-color">Added on: <?php echo date('F d, Y g:i a', strtotime($quiz['created_at'])); ?></p>
+                                </div>
 
-                    <!-- quiz close box end  -->
+
+                                <form id="quiz-submission-form" data-quiz_id="<?php echo $quiz['id']; ?>">
+                                    <div style="display: none;" id="quiz-start<?php echo $quiz['id']; ?>" class="p-3 pt-0">
+                                        <?php
+                                        $get_all_questions = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_quiz_questions WHERE quiz_id = '{$quiz_id}' ORDER BY id DESC", ARRAY_A);
+                                        $q = 0;
+                                        foreach($get_all_questions as $question){
+                                            ?>
+                                            <div id="question<?php echo $quiz_id.$q; ?>" <?php if($q != 0){echo 'style="display: none;"';} ?> class="question">
+                                                <div class="quiz-question p-10 d-flex flex-row justify-content-start align-items-center">
+                                                    <span class="question-img"><img src="<?php echo plugins_url('images/Vector.png', __FILE__); ?>" alt=""></span>
+                                                    <h2 class="fw-500 text-dark" style="font-size: 32px;"><span class="rz-color me-2">.</span><?php echo $question['question']; ?></h2>
+                                                </div>
+                                                <p class="imit-font fz-14 rz-secondary-color">Find the correct answer.</p>
+                                                <div id="message-error" class="text-danger"></div>
+                                                <?php
+                                                $answers = json_decode($question['answers']);
+                                                $a = 0;
+                                                foreach($answers as $answer){
+                                                    ?>
+                                                    <div class="form-check mt-2">
+                                                        <input class="form-check-input" type="radio" name="answer<?php echo $q; ?>" id="asnwer<?php echo $question['id'].$a; ?>" value="<?php echo $answer; ?>">
+                                                        <label class="form-check-label rz-secondary-color" for="asnwer<?php echo $question['id'].$a; ?>">
+                                                            <?php echo $answer; ?>
+                                                        </label>
+                                                    </div>
+                                                    <?php
+                                                    $a++;
+                                                }
+                                                ?>
+                                                <div class="row">
+                                                    <div class="col-md-4"></div>
+                                                    <div class="col-md-4"><p class="text-center achived_number rz-s-p mb-0"><span id="counter">1</span> of <?php echo count($get_all_questions); ?> Questions</p></div>
+                                                    <div class="col-md-4 float-end">
+                                                        <?php if(($q+1) == count($get_all_questions)){
+                                                            ?>
+                                                            <button type="submit" class="text-center next-number rz-s-p mb-0 btn rz-bg-color text-white w-100 border-0">Submit</button>
+                                                            <?php
+                                                        }else{
+                                                            ?>
+                                                            <button type="button" class="text-center next-number rz-s-p mb-0 btn rz-bg-color text-white w-100 border-0" data-target="<?php echo $quiz_id.$q+1; ?>" data-quiz_id="<?php echo $quiz_id; ?>" id="next-question">Next question</button>
+                                                            <?php
+                                                        } ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <?php
+                                            $q++;
+                                        }
+                                        ?>
+                                    </div>
+                                </form>
+                            </div>
+                            <!-- quiz opne box end  -->
+                            <?php
+                        }
+                    }
+                    ?>
                 </div>
                 <!-- quiz colum end -->
             </div>
@@ -1102,9 +1177,9 @@ add_shortcode('imit-tags-archive', function(){
     global $wpdb;
     ?>
     <section class="users">
-        <div class="container">
+        <div class="rz-mid">
             <div class="row">
-                <div class="col-md-9">
+                <div class="col-lg-9">
 
                     <div class="user-header d-flex flex-row justify-content-between align-items-center">
                         <div class="user-header-left">
@@ -1118,13 +1193,13 @@ add_shortcode('imit-tags-archive', function(){
                             </ul>
                         </div>
                         <div class="user-header-right">
-                            <form >
-                                <input name="search-user" type="text" class="form-control imit-font fz-14" placeholder="Search tags">
+                            <form id="search-terms">
+                                <input name="search-terms" type="text" class="form-control imit-font fz-14" placeholder="Search tags">
                                 <button type="submit" class="text-dark fz-14 border-0 bg-transparent"><i class="fas fa-search"></i></button>
                             </form>
                         </div>
                     </div>
-                    <ul class="hash-tags ps-0 mb-0 row">
+                    <ul class="hash-tags ps-0 mb-0 row mt-3" id="fetch-all-terms">
                         <?php
                             $tags = get_terms(array(
                                 'taxonomy' => 'question_tags',
@@ -1184,10 +1259,10 @@ add_shortcode('imit-tags-archive', function(){
                             ?>
                         </ul>
                 </div>
-                <div class="col-md-3">
+                <div class="col-lg-3">
                     <div class="join rz-br rz-bg-color rounded-2 p-3" style="background-image: url('<?php echo plugins_url('images/Group 237.png', __FILE__); ?>');">
                         <h3 class="title m-0 text-white imit-font fz-20 fw-500">Join our Partner Program and earn money on Recozilla</h3>
-                        <a href="#" class="btn bg-white fz-12 rz-color imit-font fw-500 mt-3">Join Now</a>
+                        <a href="<?php echo site_url(); ?>/join-partner-program/" class="btn bg-white fz-12 rz-color imit-font fw-500 mt-3">Join Now</a>
                     </div>
                 </div>
             </div>
@@ -1219,9 +1294,230 @@ add_action('wp_ajax_rz_add_message_action', function(){
                 'sender_id' => $sender_id,
                 'received_id' => $receiver_id,
                 'massage_text' => $message,
-                'status' => 1
+                'date_time' => date_i18n( "Y-m-d H:i" ),
             ]);
         }
     }
     die();
+});
+
+
+/**
+ * get terms by name
+ */
+add_action('wp_ajax_nopriv_rz_search_terms_by_name', 'rz_get_terms_by_name');
+add_action('wp_ajax_rz_search_terms_by_name', 'rz_get_terms_by_name');
+
+function rz_get_terms_by_name(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce( $nonce, 'rz-search-terms-nonce' )){
+        $search_terms = sanitize_text_field( $_POST['search-terms'] );
+
+        if(!empty($search_terms)){
+            $args = array(
+                'taxonomy'      => ['question_tags', 'discussion_tags'], // taxonomy name
+                'orderby'       => 'count', 
+                'order'         => 'DESC',
+                'hide_empty'    => true,
+                'fields'        => 'all',
+                'name__like'    => $search_terms,
+                'number'        => 20
+            ); 
+            
+            $terms = get_terms( $args );
+            foreach($terms as $tag){
+                $posts_array = get_posts(
+                    array(
+                        'posts_per_page' => -1,
+                        'post_type' => 'rz_post_question',
+                        'fields' => 'ids',
+                        'tax_query' => array(
+                            array(
+                                'taxonomy' => 'question_tags',
+                                'field' => 'term_id',
+                                'terms' => $tag->term_id,
+                            )
+                        )
+                    )
+                );
+
+                $count_answer = 0;
+                $total_view = 0;
+                foreach($posts_array as $post_ids){
+                    $all_answers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_ids'", ARRAY_A);
+
+                    $count_answer += count($all_answers);
+
+                    $count_key = 'post_views_count';
+                    $count = get_post_meta($post_ids, $count_key, true);
+                    if($count==''){
+                        delete_post_meta($post_ids, $count_key);
+                        add_post_meta($post_ids, $count_key, '0');
+                        $total_view += 0;
+                    }
+                    $total_view += $count;
+                }
+                ?>
+                <li class="hash-list list-unstyled col-md-4 my-2">
+                        <div class="bg-white py-2 px-3 rounded border">
+                            <div class="hash-top d-flex flex-row justify-content-between align-items-center">
+                                <a href="<?php echo get_term_link($tag->term_id, $tag->taxonomy); ?>" class="imit-font fw-500 fz-16 text-dark d-block">#<?php echo $tag->name; ?></a>
+<!--                                            <button type="button" class="add-post-by-tag p-0 rz-secondary-color bg-transparent fz-14"><i class="fas fa-plus-circle"></i></button>-->
+                            </div>
+                            <div class="d-flex flex-row justify-content-between align-items-center me-2">
+                                <p class="rz-secondary-color imit-font fz-12 fw-400 mb-0"><?php echo $tag->count; ?> Question</p>
+                                <p class="rz-secondary-color imit-font fz-12 fw-400 mb-0"><?php echo $count_answer; ?> Answers</p>
+                                <p class="rz-secondary-color imit-font fz-12 fw-400 mb-0"><?php echo $total_view; ?> Views</p>
+                            </div>
+                        </div>
+                    </li>
+                <?php
+            }
+        }
+    }
+    die();
+}
+
+/**
+ * rz fetch notification
+ */
+add_shortcode('imit-rz-fetch-notification', function(){
+    global $wpdb;
+    ob_start();
+    if(is_user_logged_in(  )){
+        $receiver_id = get_current_user_id(  );
+        $count_notification = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}notification WHERE receiver_id = '$receiver_id'", ARRAY_A);
+        $count_message = $wpdb->get_results("select DISTINCT if( received_id={$receiver_id},sender_id,received_id) 
+        AS id from wp_massages  WHERE (sender_id = {$receiver_id} OR received_id = {$receiver_id}) AND status = 0
+         ORDER by id DESC");
+        ?>
+        <div class="position-relative d-table">
+            <a href="#" class="p-0 border-0 text-dark fz-20 notification-button d-table position-relative" id="notification-bell">
+                <i class="fas fa-bell"></i>
+                <div id="notification-active">
+                </div>
+            </a>
+            <div class="dropdown-notification rz-border shadow">
+                <ul class="tab-nav mb-0 ps-0 d-flex flex-row justify-content-between align-items-ceneter">
+                    <li class="tab-list list-unstyled">
+                        <a href="#" class="tab-link  imit-font active" data-target="notification-tab">Notification <span>(<?php echo count($count_notification); ?>)</span></a>
+                    </li>
+                    <li class="tab-list list-unstyled">
+                        <a href="#" class="tab-link imit-font" data-target="inbox-tab">Inbox <span>(<?php echo count($count_message); ?>)</span></a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="notification-tab">
+                    <ul class="notifications ps-0 mb-0" id="notification-tab-ul">
+                        
+                    </ul>
+                </div>
+                <div class="tab-content" style="display: none;" id="inbox-tab">
+                    <ul class="message-users ps-0 mb-0" id="inbox-tab-ul">
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+    return ob_get_clean();
+});
+
+
+/**
+ * get all notification
+ */
+add_action('wp_ajax_rz_get_all_notification', function(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce($nonce, 'rz-get-all-notification-nonce')){
+        $receiver_id = get_current_user_id(  );
+        $all_notification = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}notification WHERE receiver_id = '{$receiver_id}' ORDER BY id DESC LIMIT 10", ARRAY_A);
+
+        foreach($all_notification as $notification){
+            ?>
+            <li class="notifications-lists list-unstyled">
+                <a href="<?php echo $notification['url_link']; ?>" class="notification-link imit-font fz-12 rz-secondary-color fw-500 <?php if($notification['status'] == 0){echo 'active';} ?>"><?php echo $notification['massage_text']; ?></a>
+            </li>
+            <?php
+        }
+    }
+    die();
+});
+
+/**
+ * get all message
+ */
+add_action('wp_ajax_rz_get_all_message', function(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce( $nonce, 'rz-get-all-message-nonce')){
+        foreach ( get_conversion_chat_list() as $row ) {
+            $userinfo = get_user_by( 'id', $row->id );
+            $last_massage = get_last_massage($row->id);
+            ?>
+            <li class="message-user-list list-unstyled">
+                <a href="<?php echo site_url(); ?>/message" class="message-user-link <?php if($last_massage->status == 0){echo 'active';} ?>">
+                    <div class="profile-info d-flex flex-row justify-content-start align-items-center">
+                        <div class="profile-image">
+                            <img src="<?php echo getProfileImageById($row->id); ?>" alt="">
+                        </div>
+                        <div class="info ms-2 w-100">
+                            <div class="d-flex flex-row justify-content-between align-items-center">
+                                <h2 class="name fz-14 imit-font m-0"><?php echo getUserNameById($row->id); ?><!-- <span></span>--></h2>
+                                <p class="imit-font rz-color timeago fw-500 mb-0"><?php echo convert_time_to_days($last_massage->date_time); ?></p>
+                            </div>
+                            <p class="rz-secondary-color imit-font fz-12 mb-0"><?php echo substr( $last_massage->massage_text, 0, 37);  ?></p>
+                        </div>
+                    </div>
+                </a>
+            </li>
+            <?php
+        }
+    }
+    die();
+});
+
+/**
+ * get live notification
+ */
+add_action('wp_ajax_rz_get_live_notification', function(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce( $nonce, 'rz-live-notification-nonce' )){
+        $receiver_id = get_current_user_id(  );
+        $count_notification = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}notification WHERE receiver_id = '$receiver_id'", ARRAY_A);
+        $count_message = $wpdb->get_results("select DISTINCT if( received_id={$receiver_id},sender_id,received_id) 
+        AS id from wp_massages  WHERE (sender_id = {$receiver_id} OR received_id = {$receiver_id}) AND status = 0
+         ORDER by id DESC");
+
+         if((count($count_notification) + count($count_message)) > 0){
+             exit('exists');
+         }
+    }
+    die();
+});
+
+
+/**
+ * update feature post image category
+ */
+add_action('um_hourly_scheduled_events', function(){
+    $get_feature_post = new WP_Query([
+        'post_type' => 'rz_post_question',
+        'posts_per_page' => 1,
+        'tax_query' =>  array(
+            array(
+                'taxonomy' => 'question_category',
+                'field' => 'slug',
+                'terms' => 'feature-post'
+            )
+        ),
+        'orderby' => 'ID',
+        'order' => 'ASC'
+    ]);
+    while($get_feature_post->have_posts()):$get_feature_post->the_post();
+    $post_id = get_the_ID();
+    wp_set_post_terms($post_id, 'uncategorised', 'question_category');
+    endwhile;
 });

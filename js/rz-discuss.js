@@ -7,18 +7,29 @@
          let page_num = 1;
          let win = $(window);
          let postReachMax = false;
+         let discuss_and_debate_click = false;
+         let newest_click = false;
+         let most_view = false;
+         let hotely_debated = false;
          $(document).on('click', '.tab-link', function(e){
              e.preventDefault();
              target = $(this).data('target');
-             page_num = 1;
-             postReachMax = false;
-             if(target == "discuss-and-debate"){
+             if(target == "discuss-and-debate" && discuss_and_debate_click == false){
+                page_num = 1;
+                postReachMax = false;
                 discuss_and_debate(target);
-             }else if(target == 'newest'){
+                discuss_and_debate_click = true;
+             }else if(target == 'newest' && newest_click == false){
+                page_num = 1;
+                postReachMax = false;
                 get_newest_posts(target);
-             }else if(target == 'most-viwed'){
+                newest_click = true;
+             }else if(target == 'most-viwed' && most_view == false){
+                page_num = 1;
+                postReachMax = false;
                 get_most_viwed_posts(target);
-             }else if(target == 'hotely-debated'){
+                most_view = true;
+             }else if(target == 'hotely-debated' && hotely_debated == false){
                 get_hotely_debated_posts(target);
              }
              $('.tab-link').removeClass('active');
@@ -61,10 +72,17 @@
                         console.log(data);
                         if(data == 'discussAndDebateReachmax'){
                             postReachMax = true;
-                            $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                            if(action == 'html'){
+                                $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
                                 '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
+                            }else{
+                                $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                '                                    <i class="fas fa-blog"></i>\n' +
+                                '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                '                                </li>');
+                            }
                         }else{
                             if(action == 'html'){
                                 $('#'+target+' #'+target+'-ul').html(data);
@@ -95,10 +113,17 @@
                         console.log(data);
                         if(data == 'newestPostReachmax'){
                             postReachMax = true;
-                            $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                            if(action == 'html'){
+                                $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
                                 '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
+                            }else{
+                                $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                '                                    <i class="fas fa-blog"></i>\n' +
+                                '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                '                                </li>');
+                            }
                         }else{
                             if(action == 'html'){
                                 $('#'+target+' #'+target+'-ul').html(data);
@@ -129,10 +154,17 @@
                         console.log(data);
                         if(data == 'mostViewedPostsReachmax'){
                             postReachMax = true;
-                            $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                            if(action == 'html'){
+                                $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
                                 '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
+                            }else{
+                                $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                '                                    <i class="fas fa-blog"></i>\n' +
+                                '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                '                                </li>');
+                            }
                         }else{
                             if(action == 'html'){
                                 $('#'+target+' #'+target+'-ul').html(data);
@@ -162,10 +194,17 @@
                         console.log(data);
                         if(data == 'mostHotelyDebatedReachmax'){
                             postReachMax = true;
-                            $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                            if(action == 'html'){
+                                $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
                                 '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
+                            }else{
+                                $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                '                                    <i class="fas fa-blog"></i>\n' +
+                                '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                '                                </li>');
+                            }
                         }else{
                             if(action == 'html'){
                                 $('#'+target+' #'+target+'-ul').html(data);

@@ -9,7 +9,7 @@ add_shortcode('imit-rz-users', function(){
     global $wpdb;
     ?>
     <section class="users">
-        <div class="container">
+        <div class="rz-mid">
             <div class="row">
                 <div class="col-md-9">
 
@@ -45,7 +45,7 @@ add_shortcode('imit-rz-users', function(){
                 <div class="col-md-3">
                     <div class="join rz-br rz-bg-color rounded-2 p-3" style="background-image: url('<?php echo plugins_url('images/Group 237.png', __FILE__); ?>');">
                         <h3 class="title m-0 text-white imit-font fz-20 fw-500">Join our Partner Program and earn money on Recozilla</h3>
-                        <a href="#" class="btn bg-white fz-12 rz-color imit-font fw-500 mt-3">Join Now</a>
+                        <a href="<?php echo site_url(); ?>/join-partner-program/" class="btn bg-white fz-12 rz-color imit-font fw-500 mt-3">Join Now</a>
                     </div>
                 </div>
             </div>

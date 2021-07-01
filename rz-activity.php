@@ -8,7 +8,7 @@ add_action('wp_ajax_imit_fetch_activity', 'rz_user_activity');
 
 function rz_user_activity(){
     global $wpdb;
-    $all_activity = $wpdb->get_results("(SELECT ID as id, 'post' AS type, timestamp(post_date) AS date FROM {$wpdb->prefix}posts WHERE post_type = 'rz_post_question') UNION (SELECT id, 'answer' AS type, timestamp(created_at) AS date FROM {$wpdb->prefix}rz_answers) UNION (SELECT id, 'vote' AS type, timestamp(created_at) AS date FROM {$wpdb->prefix}rz_vote) ORDER BY date DESC LIMIT 10", ARRAY_A);
+    $all_activity = $wpdb->get_results("(SELECT ID as id, 'post' AS type, timestamp(post_date) AS date FROM {$wpdb->prefix}posts WHERE post_type = 'rz_post_question') UNION (SELECT id, 'answer' AS type, timestamp(created_at) AS date FROM {$wpdb->prefix}rz_answers WHERE status = '1') UNION (SELECT id, 'vote' AS type, timestamp(created_at) AS date FROM {$wpdb->prefix}rz_vote) ORDER BY date DESC LIMIT 10", ARRAY_A);
     foreach($all_activity as $activity){
         if($activity['type'] == 'post'){
             $activity_table = $wpdb->prefix.'post';
@@ -50,7 +50,7 @@ function rz_user_activity(){
 
             ?>
             <li>
-                <a href="<?php echo get_permalink($post_id->post_id); ?>" class="d-flex flex-row justify-content-start align-items-center px-3 py-2">
+                <a href="<?php echo get_permalink($post_id->post_id); ?>" class="d-flex flex-row justify-content-start align-items-center px-3 py-3">
                     <div class="activity-image">
                         <img src="<?php getProfileImageById( $answer_activity->user_id ); ?>" alt="" style="min-width: 42px;">
                     </div>

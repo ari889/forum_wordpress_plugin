@@ -97,7 +97,7 @@ function rz_manage_questions(){
 
     <div class="card p-0 mw-100 me-3">
         <div class="card-header">
-            <select name="quiz_name" class="form-control mt-3">
+            <select name="quiz_name" class="form-control mt-3" id="get_quiz_name">
                 <?php
                 foreach($get_all_quizes as $quiz){
                     echo '<option value="'.$quiz['id'].'">'.$quiz['quiz_name'].'</option>';
@@ -117,7 +117,7 @@ function rz_manage_questions(){
                     <th scope="col">Action</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="fetch-quiz-questions">
                 <?php
                 $i = 1;
                 foreach ($get_all_questions as $question){
@@ -137,7 +137,7 @@ function rz_manage_questions(){
                         <td><?php echo $question['correct_answer']; ?></td>
                         <td>
                             <div class="btn-group">
-                                <button type="button" class="btn btn-info">View</button>
+                                <button type="button" class="btn btn-info" data-question_id="<?php echo $question['id'] ?>" id="view-question">View</button>
                                 <button type="button" class="btn btn-danger">Delete</button>
                             </div>
                         </td>
@@ -148,6 +148,22 @@ function rz_manage_questions(){
                 ?>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="question-view-modal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 style="font-size: 20px;">Quiz name "PHP"</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-answer-form">
+                        
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
     <?php
@@ -225,6 +241,146 @@ add_action('wp_ajax_rz_submit_user_answer', function(){
         }
 
         echo json_encode($response);
+    }
+    die();
+});
+
+
+/**
+ * get answer based on quiz
+ */
+add_action('wp_ajax_rz_get_answer_based_on_quiz', function(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce( $nonce, 'rz-answer-using-quiz-nonce' )){
+        $quiz_id = sanitize_key($_POST['quiz_id']);
+
+        $all_questions = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_quiz_questions WHERE quiz_id = '{$quiz_id}'", ARRAY_A);
+        $i = 1;
+        foreach($all_questions as $question){
+            $quiz_id = $question['quiz_id'];
+            $get_quiz_info = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_quizzes WHERE id = '{$quiz_id}'");
+            ?>
+            <tr>
+                <th scope="row"><?php echo $i; ?></th>
+                <td><?php echo $get_quiz_info->quiz_name; ?></td>
+                <td><?php echo $question['question']; ?></td>
+                <td>
+                    <?php
+                    $all_answers = json_decode($question['answers']);
+                    echo implode(' | ', $all_answers);
+                    ?>
+                </td>
+                <td><?php echo $question['correct_answer']; ?></td>
+                <td>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info" data-question_id="<?php echo $question['id']; ?>" id="view-question">View</button>
+                        <button type="button" class="btn btn-danger">Delete</button>
+                    </div>
+                </td>
+            </tr>
+                <?php
+            $i++;
+        }
+    }
+    die();
+});
+
+/**
+ * get question by id
+ */
+add_action('wp_ajax_rz_view_questions', function(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce($nonce, 'rz-view-question-nonce')){
+        $question_id = sanitize_key( $_POST['question_id'] );
+
+        $get_question = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_quiz_questions WHERE id = '{$question_id}'");
+        $all_answers = json_decode($get_question->answers);
+        ?>
+        <div id="edit-question-message"></div>
+        <label for="question-edit" class="mb-1">Question</label>
+        <input type="text" name="question-edit" id="question-edit" class="form-control" value="<?php echo $get_question->question; ?>" placeholder="Enter question...">
+
+        <label for="" class="mt-3 mb-1">All answers</label>
+        <ul class="list-group" id="answer-list">
+            <?php 
+            $i = 0;
+            foreach($all_answers as $answer){
+                ?>
+                <li class="list-group-item d-flex flex-row justify-content-center align-items-center" id="answer-list<?php echo $i; ?>"><input name="answer-edit[]" type="text" class="form-control" value="<?php echo $answer; ?>" placeholder="Enter answers" id="answer-edit<?php echo $i; ?>"> <input type="radio" name="correct-answer" value="<?php echo $answer; ?>" <?php if($get_question->correct_answer == $answer){echo 'checked';} ?>></li>
+                <?php
+                $i++;
+            }
+            ?>
+        </ul>
+
+        <label for="status" class="mt-3 mb-1">Question status</label>
+        <select name="status" id="status" class="form-control">
+            <option value="1" <?php if($get_question->status == '1'){echo 'selected';} ?>>Published</option>
+            <option value="0" <?php if($get_question->status == '0'){echo 'selected';} ?>>Denied</option>
+        </select>
+
+        <input type="hidden" name="id" value="<?php echo $question_id; ?>">
+
+        <button type="submit" class="btn btn-success mt-3">Save</button>
+        <?php
+    }
+    die();
+});
+
+
+/**
+ * edit qeustions 
+ */
+add_action('wp_ajax_rz_edit_questions_and_answers', function(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce( $nonce, 'rz-edit-question-nonce' )){
+        $id = sanitize_key( $_POST['id'] );
+        $question = sanitize_text_field( $_POST['question-edit'] );
+        $answers = $_POST['answer-edit'];
+        $correct_answer = sanitize_text_field( $_POST['correct-answer'] );
+        $status = sanitize_text_field( $_POST['status'] );
+
+        if(!empty($id) && !empty($question) && !empty($answers) && !empty($correct_answer)){
+            $wpdb->update($wpdb->prefix.'rz_quiz_questions', [
+                'question' => $question,
+                'answers' => json_encode($answers),
+                'correct_answer' => $correct_answer,
+                'status' => $status
+            ], ['id' => $id]);
+
+            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Done!</strong> Data updated.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>';
+        }
+    }
+    die();
+});
+
+/**
+ * get quiz result
+ */
+add_action('wp_ajax_rz_submit_quiz_for_result', function(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce($nonce, 'rz-get-quiz-result-nonce')){
+        $quiz_id = sanitize_key($_POST['quiz_id']);
+        $get_all_answers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_quiz_questions WHERE quiz_id = '{$quiz_id}'", ARRAY_A);
+
+        $questions_count = count($get_all_answers);
+        $correct_answer = 0;
+        $i = 0;
+        foreach($get_all_answers as $answer){
+            if($answer['correct_answer'] == $_POST['answer'.$i]){
+                $correct_answer = $correct_answer+1;
+            }
+            $i++;
+        }
+
+        $result = ($correct_answer / $questions_count) * 10;
     }
     die();
 });

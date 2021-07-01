@@ -10,23 +10,45 @@
             let page_num = 1;
             let win = $(window);
             let postReachMax = false;
+            let profile_feed_click = false;
+            let profile_user_answers_click = false;
+            let profile_user_vote_click = false;
+            let profile_user_comment_click = false;
+            let following_user_click = false;
+            let user_dairy_click = false;
             $(document).on('click', '.tab-link', function(e){
                 e.preventDefault();
                 target = $(this).data('target');
-                page_num = 1;
-                postReachMax = false;
-                if(target == "profile-feed"){
+                if(target == "profile-feed" && profile_feed_click == false){
+                    page_num = 1;
+                    postReachMax = false;
                     question_asked(target);
-                }else if(target == "rz-profile-user-answers"){
+                    profile_feed_click = true;
+                }else if(target == "rz-profile-user-answers" && profile_user_answers_click == false){
+                    page_num = 1;
+                    postReachMax = false;
                     get_answered_questions(target);
-                }else if(target == 'rz-profile-user-vote'){
+                    profile_user_answers_click = true;
+                }else if(target == 'rz-profile-user-vote' && profile_user_vote_click == false){
+                    page_num = 1;
+                    postReachMax = false;
                     get_voted_questions(target);
-                }else if(target == 'rz-profile-user-comment'){
+                    profile_user_vote_click = true;
+                }else if(target == 'rz-profile-user-comment' && profile_user_comment_click == false){
+                    page_num = 1;
+                    postReachMax = false;
                     get_question_commented_posts(target);
-                }else if(target == 'following-user'){
+                    profile_user_comment_click = true;
+                }else if(target == 'following-user' && following_user_click == false){
+                    page_num = 1;
+                    postReachMax = false;
                     get_following_user(target, profile_user_id);
-                }else if(target == 'user-dairy'){
+                    following_user_click = true;
+                }else if(target == 'user-dairy' && user_dairy_click == false){
+                    page_num = 1;
+                    postReachMax = false;
                     get_user_dairy(target);
+                    user_dairy_click = true;
                 }
                 $('.tab-link').removeClass('active');
                 $(this).addClass('active');
@@ -72,10 +94,17 @@
                             console.log(data);
                             if(data == 'profileFeedReachmax'){
                                 postReachMax = true;
-                                $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                if(action == 'html'){
+                                    $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
                                     '                                    <i class="fas fa-blog"></i>\n' +
                                     '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                     '                                </li>');
+                                }else{
+                                    $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                    '                                    <i class="fas fa-blog"></i>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                </li>');
+                                }
                             }else{
                                 if(action == 'html'){
                                     $('#'+target+' #'+target+'-ul').html(data);
@@ -105,10 +134,17 @@
                             console.log(data);
                             if(data == 'answeredFeedReachmax'){
                                 postReachMax = true;
-                                $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                if(action == 'html'){
+                                    $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
                                     '                                    <i class="fas fa-blog"></i>\n' +
                                     '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                     '                                </li>');
+                                }else{
+                                    $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                    '                                    <i class="fas fa-blog"></i>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                </li>');
+                                }
                             }else{
                                 if(action == 'html'){
                                     $('#'+target+' #'+target+'-ul').html(data);
@@ -139,10 +175,17 @@
                             console.log(data);
                             if(data == 'profileVOtedQuestionsReachmax'){
                                 postReachMax = true;
-                                $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                if(action == 'html'){
+                                    $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
                                     '                                    <i class="fas fa-blog"></i>\n' +
                                     '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                     '                                </li>');
+                                }else{
+                                    $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                    '                                    <i class="fas fa-blog"></i>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                </li>');
+                                }
                             }else{
                                 if(action == 'html'){
                                     $('#'+target+' #'+target+'-ul').html(data);
@@ -173,10 +216,17 @@
                             console.log(data);
                             if(data == 'profileCommentedQeustionsReachmax'){
                                 postReachMax = true;
-                                $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                if(action == 'html'){
+                                    $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
                                     '                                    <i class="fas fa-blog"></i>\n' +
                                     '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                     '                                </li>');
+                                }else{
+                                    $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                    '                                    <i class="fas fa-blog"></i>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                </li>');
+                                }
                             }else{
                                 if(action == 'html'){
                                     $('#'+target+' #'+target+'-ul').html(data);
@@ -207,7 +257,11 @@
                             console.log(data);
                             if(data == 'profileFollowingUserReachmax'){
                                 postReachMax = true;
-                                $('#'+target+' #'+target+'-ul').append('<li class="col-md-12 list-unstyled text-center"><div class="bg-light p-4 rz-br rz-border mt-3"><i class="fas fa-user"></i><p class="mb-0 imit-font fz-16 rz-secondary-color">No users to show.</p></div></li>');
+                                if(action == 'html'){
+                                    $('#'+target+' #'+target+'-ul').append('<li class="col-md-12 list-unstyled text-center"><div class="bg-light p-4 rz-br rz-border mt-3"><i class="fas fa-user"></i><p class="mb-0 imit-font fz-16 rz-secondary-color">No users to show.</p></div></li>');
+                                }else{
+                                    $('#'+target+' #'+target+'-ul').append('<li class="col-md-12 list-unstyled text-center"><div class="bg-light p-4 rz-br rz-border mt-3"><i class="fas fa-user"></i><p class="mb-0 imit-font fz-16 rz-secondary-color">No users to show.</p></div></li>');
+                                }
                             }else{
                                 if(action == 'html'){
                                     $('#'+target+' #'+target+'-ul').html(data);
@@ -238,10 +292,17 @@
                             console.log(data);
                             if(data == 'userDairyReachmax'){
                                 postReachMax = true;
-                                $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                if(action == 'html'){
+                                    $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
                                     '                                    <i class="fas fa-blog"></i>\n' +
                                     '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                     '                                </li>');
+                                }else{
+                                    $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                    '                                    <i class="fas fa-blog"></i>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                </li>');
+                                }
                             }else{
                                 if(action == 'html'){
                                     $('#'+target+' #'+target+'-ul').html(data);

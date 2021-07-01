@@ -7,7 +7,7 @@ add_shortcode( 'imit-rz-login', function(){
     ob_start();
     ?>
     <section class="login overflow-hidden" style="background-image: url('<?php echo plugins_url( 'images/loginbg.png', __FILE__ ) ?>');">
-        <div class="container">
+        <div class="rz-mid">
             <div class="row" style="min-height: 100vh;">
                 <div class="col-lg-6">
                     <h3 class="title rz-color imit-font">Welcome to</h3>
@@ -15,7 +15,7 @@ add_shortcode( 'imit-rz-login', function(){
                     <p class="mb-0 subtitle imit-font mt-3">A place to learn from knowledge and experiences of others and share yours</p>
                 </div>
                 <div class="col-lg-6">
-                    <div class="rz-br bg-white rz-login-card mb-3 mt-5">
+                    <div class="rz-br bg-white rz-login-card mb-3" style="margin-top: 150px;">
                         <?php
                         if(is_user_logged_in() == false){
                             ?>
@@ -58,9 +58,9 @@ add_shortcode( 'imit-rz-login', function(){
                         <?php
                         }?>
 
-                        <div class="join rz-bg-color p-5" style="background-image: url('<?php echo plugins_url('images/Group 237.png', __FILE__); ?>');">
-                            <h3 class="title m-0 text-white imit-font fz-20 fw-500">Write answers or create posts on Recozilla and earn Money</h3>
-                            <a href="#" class="btn bg-white fz-16 rz-color imit-font fw-500 mt-3 py-2 px-4">Join our Partner Program </a>
+                        <div class="join rz-bg-color p-5" style="background-image: url('<?php echo plugins_url('images/Group 237.png', __FILE__); ?>');min-height: auto !important;">
+                            <h3 class="title m-0 text-white imit-font fw-500" style="font-size: 24px;text-transform: none;">Write answers or create posts on Recozilla and earn Money</h3>
+                            <a href="<?php echo site_url(); ?>/join-partner-program/" class="btn bg-white fz-14 rz-color imit-font fw-500 mt-3 py-2 px-4">Join our Partner Program </a>
                         </div>
                     </div>
                 </div>

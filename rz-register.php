@@ -7,7 +7,7 @@ add_shortcode( 'imit-rz-register', function(){
     ob_start();
         ?>
         <section class="login overflow-hidden" style="background-image: url('<?php echo plugins_url('images/loginbg.png', __FILE__); ?>');">
-            <div class="container">
+            <div class="rz-mid">
                 <div class="row" style="min-height: 100vh;">
                     <div class="col-lg-6">
                         <h4 class="title rz-color imit-font">Welcome to</h4>
@@ -15,7 +15,7 @@ add_shortcode( 'imit-rz-register', function(){
                         <p class="mb-0 subtitle imit-font mt-3">A place to learn from knowledge and experiences of others and share yours</p>
                     </div>
                     <div class="col-lg-6">
-                        <div class="rz-br bg-white rz-login-card mb-3 mt-5">
+                        <div class="rz-br bg-white rz-login-card mb-3" style="margin-top: 150px;">
                             <?php
                             if(is_user_logged_in() == false){
                                 ?>
@@ -46,8 +46,7 @@ add_shortcode( 'imit-rz-register', function(){
                                 <p class="mb-0 rz-secondary-color imit-font fz-14 text-center py-4 px-3">Or Continue with</p>
 
                                 <div class="d-flex flex-row justify-content-between align-items-center px-4">
-                                    <button type="button" class="btn btn-light w-50 me-1 border">Google</button>
-                                    <button type="button" class="btn btn-light w-50 ms-1 border">Facebook</button>
+                                    <?php echo do_shortcode('[miniorange_social_login]'); ?>
                                 </div>
 
                                 <p class="imit-font fz-14 rz-secondary-color text-center py-5">Already have an account?  <a href="<?php echo site_url(); ?>/login" class="rz-color text-decoration-none fw-500">Login</a></p>

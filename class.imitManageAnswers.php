@@ -65,7 +65,7 @@ class ImitManageAnswers extends WP_List_Table{
      * for action column
      */
     function column_action($item){
-        return '<div class="btn-group"><a href="#" class="btn btn-info" data-answer_id="'.$item['id'].'" id="view-answer">View</a> <a href="#" class="btn btn-danger" data-answer_id="'.$item['id'].'" id="delete-answer">Delete</a></div>';
+        return '<div class="btn-group"><a href="#" class="btn btn-info" data-answer_id="'.$item['id'].'" id="view-answer">View</a>';
     }
 
     /**

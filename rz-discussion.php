@@ -9,11 +9,11 @@ add_shortcode('imit-discuss', function(){
     global $wpdb;
     ?>
     <section class="imit-discussion">
-    <div class="container">
+    <div class="rz-mid">
         <div class="row pt-3">
-        <div class="col-md-9">
+        <div class="col-lg-9">
             <div class="d-flex flex-row justify-content-between align-items-center rz-bg-color rounded-2">
-                <ul class="rz-tabs d-flex flex-row justify-content-start align-items-center ps-0 mb-0 rounded">
+                <ul class="rz-tabs d-flex flex-row justify-content-start align-items-center ps-0 mb-0">
                     <li class="rz-tab-list list-unstyled">
                         <a href="#" class="rz-tab-link tab-link imit-font fz-14 d-block text-white fw-500 py-3 px-4 active" data-target="discuss-and-debate">Discuss & Debate</a>
                     </li>
@@ -87,14 +87,14 @@ add_shortcode('imit-discuss', function(){
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-lg-3">
             <div class="join rz-br rz-bg-color rounded-2 p-3" style="background-image: url('<?php echo plugins_url('images/Group 237.png', __FILE__); ?>');">
-                <h3 class="title m-0 text-white imit-font fz-20 fw-500">Join our Partner Program and earn money on Recozilla</h3>
-                <a href="#" class="btn bg-white fz-12 rz-color imit-font fw-500 mt-3">Join Now</a>
+                <h3 class="title m-0 text-white imit-font fz-20 fw-400">Join our Partner Program and earn money on Recozilla</h3>
+                <a href="<?php echo site_url(); ?>/join-partner-program/" class="btn bg-white fz-12 rz-color imit-font fw-500 mt-3">Join Now</a>
             </div>
             <div class="card question-card rz-br rz-border mt-3">
                 <div class="card-header rz-bg-color">
-                    <h3 class="title imit-font text-white fw-500 m-0">Related Questions</h3>
+                    <h3 class="title imit-font text-white fw-500 m-0 p-2">Related Questions</h3>
                 </div>
                 <div class="card-body p-0">
                     <ul class="all-questions ps-0 mb-0">
@@ -102,11 +102,11 @@ add_shortcode('imit-discuss', function(){
                     <?php 
                     $related_question = new WP_Query([
                         'post_type' => 'rz_post_question',
-                        'posts_per_page' => 10
+                        'posts_per_page' => 5
                     ]);
                     while($related_question->have_posts()):$related_question->the_post();
                         ?>
-                        <li class="question-list list-unstyled"><a href="<?php the_permalink(  ); ?>" class="question-link d-block text-dark imit-font fz-16 fw-500 m-2"><?php echo wp_trim_words(get_the_title(), 10, false); ?></a></li>
+                        <li class="question-list list-unstyled"><a href="<?php the_permalink(  ); ?>" class="question-link d-block text-dark imit-font fz-16 fw-500 p-3 d-block"><?php echo wp_trim_words(get_the_title(), 10, false); ?></a></li>
                         <?php
                     endwhile;
                     wp_reset_postdata(  );
@@ -277,8 +277,8 @@ function imit_rz_discuss_and_debate_posts(){
             $user_data = get_userdata($user_id);
             ?>
             <li class="blog-list list-unstyled mt-3">
-                <div class="card rz-border">
-                    <div class="card-body">
+                <div class="card rz-border rz-br">
+                    <div class="card-body p-4">
                         <div class="blog-list-header d-flex flex-row justify-content-between align-items-center">
                             <div class="user-info d-flex flex-row justify-content-start align-items-center">
                                 <div class="profile-image">
@@ -320,7 +320,7 @@ function imit_rz_discuss_and_debate_posts(){
                             </ul>
                         </div>
                     </div>
-                    <div class="card-footer border-top-0 d-flex flex-row justify-content-between align-items-center">
+                    <div class="card-footer border-top-0 d-flex flex-row justify-content-between align-items-center p-3">
                         <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
                             <?php
                             $post_id = get_the_ID();
@@ -346,9 +346,9 @@ function imit_rz_discuss_and_debate_posts(){
                         </ul>
     
                         <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
-                            <li class="blog-footer-list list-unstyled">
+                            <!-- <li class="blog-footer-list list-unstyled">
                                 <a href="#" class="imit-font fz-16 text-dark fw-400 me-3"><i class="fas fa-share"></i></a>
-                            </li>
+                            </li> -->
                             <li class="blog-footer-list list-unstyled">
                                 <div class="dropdown">
                                     <button class="imit-font fz-16 text-dark fw-500 p-0 bg-transparent d-block" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -400,8 +400,8 @@ function get_all_newest_posts(){
             $user_data = get_userdata($user_id);
             ?>
             <li class="blog-list list-unstyled mt-3">
-                <div class="card rz-border">
-                    <div class="card-body">
+                <div class="card rz-border rz-br">
+                    <div class="card-body p-4">
                         <div class="blog-list-header d-flex flex-row justify-content-between align-items-center">
                             <div class="user-info d-flex flex-row justify-content-start align-items-center">
                                 <div class="profile-image">
@@ -437,13 +437,13 @@ function get_all_newest_posts(){
                                 <?php
                                 $tags = wp_get_post_terms(get_the_ID(), 'discussion_tags');
                                 foreach($tags as $tag){
-                                    echo '<li class="tag-list list-unstyled"><a href="'.get_term_link($tag->term_id, 'discussion_tags').'" class="tag-link imit-font fz-12 d-block me-2 text-dark border px-1">'.$tag->name.'</a></li>';
+                                    echo '<li class="tag-list list-unstyled"><a href="'.get_term_link($tag->term_id, 'discussion_tags').'" class="tag-link imit-font fz-12 d-block me-2 rz-secondary-color rounded border px-1">'.$tag->name.'</a></li>';
                                 }
                                 ?>
                             </ul>
                         </div>
                     </div>
-                    <div class="card-footer border-top-0 d-flex flex-row justify-content-between align-items-center">
+                    <div class="card-footer border-top-0 d-flex flex-row justify-content-between align-items-center p-3">
                         <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
                             <?php
                             $post_id = get_the_ID();
@@ -469,9 +469,9 @@ function get_all_newest_posts(){
                         </ul>
 
                         <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
-                            <li class="blog-footer-list list-unstyled">
+                            <!-- <li class="blog-footer-list list-unstyled">
                                 <a href="#" class="imit-font fz-16 text-dark fw-400 me-3"><i class="fas fa-share"></i></a>
-                            </li>
+                            </li> -->
                             <li class="blog-footer-list list-unstyled">
                                 <div class="dropdown">
                                     <button class="imit-font fz-16 text-dark fw-500 p-0 bg-transparent d-block" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -525,8 +525,8 @@ function imit_rz_get_most_viwed_posts(){
             $user_data = get_userdata($user_id);
             ?>
             <li class="blog-list list-unstyled mt-3">
-                <div class="card rz-border">
-                    <div class="card-body">
+                <div class="card rz-border rz-br">
+                    <div class="card-body p-4">
                         <div class="blog-list-header d-flex flex-row justify-content-between align-items-center">
                             <div class="user-info d-flex flex-row justify-content-start align-items-center">
                                 <div class="profile-image">
@@ -562,13 +562,13 @@ function imit_rz_get_most_viwed_posts(){
                                 <?php
                                 $tags = wp_get_post_terms(get_the_ID(), 'discussion_tags');
                                 foreach($tags as $tag){
-                                    echo '<li class="tag-list list-unstyled"><a href="'.get_term_link($tag->term_id, 'discussion_tags').'" class="tag-link imit-font fz-12 d-block me-2 text-dark border px-1">'.$tag->name.'</a></li>';
+                                    echo '<li class="tag-list list-unstyled"><a href="'.get_term_link($tag->term_id, 'discussion_tags').'" class="tag-link imit-font fz-12 d-block me-2 rz-secondary-color rounded border px-1">'.$tag->name.'</a></li>';
                                 }
                                 ?>
                             </ul>
                         </div>
                     </div>
-                    <div class="card-footer border-top-0 d-flex flex-row justify-content-between align-items-center">
+                    <div class="card-footer border-top-0 d-flex flex-row justify-content-between align-items-center p-3">
                         <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
                             <?php
                             $post_id = get_the_ID();
@@ -594,9 +594,9 @@ function imit_rz_get_most_viwed_posts(){
                         </ul>
 
                         <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
-                            <li class="blog-footer-list list-unstyled">
+                            <!-- <li class="blog-footer-list list-unstyled">
                                 <a href="#" class="imit-font fz-16 text-dark fw-400 me-3"><i class="fas fa-share"></i></a>
-                            </li>
+                            </li> -->
                             <li class="blog-footer-list list-unstyled">
                                 <div class="dropdown">
                                     <button class="imit-font fz-16 text-dark fw-500 p-0 bg-transparent d-block" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -654,8 +654,8 @@ function imit_rz_most_hotely_debated_posts(){
             $user_data = get_userdata($user_id);
             ?>
             <li class="blog-list list-unstyled mt-3">
-                <div class="card rz-border">
-                    <div class="card-body">
+                <div class="card rz-border rz-br">
+                    <div class="card-body p-4">
                         <div class="blog-list-header d-flex flex-row justify-content-between align-items-center">
                             <div class="user-info d-flex flex-row justify-content-start align-items-center">
                                 <div class="profile-image">
@@ -691,13 +691,13 @@ function imit_rz_most_hotely_debated_posts(){
                                 <?php
                                 $tags = wp_get_post_terms(get_the_ID(), 'discussion_tags');
                                 foreach($tags as $tag){
-                                    echo '<li class="tag-list list-unstyled"><a href="'.get_term_link($tag->term_id, 'discussion_tags').'" class="tag-link imit-font fz-12 d-block me-2 text-dark border px-1">'.$tag->name.'</a></li>';
+                                    echo '<li class="tag-list list-unstyled"><a href="'.get_term_link($tag->term_id, 'discussion_tags').'" class="tag-link imit-font fz-12 d-block me-2 rz-secondary-color rounded border px-1">'.$tag->name.'</a></li>';
                                 }
                                 ?>
                             </ul>
                         </div>
                     </div>
-                    <div class="card-footer border-top-0 d-flex flex-row justify-content-between align-items-center">
+                    <div class="card-footer border-top-0 d-flex flex-row justify-content-between align-items-center p-3">
                         <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
                             <?php
                             $post_id = get_the_ID();
@@ -723,9 +723,9 @@ function imit_rz_most_hotely_debated_posts(){
                         </ul>
 
                         <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
-                            <li class="blog-footer-list list-unstyled">
+                            <!-- <li class="blog-footer-list list-unstyled">
                                 <a href="#" class="imit-font fz-16 text-dark fw-400 me-3"><i class="fas fa-share"></i></a>
-                            </li>
+                            </li> -->
                             <li class="blog-footer-list list-unstyled">
                                 <div class="dropdown">
                                     <button class="imit-font fz-16 text-dark fw-500 p-0 bg-transparent d-block" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">

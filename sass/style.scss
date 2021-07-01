@@ -65,6 +65,18 @@ a{
 .rz-br{
     border-radius: 12px !important;
 }
+.rz-lh-38{
+    line-height: 38px !important;
+}
+.btn, .form-control{
+    &:focus{
+        box-shadow: none !important;
+    }
+}
+.rz-mid{
+    max-width: 1140px;
+    margin: 0 auto;
+}
 
 /**
 * home banner
@@ -92,7 +104,7 @@ a{
 }
 
 .join{
-    min-height: 300px;
+    min-height: 273px;
     background-repeat: no-repeat;
     background-position: right bottom;
     .title{
@@ -105,12 +117,18 @@ a{
         list-style: none;
         .card{
             border: 1px solid #FAEDE5 !important;
+            .card-footer{
+                border-bottom-left-radius: inherit !important;
+                border-bottom-right-radius: inherit !important;
+            }
         }
         .question-title{
             font-size: 24px;
             line-height: 38px;
+            margin: 20px 0;
         }
         .tags{
+            margin-top: 20px;
             .tag-list{
                 list-style: none;
                 margin-right: 10px;
@@ -223,10 +241,15 @@ a{
         border: 1px solid #FAEDE5;
         .card-header{
             background-color: #FAEDE5;
+            border-top-left-radius: inherit !important;
+            border-top-right-radius: inherit !important;
+            h3{
+                line-height: 38px;
+            }
         }
         .card-body{
             .activity-list{
-                max-height: 400px;
+                max-height: 355px;
                 overflow-y: auto;
                 li{
                     list-style: none;
@@ -240,6 +263,11 @@ a{
                                 width: 42px;
                                 height: 42px;
                                 border-radius: 50%;
+                            }
+                        }
+                        .activity-description{
+                            p{
+                                line-height: 38px;
                             }
                         }
                     }
@@ -266,6 +294,12 @@ a{
             }
         }
     }
+    .trending-tags{
+        .card-header{
+            border-top-left-radius: inherit !important;
+            border-top-right-radius: inherit !important;
+        }
+    }
 }
 
 /**
@@ -274,11 +308,12 @@ a{
 .imit-discussion{
     background-color: #FFFAF8;
     .rz-tabs{
+        overflow: hidden !important;
         .rz-tab-list{
             &:first-child{
                 .rz-tab-link{
-                    border-top-left-radius: 5px;
-                    border-bottom-left-radius: 5px;
+                    border-top-left-radius: 0.25rem;
+                    border-bottom-left-radius: 0.25rem;
                 }
             }
             .rz-tab-link{
@@ -294,6 +329,19 @@ a{
                 color: #721B65 !important;
             }
         }
+    }
+    .blog-footer-icons{
+        .blog-footer-list{
+            .prev, .next{
+                i{
+                    background-color: #170514 !important;
+                }
+            }
+        }
+    }
+    .card-footer{
+        border-bottom-left-radius: inherit !important;
+        border-bottom-right-radius: inherit !important;
     }
 }
 
@@ -893,4 +941,130 @@ for header profile image
     line-height: 30px;
     color: #fff !important;
     background-color: #721B65;
+}
+
+/**
+design for notification
+*/
+.notification-button{
+    #notification-active{
+        span{
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: block;
+            background-color: #E14740;
+            border: 1px solid #fff;
+        }
+    }
+}
+.dropdown-notification{
+    background-color: #fff;
+    display: none;
+    position: absolute;
+    top: calc(100% + 35px);
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: 386px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    z-index: 9999;
+    .tab-nav{
+        .tab-list{
+            width: 50%;
+            .tab-link{
+                background-color: #F7F7F7;
+                color: #170514;
+                text-align: center;
+                display: block;
+                padding: 10px 30px;
+                font-size: 18px;
+                line-height: 24px;
+            }
+            .active{
+                background-color: #fff;
+            }
+        }
+    }
+    .tab-content{
+        .notifications{
+            height: 358px;
+            overflow-y: auto;
+            .notifications-lists{
+                &:last-child{
+                    .notification-link{
+                        border-bottom: none;
+                    }
+                }
+                .notification-link{
+                    padding: 20px;
+                    display: block;
+                    line-height: 20px;
+                    border-bottom: 1px solid #FAEDE5;
+                    transition: 0.3s;
+                    &:hover{
+                        background-color: #FAEDE5;
+                    }
+                }
+                .active{
+                    background-color: #eee;
+                }
+            }
+        }
+        .message-users{
+            height: 358px;
+            overflow-y: auto;
+            .message-user-list{
+                &:last-child{
+                    .message-user-link{
+                        border-bottom: none;
+                    }
+                }
+                .message-user-link{
+                    border-bottom: 1px solid #FAEDE5;
+                    padding: 20px;
+                    display: block;
+                    transition: 0.3s;
+                    &:hover{
+                        background-color: #FAEDE5;
+                    }
+                    .profile-info{
+                        .profile-image{
+                            min-width: 42px;
+                            min-height: 42px;
+                            border-radius: 50%;
+                            img{
+                                width: 42px;
+                                height: 42px;
+                                border-radius: 50%;
+                            }
+
+                        }
+                        .info{
+                            .name{
+                                color: #170514;
+                                line-height: 20px;
+                                span{
+                                    width: 8px;
+                                    height: 8px;
+                                    border-radius: 50%;
+                                    background-color: #E14640;
+                                    display: inline-block;
+                                }
+                            }
+                            .timeago{
+                                font-size: 11px;
+                            }
+                        }
+                    }
+                }
+                .active{
+                    background-color: #eee;
+                }
+            }
+        }
+    }
 }

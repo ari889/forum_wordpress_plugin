@@ -13,21 +13,6 @@
         $post_id = sanitize_key($_POST['post_id']);
         $rz_answers = $wpdb->prefix.'rz_answers';
         $user_id = get_current_user_id();
-        $rz_point_table = $wpdb->prefix.'rz_point_table';
-        $rz_user_profile_data = $wpdb->prefix.'rz_user_profile_data';
-        $rz_partner_program = $wpdb->prefix.'rz_user_programs';
-
-        $get_all_answers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND user_id != '$user_id'", ARRAY_A);
-
-        $get_post_author_id = $wpdb->get_row("SELECT post_author FROM {$wpdb->prefix}posts WHERE ID = '$post_id'");
-
-        $is_user_joined_programme = $wpdb->get_results("SELECT * FROM {$rz_partner_program} WHERE user_id = '$user_id' AND status = '1'", ARRAY_A);
-
-        if(count($get_all_answers) >= 1){
-            $point = 10;
-        }else{
-            $point = 20;
-        }
 
         if(!empty($answer) && !empty($post_id)){
             $wpdb->insert($rz_answers, [
@@ -35,50 +20,7 @@
                 'post_id' => $post_id,
                 'answer_text' => $answer,
                 'status' => '0'
-            ]);
-
-            $answer_id = $wpdb->insert_id;
-            if(count($is_user_joined_programme) && $get_post_author_id->post_author != $user_id){
-                $wpdb->insert($rz_point_table, [
-                    'user_id' => $user_id,
-                    'content_id' => $answer_id,
-                    'point_type' => 'answer',
-                    'point_earn' => $point
-                ]);
-
-                $get_point = $wpdb->get_row("SELECT * FROM {$rz_user_profile_data} WHERE user_id = '$user_id'");
-
-
-                $user_point = $get_point->points;
-                if(empty($get_point)){
-                    $wpdb->insert($rz_user_profile_data, [
-                        'points' => $point,
-                        'user_id' => $user_id
-                    ]);
-                }else{
-                    $wpdb->update($rz_user_profile_data, [
-                        'points' => ($user_point+$point),
-                    ], ['user_id' => $user_id]);
-                }
-            }
-
-            preg_match_all("/#+([a-zA-Z0-9_]+)/i", $answer, $tags);
-
-            if(!empty($tags)){
-                $rz_hashtags = $wpdb->prefix.'rz_hashtags';
-                preg_match_all("/#+([a-zA-Z0-9_]+)/i", $answer, $matches);
-                if($matches){
-                    $result = array_values($matches[1]);
-                }
-
-                foreach($result as $trends){
-                    $wpdb->insert($rz_hashtags, [
-                        'content_id' => $answer_id,
-                        'content_type' => 'answers',
-                        'hashtag' => $trends
-                    ]);
-                }
-            }
+            ]);        
         }
     }
 
@@ -176,6 +118,55 @@ function imit_rz_change_answer_status(){
     if(wp_verify_nonce( $nonce, 'rz-change-answer-status-nonce' )){
         $answer_id = sanitize_key( $_POST['answer_id'] );
         $status = sanitize_text_field( $_POST['status'] );
+        $rz_point_table = $wpdb->prefix.'rz_point_table';
+        $rz_user_profile_data = $wpdb->prefix.'rz_user_profile_data';
+        $rz_partner_program = $wpdb->prefix.'rz_user_programs';
+
+        $get_user_id_by_answer = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_answers WHERE id = '{$answer_id}'");
+        $get_post_author_id = $wpdb->get_row("SELECT post_author FROM {$wpdb->prefix}posts WHERE ID IN (SELECT post_id FROM {$wpdb->prefix}rz_answers WHERE id = '{$answer_id}')");
+        $user_id = $get_user_id_by_answer->user_id;
+
+        $get_all_answers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND user_id != '$user_id'", ARRAY_A);
+
+        $is_user_joined_programme = $wpdb->get_results("SELECT * FROM {$rz_partner_program} WHERE user_id = '$user_id' AND status = '1'", ARRAY_A);
+
+        if(count($get_all_answers) >= 1){
+            $point = 10;
+        }else{
+            $point = 20;
+        }
+
+        if($status == '1'){
+            $get_userdata = get_userdata( $user_id );
+            $username = getUserNameById($user_id);
+            $message = $username.' answered on your post <strong>"'.get_the_title($post_id).' "</strong>';
+            if($get_post_author_id->post_author !== $user_id){
+                add_notification(get_post_permalink($post_id), $user_id, $get_post_author_id->post_author, 'answer', $answer_id, $message);
+            }
+            if(count($is_user_joined_programme) > 0 && $get_post_author_id->post_author != $user_id){
+                $wpdb->insert($rz_point_table, [
+                    'user_id' => $user_id,
+                    'content_id' => $answer_id,
+                    'point_type' => 'answer',
+                    'point_earn' => $point
+                ]);
+
+                $get_point = $wpdb->get_row("SELECT * FROM {$rz_user_profile_data} WHERE user_id = '$user_id'");
+
+
+                $user_point = $get_point->points;
+                if(empty($get_point)){
+                    $wpdb->insert($rz_user_profile_data, [
+                        'points' => $point,
+                        'user_id' => $user_id
+                    ]);
+                }else{
+                    $wpdb->update($rz_user_profile_data, [
+                        'points' => ($user_point+$point),
+                    ], ['user_id' => $user_id]);
+                }
+            }
+        }
 
 
         $wpdb->update($wpdb->prefix.'rz_answers', [
