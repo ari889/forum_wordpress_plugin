@@ -827,6 +827,16 @@ add_action('wp_enqueue_scripts', function(){
         'rz_delete_reply_nonce' => $rz_delete_reply_nonce
     ] );
 
+    /**
+     * delet question comment
+     */
+    $rz_delete_comment_nonce = wp_create_nonce( 'rz-delete-comment-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzDeleteComment', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_delete_comment_nonce' => $rz_delete_comment_nonce
+    ] );
+
+
 
 
 });

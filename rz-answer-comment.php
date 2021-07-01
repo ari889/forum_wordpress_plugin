@@ -195,3 +195,34 @@ add_action('wp_ajax_imit_add_comment_up_vote', function(){
     }
     die();
 });
+
+
+/**
+ * delete comment
+ */
+
+
+ add_action('wp_ajax_rz_delete_comment', function(){
+     global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce( $nonce, 'rz-delete-comment-nonce' )){
+        $comment_id = sanitize_key( $_POST['comment_id'] );
+        $user_id = get_current_user_id();
+
+        if(!empty($comment_id) && !empty($user_id)){
+            $wpdb->query("DELETE FROM {$wpdb->prefix}rz_comment_reply_likes WHERE reply_id IN (SELECT id FROM {$wpdb->prefix}rz_comment_replays WHERE comment_id = '{$comment_id}')");
+
+            $wpdb->delete($wpdb->prefix.'rz_comment_replays', [
+                'comment_id' => $comment_id
+            ]);
+
+            $wpdb->delete($wpdb->prefix.'rz_answer_comments', [
+                'id' => $comment_id,
+                'user_id' => $user_id
+            ]);
+
+            exit('done');
+        }
+    }
+     die();
+ });

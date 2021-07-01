@@ -1354,6 +1354,44 @@
             });
         });
 
+        /**
+         * delete comment
+         */
+        $(document).on('click', '#delete-comment', function(e){
+            e.preventDefault();
+            let comment_id = $(this).data('comment_id');
+            swal({
+                title: "Are you sure to delete this comment?",
+                text: "Once deleted, you will not be able to recover this imaginary file!",
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if(willDelete){
+                    $.ajax({
+                        url: rzDeleteComment.ajax_url,
+                        method: 'POST',
+                        data: {'action': 'rz_delete_comment', 'nonce': rzDeleteComment.rz_delete_comment_nonce, 'comment_id' : comment_id},
+                        success: function(data){
+                            console.log(data);
+                            if(data == 'done'){
+                                $('#comment'+comment_id).html('<div class="text-center"><i class="fas fa-trash text-danger fz-20"></i><p class="mb-0 fz-16 rz-secondary-color">Comment deleted!</p></div>');
+                                swal("Poof! Your imaginary file has been deleted!", {
+                                    icon: "success",
+                                });
+                            }else{
+                                swal("Failed! Something went wrong.", {
+                                    icon: "warning",
+                                });
+                            }
+                        }
+                    });
+                }else{
+                    swal("Your imaginary file is safe!");
+                }
+            });
+        });
+
 
         /**
          * opend modal with user data
