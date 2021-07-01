@@ -190,3 +190,28 @@ add_action('wp_ajax_rz_add_replay_like', function(){
     }
     die();
 });
+
+/**
+ * delete reply
+ */
+add_action('wp_ajax_rz_delete_replay', function(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce( $nonce, 'rz-delete-reply-nonce' )){
+        $reply_id = sanitize_key( $_POST['reply_id'] );
+        $user_id = get_current_user_id(  );
+
+        if(!empty($reply_id) && !empty($user_id)){
+            $wpdb->delete($wpdb->prefix.'rz_comment_reply_likes', [
+                'reply_id' => $reply_id
+            ]);
+            $wpdb->delete($wpdb->prefix.'rz_comment_replays', [
+                'id' => $reply_id,
+                'user_id' => $user_id
+            ]);
+
+            exit('done');
+        }
+    }
+    die();
+});

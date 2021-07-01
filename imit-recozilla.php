@@ -818,6 +818,16 @@ add_action('wp_enqueue_scripts', function(){
     ] );
 
 
+    /**
+     * delete reply
+     */
+    $rz_delete_reply_nonce = wp_create_nonce( 'rz-delete-reply-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzDeleteReply', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_delete_reply_nonce' => $rz_delete_reply_nonce
+    ] );
+
+
 
 });
 
@@ -896,6 +906,7 @@ add_action('admin_enqueue_scripts', function($hook){
             'ajax_url' => admin_url('admin-ajax.php'),
             'rz_answer_on_quiz_nonce' => $rz_answer_on_quiz_nonce
         ] );
+
 
     }
 

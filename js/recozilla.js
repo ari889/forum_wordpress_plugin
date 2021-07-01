@@ -1317,6 +1317,45 @@
 
 
         /**
+         * delete replay
+         */
+        $(document).on('click', '#delete-reply', function(e){
+            e.preventDefault();
+
+            let reply_id = $(this).data('reply_id');
+            swal({
+                title: "Are you sure to delete this reply?",
+                text: "Once deleted, you will not be able to recover this imaginary file!",
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if(willDelete){
+                    $.ajax({
+                        url: rzDeleteReply.ajax_url,
+                        method: 'POST',
+                        data: {'action': 'rz_delete_replay', 'nonce': rzDeleteReply.rz_delete_reply_nonce, 'reply_id' : reply_id},
+                        success: function(data){
+                            if(data == 'done'){
+                                $('#reply'+reply_id).html('<div class="text-center"><i class="fas fa-trash text-danger fz-20"></i><p class="mb-0 fz-16 rz-secondary-color">Reply deleted!</p></div>');
+                                swal("Poof! Your imaginary file has been deleted!", {
+                                    icon: "success",
+                                });
+                            }else{
+                                swal("Failed! Something went wrong.", {
+                                    icon: "warning",
+                                });
+                            }
+                        }
+                    });
+                }else{
+                    swal("Your imaginary file is safe!");
+                }
+            });
+        });
+
+
+        /**
          * opend modal with user data
          */
          let login_modal = new bootstrap.Modal(document.getElementById('send-message-modal'));
