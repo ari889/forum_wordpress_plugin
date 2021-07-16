@@ -10,7 +10,7 @@ add_shortcode('imit-discuss', function(){
     ?>
     <section class="imit-discussion">
     <div class="rz-mid">
-        <div class="row pt-3">
+        <div class="row">
         <div class="col-lg-9">
             <div class="d-flex flex-row justify-content-between align-items-center rz-bg-color rounded-2">
                 <ul class="rz-tabs d-flex flex-row justify-content-start align-items-center ps-0 mb-0">
@@ -137,6 +137,9 @@ add_action('wp_ajax_rz_add_discussion', function(){
         $editor = sanitize_text_field($_POST['editor']);
         $image = $_FILES['featured-image']['name'];
         $image_tmp = $_FILES['featured-image']['tmp_name'];
+        $rz_partner_program = $wpdb->prefix.'rz_user_programs';
+        $rz_point_table = $wpdb->prefix.'rz_point_table';
+        $rz_user_profile_data = $wpdb->prefix.'rz_user_profile_data';
 
         $exp = explode('.', $image);
 
@@ -171,6 +174,33 @@ add_action('wp_ajax_rz_add_discussion', function(){
 
             // Insert the post into the database
             $post_id = wp_insert_post( $my_post );
+
+            $is_user_joined_programme = $wpdb->get_results("SELECT * FROM {$rz_partner_program} WHERE user_id = '$user_id' AND status = '1'", ARRAY_A);
+
+            if(count($is_user_joined_programme)){
+                $wpdb->insert($rz_point_table, [
+                    'user_id' => $user_id,
+                    'content_id' => $post_id,
+                    'point_type' => 'post',
+                    'point_earn' => 10
+                ]);
+
+                $get_point = $wpdb->get_row("SELECT * FROM {$rz_user_profile_data} WHERE user_id = '$user_id'");
+
+
+                $user_point = $get_point->points;
+
+                if(empty($get_point)){
+                    $wpdb->insert($rz_user_profile_data, [
+                        'points' => 10,
+                        'user_id' => $user_id
+                    ]);
+                }else{
+                    $wpdb->update($rz_user_profile_data, [
+                        'points' => ($user_point+10),
+                    ], ['user_id' => $user_id]);
+                }
+            }
 
             $post_tags = explode(',', $tags);
 
@@ -228,22 +258,96 @@ add_action('wp_ajax_imit_add_like_or_dislike_on_discussion', function(){
         $user_id = get_current_user_id();
         $like_type = sanitize_text_field($_POST['like_type']);
         $rz_discuss_likes = $wpdb->prefix.'rz_discuss_likes';
-        $get_all_likes = $wpdb->get_results("SELECT * FROM {$rz_discuss_likes} WHERE user_id = '$user_id' AND post_id = '$post_id'", ARRAY_A);
+        $get_all_likes = $wpdb->get_row("SELECT * FROM {$rz_discuss_likes} WHERE user_id = '$user_id' AND post_id = '$post_id'");
+
+        $post_author = get_post_field('post_author', $post_id);
+
         if(!empty($post_id) && !empty($user_id)){
-            if(count($get_all_likes) > 0){
-                $wpdb->delete($rz_discuss_likes, [
-                    'post_id' => $post_id,
-                    'user_id' => $user_id,
-                    'like_type' => $like_type
-                ]);
-                $response['data_res'] = false;
+            if(!empty($get_all_likes)){
+                if($like_type == $get_all_likes->like_type){
+
+
+                    $wpdb->delete($wpdb->prefix.'notification', [
+                        'sender_id' => $user_id,
+                        'receiver_id' => $post_author,
+                        'notification_type' => 'discuss-vote',
+                        'content_id' => $get_all_likes->id
+                    ]);
+
+
+                    $wpdb->delete($rz_discuss_likes, [
+                        'id' => $get_all_likes->id
+                    ]);
+
+
+                    $get_up_like = $wpdb->get_results("SELECT * FROm {$wpdb->prefix}rz_discuss_likes WHERE post_id = '{$post_id}' AND like_type = 'up-like'", ARRAY_A);
+                    $get_down_like = $wpdb->get_results("SELECT * FROm {$wpdb->prefix}rz_discuss_likes WHERE post_id = '{$post_id}' AND like_type = 'down-like'", ARRAY_A);
+                    $count_like = intval($get_up_like) - intval($get_down_like);
+                    
+                    if($like_type == 'up-like'){
+                        $response['up_like'] = false;
+                        $response['counter'] = $count_like;
+                    }else{
+                        $response['down_like'] = false;
+                        $response['counter'] = $count_like;
+                    }
+                }else{
+                    $wpdb->update($rz_discuss_likes, [
+                        'like_type' => $like_type
+                    ],[
+                        'id' => $get_all_likes->id
+                    ]);
+
+                    if($user_id != $post_author){
+                        $message = getUserNameById($user_id).' '.$like_type.' on your post comment <strong>'.get_the_title($post_id).'</strong>';
+                        $wpdb->update($wpdb->prefix.'notification', [
+                            'massage_text' => $message
+                        ], [
+                            'sender_id' => $user_id,
+                            'receiver_id' => $post_author,
+                            'notification_type' => 'discuss-vote',
+                            'content_id' => $get_all_likes->id
+                        ]);
+                    }
+
+                    $get_up_like = $wpdb->get_results("SELECT * FROm {$wpdb->prefix}rz_discuss_likes WHERE post_id = '{$post_id}' AND like_type = 'up-like'", ARRAY_A);
+                    $get_down_like = $wpdb->get_results("SELECT * FROm {$wpdb->prefix}rz_discuss_likes WHERE post_id = '{$post_id}' AND like_type = 'down-like'", ARRAY_A);
+                    $count_like = intval($get_up_like) - intval($get_down_like);
+
+
+                    if($like_type == 'up-like'){
+                        $response['up_like'] = true;
+                        $response['counter'] = $count_like;
+                    }else{
+                        $response['down_like'] = true;
+                        $response['counter'] = $count_like;
+                    }
+                }
             }else {
                 $wpdb->insert($rz_discuss_likes, [
                     'post_id' => $post_id,
                     'user_id' => $user_id,
                     'like_type' => $like_type
                 ]);
-                $response['data_res'] = true;
+
+                $like_id = $wpdb->insert_id;
+
+                if($user_id != $post_author){
+                    $message = getUserNameById($user_id).' '.$like_type.' on your post comment <strong>'.get_the_title($post_id).'</strong>';
+                    add_notification(get_post_permalink($post_id), $user_id, $post_author, 'discuss-vote', $like_id, $message);
+                }
+
+                $get_up_like = $wpdb->get_results("SELECT * FROm {$wpdb->prefix}rz_discuss_likes WHERE post_id = '{$post_id}' AND like_type = 'up-like'", ARRAY_A);
+                $get_down_like = $wpdb->get_results("SELECT * FROm {$wpdb->prefix}rz_discuss_likes WHERE post_id = '{$post_id}' AND like_type = 'down-like'", ARRAY_A);
+                $count_like = intval($get_up_like) - intval($get_down_like);
+                
+                if($like_type == 'up-like'){
+                    $response['up_like'] = true;
+                    $response['counter'] = $count_like;
+                }else{
+                    $response['down_like'] = true;
+                    $response['counter'] = $count_like;
+                }
             }
         }
 
@@ -276,7 +380,7 @@ function imit_rz_discuss_and_debate_posts(){
             $get_user_profile_data = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '$user_id'");
             $user_data = get_userdata($user_id);
             ?>
-            <li class="blog-list list-unstyled mt-3">
+            <li class="blog-list list-unstyled mt-3" id="dis-post<?php echo get_the_ID(); ?>">
                 <div class="card rz-border rz-br">
                     <div class="card-body p-4">
                         <div class="blog-list-header d-flex flex-row justify-content-between align-items-center">
@@ -304,7 +408,7 @@ function imit_rz_discuss_and_debate_posts(){
                                     }?>
                                 </div>
                             </div>
-                            <p class="mb-0 imit-font fz-14 rz-secondary-color fw-400">Post no: <?php the_time(); ?></p>
+                            <p class="mb-0 imit-font fz-14 rz-secondary-color fw-400">Posted on: <?php the_time('g a F d, Y'); ?></p>
                         </div>
                         <div class="blog-body">
                             <a href="<?php the_permalink(); ?>" class="my-3 title imit-font text-dark fw-500 d-block"><?php the_title(); ?> </a>
@@ -321,18 +425,21 @@ function imit_rz_discuss_and_debate_posts(){
                         </div>
                     </div>
                     <div class="card-footer border-top-0 d-flex flex-row justify-content-between align-items-center p-3">
-                        <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
+                        <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center" id="discuss-action<?php echo get_the_ID(); ?>">
                             <?php
                             $post_id = get_the_ID();
                             $user_id = get_current_user_id();
                             $get_all_up_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND user_id = '$user_id' AND like_type = 'up-like'", ARRAY_A);
                             $get_all_down_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND user_id = '$user_id' AND like_type = 'down-like'", ARRAY_A);
+
+                            $count_discuss_up_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND like_type = 'up-like'", ARRAY_A);
+                            $count_discuss_down_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND like_type = 'down-like'", ARRAY_A);
                             ?>
                             <li class="blog-footer-list list-unstyled">
                                 <a href="#" class="prev imit-font fz-12 text-dark fw-400 me-3 <?php if(count($get_all_up_like)){echo 'active';} ?>" id="discuss-up-like" data-post_id="<?php echo get_the_ID(); ?>"><i class="fas fa-arrow-up"></i></a>
                             </li>
                             <li class="blog-footer-list list-unstyled">
-                                <span class="counter imit-font fz-16 fw-500 me-3 <?php if((count($get_all_up_like) - count($get_all_down_like)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="discuss-like-counter<?php echo get_the_ID(); ?>"><?php echo count($get_all_up_like) - count($get_all_down_like); ?></span>
+                                <span class="counter imit-font fz-16 fw-500 me-3 <?php if((count($count_discuss_up_like) - count($count_discuss_down_like)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="discuss-like-counter<?php echo get_the_ID(); ?>"><?php echo count($count_discuss_up_like) - count($count_discuss_down_like); ?></span>
                             </li>
                             <li class="blog-footer-list list-unstyled">
                                 <a href="#" class="next imit-font fz-12 text-dark fw-400 me-3 <?php if(count($get_all_down_like)){echo 'active';} ?>" id="discuss-down-like" data-post_id="<?php echo get_the_ID(); ?>"><i class="fas fa-arrow-down"></i></a>
@@ -344,24 +451,25 @@ function imit_rz_discuss_and_debate_posts(){
                                 <a href="<?php the_permalink(); ?>" class="comments imit-font fz-14 text-dark fw-400 me-3"><i class="fas fa-comments"></i> Comments</a>
                             </li>
                         </ul>
-    
-                        <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
-                            <!-- <li class="blog-footer-list list-unstyled">
-                                <a href="#" class="imit-font fz-16 text-dark fw-400 me-3"><i class="fas fa-share"></i></a>
-                            </li> -->
-                            <li class="blog-footer-list list-unstyled">
+
+                        <?php
+                        $post_author = get_the_author_meta( 'ID' );
+                        if(is_user_logged_in() && $post_author == get_current_user_id() ){
+                            ?>
+                            <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
+                                <!--                                        <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>-->
                                 <div class="dropdown">
-                                    <button class="imit-font fz-16 text-dark fw-500 p-0 bg-transparent d-block" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                        <li><a class="dropdown-item imit-font fz-16 text-dark" href="#">Action</a></li>
-                                        <li><a class="dropdown-item imit-font fz-16 text-dark" href="#">Another action</a></li>
-                                        <li><a class="dropdown-item imit-font fz-16 text-dark" href="#">Something else here</a></li>
+                                    </a>
+
+                                    <ul class="dropdown-menu" aria-labelledby="more-option-feed">
+                                        <li><a class="dropdown-item imit-font fz-14 text-dark" href="#" id="delete-discuss-post" data-post_id="<?php echo get_the_ID(); ?>">Delete</a></li>
                                     </ul>
                                 </div>
-                            </li>
-                        </ul>
+                            </div>
+                            <?php
+                        } ?>
                     </div>
                 </div>
             </li>
@@ -399,7 +507,7 @@ function get_all_newest_posts(){
             $get_user_profile_data = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '$user_id'");
             $user_data = get_userdata($user_id);
             ?>
-            <li class="blog-list list-unstyled mt-3">
+            <li class="blog-list list-unstyled mt-3" id="dis-post<?php echo get_the_ID(); ?>">
                 <div class="card rz-border rz-br">
                     <div class="card-body p-4">
                         <div class="blog-list-header d-flex flex-row justify-content-between align-items-center">
@@ -427,7 +535,7 @@ function get_all_newest_posts(){
                                     }?>
                                 </div>
                             </div>
-                            <p class="mb-0 imit-font fz-14 rz-secondary-color fw-400">Post no: <?php the_time(); ?></p>
+                            <p class="mb-0 imit-font fz-14 rz-secondary-color fw-400">Posted on: <?php the_time('g a F d, Y'); ?></p>
                         </div>
                         <div class="blog-body">
                             <a href="<?php the_permalink(); ?>" class="my-3 title imit-font text-dark fw-500 d-block"><?php the_title(); ?> </a>
@@ -444,18 +552,21 @@ function get_all_newest_posts(){
                         </div>
                     </div>
                     <div class="card-footer border-top-0 d-flex flex-row justify-content-between align-items-center p-3">
-                        <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
+                        <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center" id="discuss-action<?php echo get_the_ID(); ?>">
                             <?php
                             $post_id = get_the_ID();
                             $user_id = get_current_user_id();
                             $get_all_up_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND user_id = '$user_id' AND like_type = 'up-like'", ARRAY_A);
                             $get_all_down_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND user_id = '$user_id' AND like_type = 'down-like'", ARRAY_A);
+                            
+                            $count_discuss_up_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND like_type = 'up-like'", ARRAY_A);
+                            $count_discuss_down_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND like_type = 'down-like'", ARRAY_A);
                             ?>
                             <li class="blog-footer-list list-unstyled">
                                 <a href="#" class="prev imit-font fz-12 text-dark fw-400 me-3 <?php if(count($get_all_up_like)){echo 'active';} ?>" id="discuss-up-like" data-post_id="<?php echo get_the_ID(); ?>"><i class="fas fa-arrow-up"></i></a>
                             </li>
                             <li class="blog-footer-list list-unstyled">
-                                <span class="counter imit-font fz-16 fw-500 me-3 <?php if((count($get_all_up_like) - count($get_all_down_like)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="discuss-like-counter<?php echo get_the_ID(); ?>"><?php echo count($get_all_up_like) - count($get_all_down_like); ?></span>
+                                <span class="counter imit-font fz-16 fw-500 me-3 <?php if((count($count_discuss_up_like) - count($count_discuss_down_like)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="discuss-like-counter<?php echo get_the_ID(); ?>"><?php echo count($count_discuss_up_like) - count($count_discuss_down_like); ?></span>
                             </li>
                             <li class="blog-footer-list list-unstyled">
                                 <a href="#" class="next imit-font fz-12 text-dark fw-400 me-3 <?php if(count($get_all_down_like)){echo 'active';} ?>" id="discuss-down-like" data-post_id="<?php echo get_the_ID(); ?>"><i class="fas fa-arrow-down"></i></a>
@@ -468,23 +579,24 @@ function get_all_newest_posts(){
                             </li>
                         </ul>
 
-                        <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
-                            <!-- <li class="blog-footer-list list-unstyled">
-                                <a href="#" class="imit-font fz-16 text-dark fw-400 me-3"><i class="fas fa-share"></i></a>
-                            </li> -->
-                            <li class="blog-footer-list list-unstyled">
+                        <?php
+                        $post_author = get_the_author_meta( 'ID' );
+                        if(is_user_logged_in() && $post_author == get_current_user_id() ){
+                            ?>
+                            <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
+                                <!--                                        <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>-->
                                 <div class="dropdown">
-                                    <button class="imit-font fz-16 text-dark fw-500 p-0 bg-transparent d-block" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                        <li><a class="dropdown-item imit-font fz-16 text-dark" href="#">Action</a></li>
-                                        <li><a class="dropdown-item imit-font fz-16 text-dark" href="#">Another action</a></li>
-                                        <li><a class="dropdown-item imit-font fz-16 text-dark" href="#">Something else here</a></li>
+                                    </a>
+
+                                    <ul class="dropdown-menu" aria-labelledby="more-option-feed">
+                                        <li><a class="dropdown-item imit-font fz-14 text-dark" href="#" id="delete-discuss-post" data-post_id="<?php echo get_the_ID(); ?>">Delete</a></li>
                                     </ul>
                                 </div>
-                            </li>
-                        </ul>
+                            </div>
+                            <?php
+                        } ?>
                     </div>
                 </div>
             </li>
@@ -524,7 +636,7 @@ function imit_rz_get_most_viwed_posts(){
             $get_user_profile_data = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '$user_id'");
             $user_data = get_userdata($user_id);
             ?>
-            <li class="blog-list list-unstyled mt-3">
+            <li class="blog-list list-unstyled mt-3" id="dis-post<?php echo get_the_ID(); ?>">
                 <div class="card rz-border rz-br">
                     <div class="card-body p-4">
                         <div class="blog-list-header d-flex flex-row justify-content-between align-items-center">
@@ -552,7 +664,7 @@ function imit_rz_get_most_viwed_posts(){
                                     }?>
                                 </div>
                             </div>
-                            <p class="mb-0 imit-font fz-14 rz-secondary-color fw-400">Post no: <?php the_time(); ?></p>
+                            <p class="mb-0 imit-font fz-14 rz-secondary-color fw-400">Posted on: <?php the_time('g a F d, Y'); ?></p>
                         </div>
                         <div class="blog-body">
                             <a href="<?php the_permalink(); ?>" class="my-3 title imit-font text-dark fw-500 d-block"><?php the_title(); ?> </a>
@@ -569,18 +681,21 @@ function imit_rz_get_most_viwed_posts(){
                         </div>
                     </div>
                     <div class="card-footer border-top-0 d-flex flex-row justify-content-between align-items-center p-3">
-                        <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
+                        <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center" id="discuss-action<?php echo get_the_ID(); ?>">
                             <?php
                             $post_id = get_the_ID();
                             $user_id = get_current_user_id();
                             $get_all_up_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND user_id = '$user_id' AND like_type = 'up-like'", ARRAY_A);
                             $get_all_down_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND user_id = '$user_id' AND like_type = 'down-like'", ARRAY_A);
+
+                            $count_discuss_up_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND like_type = 'up-like'", ARRAY_A);
+                            $count_discuss_down_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND like_type = 'down-like'", ARRAY_A);
                             ?>
                             <li class="blog-footer-list list-unstyled">
                                 <a href="#" class="prev imit-font fz-12 text-dark fw-400 me-3 <?php if(count($get_all_up_like)){echo 'active';} ?>" id="discuss-up-like" data-post_id="<?php echo get_the_ID(); ?>"><i class="fas fa-arrow-up"></i></a>
                             </li>
                             <li class="blog-footer-list list-unstyled">
-                                <span class="counter imit-font fz-16 fw-500 me-3 <?php if((count($get_all_up_like) - count($get_all_down_like)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="discuss-like-counter<?php echo get_the_ID(); ?>"><?php echo count($get_all_up_like) - count($get_all_down_like); ?></span>
+                                <span class="counter imit-font fz-16 fw-500 me-3 <?php if((count($count_discuss_up_like) - count($count_discuss_down_like)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="discuss-like-counter<?php echo get_the_ID(); ?>"><?php echo count($count_discuss_up_like) - count($count_discuss_down_like); ?></span>
                             </li>
                             <li class="blog-footer-list list-unstyled">
                                 <a href="#" class="next imit-font fz-12 text-dark fw-400 me-3 <?php if(count($get_all_down_like)){echo 'active';} ?>" id="discuss-down-like" data-post_id="<?php echo get_the_ID(); ?>"><i class="fas fa-arrow-down"></i></a>
@@ -593,23 +708,24 @@ function imit_rz_get_most_viwed_posts(){
                             </li>
                         </ul>
 
-                        <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
-                            <!-- <li class="blog-footer-list list-unstyled">
-                                <a href="#" class="imit-font fz-16 text-dark fw-400 me-3"><i class="fas fa-share"></i></a>
-                            </li> -->
-                            <li class="blog-footer-list list-unstyled">
+                        <?php
+                        $post_author = get_the_author_meta( 'ID' );
+                        if(is_user_logged_in() && $post_author == get_current_user_id() ){
+                            ?>
+                            <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
+                                <!--                                        <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>-->
                                 <div class="dropdown">
-                                    <button class="imit-font fz-16 text-dark fw-500 p-0 bg-transparent d-block" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                        <li><a class="dropdown-item imit-font fz-16 text-dark" href="#">Action</a></li>
-                                        <li><a class="dropdown-item imit-font fz-16 text-dark" href="#">Another action</a></li>
-                                        <li><a class="dropdown-item imit-font fz-16 text-dark" href="#">Something else here</a></li>
+                                    </a>
+
+                                    <ul class="dropdown-menu" aria-labelledby="more-option-feed">
+                                        <li><a class="dropdown-item imit-font fz-14 text-dark" href="#" id="delete-discuss-post" data-post_id="<?php echo get_the_ID(); ?>">Delete</a></li>
                                     </ul>
                                 </div>
-                            </li>
-                        </ul>
+                            </div>
+                            <?php
+                        } ?>
                     </div>
                 </div>
             </li>
@@ -653,11 +769,11 @@ function imit_rz_most_hotely_debated_posts(){
             $get_user_profile_data = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '$user_id'");
             $user_data = get_userdata($user_id);
             ?>
-            <li class="blog-list list-unstyled mt-3">
+            <li class="blog-list list-unstyled mt-3" id="dis-post<?php echo get_the_ID(); ?>">
                 <div class="card rz-border rz-br">
                     <div class="card-body p-4">
                         <div class="blog-list-header d-flex flex-row justify-content-between align-items-center">
-                            <div class="user-info d-flex flex-row justify-content-start align-items-center">
+                            <div class="user-info d-flex flex-row justify-content-start align-items-center" id="discuss-action<?php echo get_the_ID(); ?>">
                                 <div class="profile-image">
                                     <img src="<?php getProfileImageById($user_id); ?>" alt="">
                                 </div>
@@ -681,7 +797,7 @@ function imit_rz_most_hotely_debated_posts(){
                                     }?>
                                 </div>
                             </div>
-                            <p class="mb-0 imit-font fz-14 rz-secondary-color fw-400">Post no: <?php the_time(); ?></p>
+                            <p class="mb-0 imit-font fz-14 rz-secondary-color fw-400">Posted on: <?php the_time('g a F d, Y'); ?></p>
                         </div>
                         <div class="blog-body">
                             <a href="<?php the_permalink(); ?>" class="my-3 title imit-font text-dark fw-500 d-block"><?php the_title(); ?> </a>
@@ -698,18 +814,21 @@ function imit_rz_most_hotely_debated_posts(){
                         </div>
                     </div>
                     <div class="card-footer border-top-0 d-flex flex-row justify-content-between align-items-center p-3">
-                        <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
+                        <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center" id="discuss-action<?php echo get_the_ID(); ?>">
                             <?php
                             $post_id = get_the_ID();
                             $user_id = get_current_user_id();
                             $get_all_up_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND user_id = '$user_id' AND like_type = 'up-like'", ARRAY_A);
                             $get_all_down_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND user_id = '$user_id' AND like_type = 'down-like'", ARRAY_A);
+
+                            $count_discuss_up_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND like_type = 'up-like'", ARRAY_A);
+                            $count_discuss_down_like = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_discuss_likes WHERE post_id='$post_id' AND like_type = 'down-like'", ARRAY_A);
                             ?>
                             <li class="blog-footer-list list-unstyled">
                                 <a href="#" class="prev imit-font fz-12 text-dark fw-400 me-3 <?php if(count($get_all_up_like)){echo 'active';} ?>" id="discuss-up-like" data-post_id="<?php echo get_the_ID(); ?>"><i class="fas fa-arrow-up"></i></a>
                             </li>
                             <li class="blog-footer-list list-unstyled">
-                                <span class="counter imit-font fz-16 fw-500 me-3 <?php if((count($get_all_up_like) - count($get_all_down_like)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="discuss-like-counter<?php echo get_the_ID(); ?>"><?php echo count($get_all_up_like) - count($get_all_down_like); ?></span>
+                                <span class="counter imit-font fz-16 fw-500 me-3 <?php if((count($count_discuss_up_like) - count($count_discuss_down_like)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="discuss-like-counter<?php echo get_the_ID(); ?>"><?php echo count($count_discuss_up_like) - count($count_discuss_down_like); ?></span>
                             </li>
                             <li class="blog-footer-list list-unstyled">
                                 <a href="#" class="next imit-font fz-12 text-dark fw-400 me-3 <?php if(count($get_all_down_like)){echo 'active';} ?>" id="discuss-down-like" data-post_id="<?php echo get_the_ID(); ?>"><i class="fas fa-arrow-down"></i></a>
@@ -721,24 +840,24 @@ function imit_rz_most_hotely_debated_posts(){
                                 <a href="<?php the_permalink(); ?>" class="comments imit-font fz-14 text-dark fw-400 me-3"><i class="fas fa-comments"></i> Comments</a>
                             </li>
                         </ul>
-
-                        <ul class="blog-footer-icons ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
-                            <!-- <li class="blog-footer-list list-unstyled">
-                                <a href="#" class="imit-font fz-16 text-dark fw-400 me-3"><i class="fas fa-share"></i></a>
-                            </li> -->
-                            <li class="blog-footer-list list-unstyled">
+                        <?php
+                        $post_author = get_the_author_meta( 'ID' );
+                        if(is_user_logged_in() && $post_author == get_current_user_id() ){
+                            ?>
+                            <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
+                                <!--                                        <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>-->
                                 <div class="dropdown">
-                                    <button class="imit-font fz-16 text-dark fw-500 p-0 bg-transparent d-block" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                        <li><a class="dropdown-item imit-font fz-16 text-dark" href="#">Action</a></li>
-                                        <li><a class="dropdown-item imit-font fz-16 text-dark" href="#">Another action</a></li>
-                                        <li><a class="dropdown-item imit-font fz-16 text-dark" href="#">Something else here</a></li>
+                                    </a>
+
+                                    <ul class="dropdown-menu" aria-labelledby="more-option-feed">
+                                        <li><a class="dropdown-item imit-font fz-14 text-dark" href="#" id="delete-discuss-post" data-post_id="<?php echo get_the_ID(); ?>">Delete</a></li>
                                     </ul>
                                 </div>
-                            </li>
-                        </ul>
+                            </div>
+                            <?php
+                        } ?>
                     </div>
                 </div>
             </li>
@@ -749,3 +868,38 @@ function imit_rz_most_hotely_debated_posts(){
     }
     die();
 }
+
+/**
+ * delete discuss post
+ */
+add_action('wp_ajax_rz_delete_discuss_post', function(){
+   global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce($nonce, 'rz-delete-discuss-post-nonce')){
+        $post_id = sanitize_key($_POST['post_id']);
+        $user_id = get_current_user_id();
+
+        if(!empty($post_id) && !empty($user_id)){
+            $wpdb->query("DELETE FROM {$wpdb->prefix}rz_discuss_reply_likes WHERE reply_id IN (SELECT id FROM {$wpdb->prefix}rz_discuss_comment_replays WHERE comment_id IN (SELECT id FROM {$wpdb->prefix}rz_discussion_comments WHERE post_id = '{$post_id}'))");
+
+            $wpdb->query("DELETE FROM {$wpdb->prefix}rz_discuss_comment_replays WHERE comment_id IN (SELECT id FROM {$wpdb->prefix}rz_discussion_comments WHERE post_id = '{$post_id}')");
+
+            $wpdb->query("SELECT * FROM {$wpdb->prefix}rz_discuss_comment_likes WHERE comment_id IN (SELECT id FROM {$wpdb->prefix}rz_discussion_comments WHERE post_id = '{$post_id}')");
+
+            $wpdb->delete($wpdb->prefix.'rz_discussion_comments', [
+                    'post_id' => $post_id
+            ]);
+
+            $wpdb->delete($wpdb->prefix.'rz_discuss_likes', [
+                    'post_id' => $post_id
+            ]);
+
+            wp_delete_attachment($post_id, false);
+
+            wp_delete_post($post_id, false);
+
+            exit('done');
+        }
+    }
+   die();
+});

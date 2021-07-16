@@ -159,29 +159,7 @@ add_shortcode('imit-user-profile', function(){
                                 <li class="tab-list list-unstyled">
                                     <a href="#" class="tab-link text-decoration-none me-3 pt-3 pb-2 d-block imit-font text-white fz-14" data-target="rz-profile-user-comment">Question commented</a>
                                 </li>
-                                <li class="tab-list list-unstyled">
-                                    <a href="#" class="tab-link text-decoration-none me-3 pt-3 pb-2 d-block imit-font text-white fz-14" data-target="following-user" data-user_id="<?php echo $user_id; ?>">Following</a>
-                                </li>
-                                <li class="tab-list list-unstyled">
-                                    <a href="#" class="tab-link text-decoration-none me-3 pt-3 pb-2 d-block imit-font text-white fz-14" data-target="user-dairy">Dairy</a>
-                                </li>
-                                <?php if(is_user_logged_in() && get_current_user_id() == um_profile_id()){
-                                    ?>
-                                    <li class="tab-list list-unstyled">
-                                        <a href="#" class="tab-link text-decoration-none me-3 pt-3 pb-2 d-block imit-font text-white fz-14" data-target="user-points">Points Earned</a>
-                                    </li>
-                                    <?php
-                                }
-                                if(is_user_logged_in() && get_current_user_id() == um_profile_id()){
-                                    if(!count($is_user_requested) > 0){
-                                        ?>
-                                        <li class="tab-list list-unstyled">
-                                            <a href="#" class="tab-link text-decoration-none me-3 pt-3 pb-2 d-block imit-font text-white fz-14" data-target="partner-program">Join partner program</a>
-                                        </li>
-                                        <?php
-                                    }
-                                }
-                                ?>
+                                
                             </ul>
 
                             <div class="dropdown">
@@ -190,9 +168,33 @@ add_shortcode('imit-user-profile', function(){
                                 </a>
 
                                 <ul class="dropdown-menu" aria-labelledby="feed-more-tabs">
-                                    <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Action</a></li>
-                                    <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Another action</a></li>
-                                    <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Something else here</a></li>
+                                    <?php 
+                                    if(is_user_logged_in() && get_current_user_id() == um_profile_id()){
+                                        if(!count($is_user_requested) > 0){
+                                            ?>
+                                            <li><a class="dropdown-item imit-font fz-14 text-dark tab-link" href="#" data-target="partner-program">Join partner program</a></li>
+                                            <?php
+                                        }
+                                    }
+
+                                    if(is_user_logged_in() && get_current_user_id() == um_profile_id()){
+                                        ?>
+                                        <li><a class="tab-link dropdown-item imit-font fz-14 text-dark" href="#" data-target="user-points">Points earned</a></li>
+                                        <?php
+                                    }
+
+
+                                    if(is_user_logged_in() && get_current_user_id() == um_profile_id()){
+                                        ?>
+                                        <li><a class="dropdown-item imit-font fz-14 text-dark tab-link" href="#" data-target="redeem-points">Redeem Points</a></li>
+                                        <?php
+                                    }
+                                    ?>
+                                    <!-- <li class="tab-list list-unstyled">
+                                    <a href="#" class="tab-link text-decoration-none me-3 pt-3 pb-2 d-block imit-font text-white fz-14" data-target="following-user" data-user_id="<?php echo $user_id; ?>">Following</a>
+                                </li> -->
+                                    
+                                    <li><a class="tab-link dropdown-item imit-font fz-14 text-dark" href="#" data-target="following-question">Following</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -226,11 +228,43 @@ add_shortcode('imit-user-profile', function(){
 
 
 
-                    <div class="tab-content" id="following-user" style="display: none;">
-                        <ul class="row user-list ps-0 mb-0" id="following-user-ul">
-
-
+                    <div class="tab-content" id="following" style="display: none;">
+                        <ul class="following-tab p-3 rz-light-bg rounded d-flex flex-row justify-content-start align-items-center mt-3">
+                            <li class="tab-list list-unstyled">
+                                <a href="#" class="following-link me-3 imit-font rz-color fw-500 fz-14 pb-2 active" data-target="following-question">Questions</a>
+                            </li>
+                            <li class="tab-list list-unstyled">
+                                <a href="#" class="following-link me-3 imit-font rz-color fw-500 fz-14 pb-2" data-target="following-tags">Topics</a>
+                            </li>
+                            <li class="tab-list list-unstyled">
+                                <a href="#" class="following-link me-3 imit-font rz-color fw-500 fz-14 pb-2" data-target="following-users">Users</a>
+                            </li>
                         </ul>
+
+                        <!-- following questions start  -->
+                        <div id="following-question" class="following-content">
+                            <ul class="ps-0 mb-0" id="following-question-ul">
+                                
+                            </ul>
+                        </div>
+                        <!-- follwoing question end -->
+
+                        <!-- follwoing tags start -->
+                        <div class="following-content" id="following-tags" style="display: none;">
+                            <ul class="hash-tags ps-0 mb-0 row mt-3" id="following-tags-ul">
+                                                      
+                            </ul>
+                        </div>
+                        <!-- following tags end -->
+
+
+                        <!-- following users start -->
+                        <div id="following-users" class="following-content" style="display: none;">
+                            <ul class="ps-0 mb-0" id="following-users-ul">
+                                    
+                            </ul>
+                        </div>
+                        <!-- following end start -->
                     </div>
                     <div class="tab-content" id="user-dairy" style="display: none;">
                         <?php if(is_user_logged_in() && get_current_user_id() == um_profile_id()){
@@ -378,6 +412,69 @@ add_shortcode('imit-user-profile', function(){
                                             ?>
                                         </ul>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php
+                    }
+
+                    if(is_user_logged_in() && get_current_user_id() == um_profile_id()){
+                        ?>
+                        <div class="tab-content" id="redeem-points" style="display: none;">
+                            <div class="card rz-border mt-3 rz-br">
+                                <div class="card-header rz-light-bg border-0 p-3" style="border-top-left-radius: inherit !important;border-top-right-radious: inherit !important;">
+                                    <h3 class="m-0 rz-color fz-20 fw-500 imit-font">Redeem Points</h3>
+                                </div>
+                                <div class="card-body redeem-points-body p-4">
+                                    <form id="redeem-point-form">
+                                        <div id="redeem-point-message"></div>
+                                        <p class="imit-font fz-16 text-dark">Points Outstanding :  <span class="rz-color fw-500"><?php if(!empty($user_profile_data)){echo $user_profile_data->points;}else{echo 0;}; ?></span></p>
+
+                                        <p class="fz-14 imit-font rz-secondary-color">How may points you want to redeem?</p>
+
+                                        <input name="point" type="text" class="form-control imit-font border border-1 fz-14" placeholder="Redeem Points">
+
+                                        <h2 class="imit-font text-dark mt-5" style="font-size: 18px;">Mode of Payment</h2>
+
+                                        <div class="d-flex flex-row justify-content-start align-items-center">
+                                            <div class="radio-button">
+                                                <input name="payment-method" class="d-none" type="radio" id="paytm" value="Paytm" checked>
+                                                <label for="paytm"><img src="<?php echo plugins_url( 'images/paytm.png', __FILE__ ); ?>" alt=""></label>
+                                            </div>
+
+                                            <div class="radio-button">
+                                                <input name="payment-method" class="d-none" type="radio" id="google-pay" value="Google Pay">
+                                                <label for="google-pay"><img src="<?php echo plugins_url( 'images/google-pay.png', __FILE__ ); ?>" alt=""></label>
+                                            </div>
+
+                                            <div class="radio-button">
+                                                <input name="payment-method" class="d-none" type="radio" id="upi" value="UPI">
+                                                <label for="upi"><img src="<?php echo plugins_url( 'images/upi.png', __FILE__ ); ?>" alt=""></label>
+                                            </div>
+
+                                            <div class="radio-button">
+                                                <input name="payment-method" class="d-none" type="radio" id="bank-transfer" value="Bank Transfer">
+                                                <label for="bank-transfer"><img src="<?php echo plugins_url( 'images/bank-transfer.png', __FILE__ ); ?>" alt=""></label>
+                                            </div>
+                                        </div>
+
+                                        <div class="get-data-for-selected-payment mt-3" id="payment-details">
+                                            <div class="row mb-3">
+                                                <label for="paytm-name" class="col-sm-3 col-form-label imit-font fz-16">Name</label>
+                                                <div class="col-sm-9">
+                                                    <input name="name" type="text" class="form-control border fz-14 border-1 imit-font" id="paytm-name">
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-3">
+                                                <label for="paytm-mobile" class="col-sm-3 col-form-label imit-font fz-16">Mobile number</label>
+                                                <div class="col-sm-9">
+                                                    <input name="mobile" type="text" class="form-control border fz-14 border-1 imit-font" id="paytm-mobile">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn rz-bg-color text-white px-5 fz-14 d-table ms-auto imitt-font fw-500" style="border-radius: 6px;">Submit</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -1601,6 +1698,242 @@ function rz_user_all_dairy_posts(){
             endwhile;
         }else{
             exit('userDairyReachmax');
+        }
+    }
+    die();
+}
+
+
+/**
+ * redeem point
+ */
+add_action('wp_ajax_rz_redeem_point_action', function(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce($nonce, 'rz-redeem-point-nonce')){
+        $point = sanitize_key($_POST['point']);
+        $payment_method = sanitize_text_field($_POST['payment-method']);
+        $name = sanitize_text_field($_POST['name']);
+        $mobile = sanitize_text_field($_POST['mobile']);
+        $upi_id = sanitize_text_field($_POST['upi-id']);
+        $account_name = sanitize_text_field($_POST['account-name']);
+        $account_number = sanitize_text_field($_POST['account-number']);
+        $ifsc_code = sanitize_text_field($_POST['ifsc-code']);
+        $bank_name = sanitize_text_field($_POST['bank-name']);
+        $branch_name = sanitize_text_field($_POST['branch-name']);
+        $user_id = get_current_user_id();
+
+        $get_profiledata = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '{$user_id}'");
+
+        $redeem_point = $get_profiledata->points??0;
+
+
+        if(empty($point) || empty($payment_method)){
+            echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                      <strong>Warning!</strong> Please enter point and select payment method.
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>';
+        }else if(is_numeric($point) == false){
+            echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                      <strong>Warning!</strong> Invalid point given.
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>';
+        }else if($point < 1 || $point > $redeem_point){
+            echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                      <strong>Warning!</strong> Please give the number between 1 to '.$redeem_point.'
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>';
+        }else{
+            if($payment_method == 'Paytm' && (empty($name) || empty($mobile))){
+                echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                      <strong>Warning!</strong> Name and phone number required for Paytm payment.
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>';
+            }else if($payment_method == 'Google Pay' && (empty($name) && empty($mobile))){
+                echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                      <strong>Warning!</strong> Name and phone number required for Google Pay payment.
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>';
+            }else if($payment_method == 'UPI' && (empty($name) || empty($mobile) || empty($upi_id))){
+                echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                      <strong>Warning!</strong> Name, phone number and UPI id required for UPI payment.
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>';
+            }else if($payment_method == 'Bank Transfer' && (empty($account_name) || empty($account_number) || empty($ifsc_code) || empty($bank_name) || empty($branch_name))){
+                echo '<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                      <strong>Warning!</strong> Account name, account number ,IFSC code, bank name and branch name required for Bank payment.
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>';
+            }else{
+                $subject = getUserNameById($user_id).' redeem '.$point.' on '.$payment_method;
+
+                if($payment_method == 'Paytm'){
+                    $payment_details = '
+                        <tr>
+                            <td>Name</td>
+                            <td>'.$name.'</td>
+                        </tr>
+                        <tr>
+                            <td>Phone number</td>
+                            <td>'.$mobile.'</td>
+                        </tr>
+                    ';
+                }else if($payment_details == 'Google Pay'){
+                    $payment_details = '
+                        <tr>
+                            <td>Name</td>
+                            <td>'.$name.'</td>
+                        </tr>
+                        <tr>
+                            <td>Phone number</td>
+                            <td>'.$mobile.'</td>
+                        </tr>
+                    ';
+                }else if($payment_details == 'UPI'){
+                    $payment_details = '
+                        <tr>
+                            <td>Name</td>
+                            <td>'.$name.'</td>
+                        </tr>
+                        <tr>
+                            <td>Phone number</td>
+                            <td>'.$mobile.'</td>
+                        </tr>
+                        <tr>
+                            <td>UPI id</td>
+                            <td>'.$upi_id.'</td>
+                        </tr>
+                    ';
+                }else{
+                    $payment_details = '
+                        <tr>
+                            <td>Account Name</td>
+                            <td>'.$account_name.'</td>
+                        </tr>
+                        <tr>
+                            <td>Account number</td>
+                            <td>'.$account_number.'</td>
+                        </tr>
+                        <tr>
+                            <td>IFSC Code</td>
+                            <td>'.$ifsc_code.'</td>
+                        </tr>
+                        <tr>
+                            <td>Bank Name</td>
+                            <td>'.$bank_name.'</td>
+                        </tr>
+                        <tr>
+                            <td>Brance Name</td>
+                            <td>'.$branch_name.'</td>
+                        </tr>
+                    ';
+                }
+                $message = '
+                    <table style="width: 100%;">
+                        <tr>
+                            <th style="text-align: left;">Action</th>
+                            <th style="text-align: left;">Details</th>
+                        </tr>
+                        <tr>
+                            <td>Point</td>
+                            <td>'.$point.'</td>
+                        </tr>
+                        <tr>
+                            <td>Payment Method</td>
+                            <td>'.$payment_method.'</td>
+                        </tr>
+                        '.$payment_details.'
+                    </table>
+                ';
+                $headers = array('Content-Type: text/html; charset=UTF-8');
+                wp_mail('arijitbanarjee889@gmail.com', $subject, $message, $headers);
+
+                $wpdb->update($wpdb->prefix.'rz_user_profile_data', [
+                    'points' => ($redeem_point - $point)
+                ], ['id' => $get_profiledata->id]);
+
+                echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+                      <strong>Success!</strong> Your request accepted.
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>';
+            }
+        }
+    }
+    die();
+});
+
+
+/**
+ * get following tags
+ */
+add_action('wp_ajax_nopriv_rz_get_all_following_tags', 'get_all_profile_following_tags');
+add_action('wp_ajax_rz_get_all_following_tags', 'get_all_profile_following_tags');
+
+function get_all_profile_following_tags(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce( $nonce, 'rz-get-following-tags-nonce' )){
+        $start = sanitize_key($_POST['start']);
+        $limit = sanitize_key($_POST['limit']);
+        $user_id = sanitize_key( $_POST['user_id'] );
+        $all_following_tags = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_following_tags WHERE user_id = '{$user_id}' ORDER BY id DESC LIMIT $start, $limit", ARRAY_A);
+
+        if(count($all_following_tags) > 0){
+            foreach($all_following_tags as $tag){
+                $term_d = get_term_by('id', $tag['term_id'], 'question_tags');
+                $posts_array = get_posts(
+                    array(
+                        'posts_per_page' => -1,
+                        'post_type' => 'rz_post_question',
+                        'fields' => 'ids',
+                        'tax_query' => array(
+                            array(
+                                'taxonomy' => 'question_tags',
+                                'field' => 'term_id',
+                                'terms' => $term_d->term_id,
+                            )
+                        )
+                    )
+                );
+                $count_answer = 0;
+                $total_view = 0;
+                foreach($posts_array as $post_ids){
+                    $all_answers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_ids'", ARRAY_A);
+    
+                    $count_answer += count($all_answers);
+    
+                    $count_key = 'post_views_count';
+                    $count = get_post_meta($post_ids, $count_key, true);
+                    if($count==''){
+                        delete_post_meta($post_ids, $count_key);
+                        add_post_meta($post_ids, $count_key, '0');
+                        $total_view += 0;
+                    }
+                    $total_view += $count;
+                }
+    
+                $term_id = $term_d->term_id;
+                $user_id = get_current_user_id();
+                $rz_following_tags = $wpdb->prefix.'rz_following_tags';
+                $is_user_already_followed = $wpdb->get_row("SELECT * FROM {$rz_following_tags} WHERE user_id = '{$user_id}' AND term_id = '{$term_id}'");
+                ?>
+                <li class="hash-list list-unstyled col-sm-4 my-2">
+                    <div class="bg-white py-2 px-3 rounded border">
+                        <div class="hash-top d-flex flex-row justify-content-between align-items-center">
+                            <a href="<?php echo get_term_link($term_d->term_id, 'question_tags'); ?>" class="imit-font fw-500 fz-16 text-dark d-block">#<?php echo $term_d->name; ?></a>
+                            <button type="button" class="add-post-by-tag p-0 <?php if(!empty($is_user_already_followed)){echo 'rz-color';}else{echo 'rz-secondary-color';} ?> bg-transparent fz-14 border-0" data-term_id="<?php echo $term_d->term_id; ?>" id="follow-tag"><?php if(!empty($is_user_already_followed)){echo '<i class="fas fa-check-square"></i>';}else{echo '<i class="fas fa-plus-circle"></i>';} ?></button>
+                        </div>
+                        <div class="d-flex flex-row justify-content-between align-items-center me-2">
+                            <p class="rz-secondary-color imit-font fz-12 fw-400 mb-0"><?php echo $term_d->count; ?> Question</p>
+                            <p class="rz-secondary-color imit-font fz-12 fw-400 mb-0"><?php echo $count_answer; ?> Answers</p>
+                            <p class="rz-secondary-color imit-font fz-12 fw-400 mb-0"><?php echo $total_view; ?> Views</p>
+                        </div>
+                    </div>
+                </li> 
+                <?php
+            }
+        }else{
+            exit('followingTagReachMax');
         }
     }
     die();

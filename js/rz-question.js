@@ -13,7 +13,7 @@
                 data: {'action': 'imit_fetch_activity', 'nonce': rzActivity.rz_activity_view_nonce},
                 success: function(data){
                     $('#show_user_activity').html(data);
-                    setTimeout(user_activity_show, 3000);
+                    setTimeout(user_activity_show, 5000);
                 }
             });
         }
@@ -28,6 +28,7 @@
         let news_feed_click = false;
         let popular_question_click = false;
         let most_answer_click = false;
+        let get_post_by_tag = false;
         $(document).on('click', '.tab-link', function(e){
             e.preventDefault();
             target = $(this).data('target');
@@ -46,6 +47,11 @@
                 postReachMax = false;
                 get_most_answered_question(target);
                 most_answer_click = true;
+            }else{
+                page_num = 1;
+                postReachMax = false;
+                get_post_by_tags(target);
+                // get_post_by_tag = true;
             }
             $('.tab-link').removeClass('active');
             $(this).addClass('active');
@@ -65,6 +71,8 @@
                     get_popular_question(target, 'append', page_num);
                 }else if(target == 'most-answered'){
                     get_most_answered_question(target, 'append', page_num);
+                }else{
+                    get_post_by_tags(target, 'append', page_num);
                 }
             }
         });
@@ -162,6 +170,46 @@
                     data: {'action': 'rz_most_answered_data', 'nonce' : rzMostCommented.rz_most_commented_nonce, 'page_num' : page_num},
                     success: function(data){
                         if(data == 'mostAnsweredPostReachmax'){
+                            postReachMax = true;
+                            if(action == 'html'){
+                                $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                '                                    <i class="fas fa-blog"></i>\n' +
+                                '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                '                                </li>');
+                            }else{
+                                $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
+                                '                                    <i class="fas fa-blog"></i>\n' +
+                                '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                '                                </li>');
+                            }
+                        }else{
+                            if(action == 'html'){
+                                $('#'+target+' #'+target+'-ul').html(data);
+                            }else{
+                                $('#'+target+' #'+target+'-ul').append(data);
+                            }
+                            postReachMax = false;
+                        }
+                        $('#tab-content-loader').fadeOut('fast');
+                    }
+                });
+            }
+        }
+
+        /**
+         * get posts by tags
+         */
+        function get_post_by_tags(target, action = 'html', page_num = 1){
+            if(postReachMax === false){
+                postReachMax = true;
+                $('#tab-content-loader').fadeIn('fast');
+                $.ajax({
+                    url: rzGetPostUsingTags.ajax_url,
+                    method: 'POST',
+                    data: {'action': 'rz_get_post_using_tags', 'nonce' : rzGetPostUsingTags.rz_get_posts_using_tags, 'page_num' : page_num, 'tag' : target},
+                    success: function(data){
+                        console.log(data);
+                        if(data == 'tagPostReachMax'){
                             postReachMax = true;
                             if(action == 'html'){
                                 $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +

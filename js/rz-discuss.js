@@ -30,7 +30,10 @@
                 get_most_viwed_posts(target);
                 most_view = true;
              }else if(target == 'hotely-debated' && hotely_debated == false){
+                page_num = 1;
+                postReachMax = false;
                 get_hotely_debated_posts(target);
+                hotely_debated = true;
              }
              $('.tab-link').removeClass('active');
              $(this).addClass('active');

@@ -61,16 +61,24 @@ add_shortcode('imit-questions', function(){
                                     <a href="#" class="tab-link imit-font text-white fz-14" data-target="most-answered">Most Answered Questions</a>
                                 </li>
                             </ul>
-
-                            <div class="dropdown">
-                                <a class="see-more text-white fz-16" href="#" role="button" id="feed-more-tabs" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="dropdown custom-dropdown">
+                                <button class="p-0 bg-transparent border-0 text-white fz-16" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-ellipsis-h"></i>
-                                </a>
-
-                                <ul class="dropdown-menu" aria-labelledby="feed-more-tabs">
-                                    <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Action</a></li>
-                                    <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Another action</a></li>
-                                    <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Something else here</a></li>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                    <?php 
+                                    $tab_tags = get_terms(array(
+                                        'taxonomy' => 'question_tags',
+                                        'orderby' => 'count',
+                                        'order' => 'DESC',
+                                        'number' => 10
+                                    ));
+                                    foreach($tab_tags as $tag){
+                                        ?>
+                                        <li><a class="dropdown-item tab-link" href="#" data-target="<?php echo $tag->slug; ?>"><?php echo ucfirst($tag->name); ?></a></li>
+                                        <?php
+                                    }
+                                    ?>
                                 </ul>
                             </div>
                         </div>
@@ -111,7 +119,7 @@ add_shortcode('imit-questions', function(){
                                 <div class="card rz-br">
                                     <div class="card-body p-0">
                                         <div class="p-4">
-                                            <div class="created-at rz-secondary-color fz-14 imit-font">Asked on: <?php the_time(); ?></div>
+                                            <div class="created-at rz-secondary-color fz-14 imit-font">Asked on: <?php the_time('g a F d, Y'); ?></div>
                                             <a href="<?php the_permalink(); ?>" class="question-title imit-font fw-500 text-decoration-none text-dark rz-lh-38"><span class="rz-color mr-1">Q.</span> <?php the_title(); ?></a>
                                             <div class="rz-br my-3">
                                                 <?php the_post_thumbnail('full', ['img-fluid']); ?>
@@ -174,20 +182,20 @@ add_shortcode('imit-questions', function(){
                                             <i class="fas fa-eye"></i>
                                             <span class="counter imit-font fw-500"><span class="counter"><?php echo getPostViews(get_the_ID()) ?></span></span>
                                         </div>
-        <!--                                <div class="other text-dark d-flex flex-row justify-content-end align-items-center">-->
-        <!--                                    <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>-->
-        <!--                                    <div class="dropdown">-->
-        <!--                                        <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">-->
-        <!--                                            <i class="fas fa-ellipsis-h"></i>-->
-        <!--                                        </a>-->
-        <!---->
-        <!--                                        <ul class="dropdown-menu" aria-labelledby="more-option-feed">-->
-        <!--                                            <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Action</a></li>-->
-        <!--                                            <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Another action</a></li>-->
-        <!--                                            <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Something else here</a></li>-->
-        <!--                                        </ul>-->
-        <!--                                    </div>-->
-        <!--                                </div>-->
+                                        <!-- <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
+                                            <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>
+                                            <div class="dropdown">
+                                                <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fas fa-ellipsis-h"></i>
+                                                </a>
+        
+                                                <ul class="dropdown-menu" aria-labelledby="more-option-feed">
+                                                    <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Action</a></li>
+                                                    <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Another action</a></li>
+                                                    <li><a class="dropdown-item imit-font fz-14 text-dark" href="#">Something else here</a></li>
+                                                </ul>
+                                            </div>
+                                        </div> -->
                                     </div>
                                 </div>
                             </li>
@@ -208,6 +216,18 @@ add_shortcode('imit-questions', function(){
 
                         </ul>
                     </div>
+
+                    <?php 
+                    foreach($tab_tags as $tag){
+                        ?>
+                        <div class="tab-content" id="<?php echo $tag->slug; ?>" style="display: none;">
+                            <ul class="imit-news-feed ps-0 mb-0 runded-3" id="<?php echo $tag->slug; ?>-ul">
+                                
+                            </ul>
+                        </div>
+                        <?php
+                    }
+                    ?>
 
                    <div id="tab-content-loader" style="display: none;">
                        <div class="d-flex justify-content-center mt-2">
@@ -269,11 +289,15 @@ add_shortcode('imit-questions', function(){
                                         }
                                         $total_view += $count;
                                     }
+                                    $term_id = $tag->term_id;
+                                    $user_id = get_current_user_id();
+                                    $rz_following_tags = $wpdb->prefix.'rz_following_tags';
+                                    $is_user_already_followed = $wpdb->get_row("SELECT * FROM {$rz_following_tags} WHERE user_id = '{$user_id}' AND term_id = '{$term_id}'");
                                     ?>
                                     <li class="hash-list list-unstyled m-3">
                                         <div class="hash-top d-flex flex-row justify-content-between align-items-center">
                                             <a href="<?php echo get_term_link($tag->term_id, 'question_tags'); ?>" class="imit-font fw-500 fz-16 text-dark d-block">#<?php echo $tag->name; ?></a>
-<!--                                            <button type="button" class="add-post-by-tag p-0 rz-secondary-color bg-transparent fz-14"><i class="fas fa-plus-circle"></i></button>-->
+                                           <button type="button" class="add-post-by-tag p-0 <?php if(!empty($is_user_already_followed)){echo 'rz-color';}else{echo 'rz-secondary-color';} ?> bg-transparent fz-14 border-0" data-term_id="<?php echo $tag->term_id; ?>" id="follow-tag"><?php if(!empty($is_user_already_followed)){echo '<i class="fas fa-check-square"></i>';}else{echo '<i class="fas fa-plus-circle"></i>';} ?></button>
                                         </div>
                                         <div class="d-flex flex-row justify-content-between align-items-center">
                                             <p class="rz-secondary-color imit-font fz-12 fw-400 mb-0"><?php echo $tag->count; ?> Question</p>
@@ -343,13 +367,7 @@ add_shortcode('imit-questions', function(){
         $image = $_FILES['image']['name'];
         $image_tmp = $_FILES['image']['tmp_name'];
         $content = sanitize_text_field( $_POST['content'] );
-        $rz_partner_program = $wpdb->prefix.'rz_user_programs';
-        $rz_point_table = $wpdb->prefix.'rz_point_table';
-        $rz_user_profile_data = $wpdb->prefix.'rz_user_profile_data';
         $user_id = get_current_user_id();
-
-
-        $is_user_joined_programme = $wpdb->get_results("SELECT * FROM {$rz_partner_program} WHERE user_id = '$user_id' AND status = '1'", ARRAY_A);
 
         $exp = explode('.', $image);
 
@@ -383,31 +401,6 @@ add_shortcode('imit-questions', function(){
                
             // Insert the post into the database
             $post_id = wp_insert_post( $my_post );
-
-            if(count($is_user_joined_programme)){
-                $wpdb->insert($rz_point_table, [
-                    'user_id' => $user_id,
-                    'content_id' => $post_id,
-                    'point_type' => 'post',
-                    'point_earn' => 10
-                ]);
-
-                $get_point = $wpdb->get_row("SELECT * FROM {$rz_user_profile_data} WHERE user_id = '$user_id'");
-
-
-                $user_point = $get_point->points;
-
-                if(empty($get_point)){
-                    $wpdb->insert($rz_user_profile_data, [
-                        'points' => 10,
-                        'user_id' => $user_id
-                    ]);
-                }else{
-                    $wpdb->update($rz_user_profile_data, [
-                        'points' => ($user_point+10),
-                    ], ['user_id' => $user_id]);
-                }
-            }
 
             $post_tags = explode(',', $tag);
 
@@ -466,7 +459,7 @@ add_shortcode('imit-questions', function(){
           $page_num = sanitize_key($_POST['page_num']);
               $questions_data = new WP_Query([
                   'post_type' => 'rz_post_question',
-                  'posts_per_page' => 10,
+                  'posts_per_page' => 20,
                   'paged' => $page_num,
                   'tax_query' =>  array(
                         array(
@@ -478,15 +471,23 @@ add_shortcode('imit-questions', function(){
               ]);
               if($questions_data->have_posts()){
                   while($questions_data->have_posts()):$questions_data->the_post();
-                      $post_id = get_the_ID();
-                      $user_id = get_the_author_meta('ID');
-                      $answer_count = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND user_id != '$user_id'", ARRAY_A);
+                        $post_id = get_the_ID();
+                        $user_id = get_the_author_meta('ID');
+                        $answer_count = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND user_id != '$user_id'", ARRAY_A);
+                        $current_user = get_current_user_id(  );
+                        $rz_following_questions = $wpdb->prefix.'rz_following_questions';
+                        $is_user_already_followed_question = $wpdb->get_row("SELECT * FROM {$rz_following_questions} WHERE user_id = '{$current_user}' AND question_id = '{$post_id}'");
                       ?>
                       <li class="news-feed-list mt-3" id="question<?php echo $post_id; ?>">
                           <div class="card rz-br rz-border">
                               <div class="card-body p-0">
                                   <div class="p-4">
-                                      <p class="created-at rz-secondary-color fz-14 imit-font mb-0">Asked on: <?php the_time(); ?></p>
+                                    <div class="d-flex flex-row justify-content-between align-items-center">
+                                        <div class="created-at rz-secondary-color fz-14 imit-font">Asked on: <?php the_time('g a F d, Y'); ?></div>
+                                        <?php if(is_user_logged_in(  )){ ?>
+                                        <button type="button" class="border-0 <?php if(!empty($is_user_already_followed_question)){echo 'rz-color';}else{echo 'rz-secondary-color';} ?> fz-14 p-0 bg-transparent" id="follow-question" data-question_id="<?php echo $post_id; ?>"><?php if(!empty($is_user_already_followed_question)){echo '<i class="fas fa-check-square"></i>';}else{echo '<i class="fas fa-plus-circle"></i>';} ?></button>
+                                        <?php } ?>
+                                    </div>
                                       <a href="<?php the_permalink(); ?>" class="question-title imit-font fw-500 text-decoration-none text-dark rz-lh-38 d-block"><span class="rz-color mr-1">Q.</span> <?php the_title(); ?></a>
                                       <div class="rz-br">
                                           <?php the_post_thumbnail('full', ['img-fluid']); ?>
@@ -499,7 +500,6 @@ add_shortcode('imit-questions', function(){
                                           }
                                           ?>
                                       </ul>
-
                                       <?php
                                       if(is_user_logged_in(  )){
                                           ?>
@@ -529,10 +529,7 @@ add_shortcode('imit-questions', function(){
                                                       </div>
                                                       <div class="col-md-11">
                                                           <div class="answer-editor">
-                                                              <textarea name="answer<?php echo get_the_ID(); ?>" class="imit-font fz-14 form-control" id="answer-textarea" cols="30" rows="10" data-post_id="<?php echo get_the_ID(); ?>"></textarea>
-                                                              <ul class="list-group" id="answer_hashtag<?php echo get_the_ID(); ?>">
-
-                                                              </ul>
+                                                              <textarea name="answer<?php echo get_the_ID(); ?>" class="imit-font fz-14 form-control ck-edit-textarea" id="answer-textarea" cols="30" rows="10" data-post_id="<?php echo get_the_ID(); ?>"></textarea>
                                                           </div>
                                                       </div>
                                                   </div>
@@ -543,6 +540,76 @@ add_shortcode('imit-questions', function(){
                                       }
                                       ?>
                                   </div>
+
+                                  <?php 
+                                        $all_answers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND status = '1'", ARRAY_A);
+                                        if(count($all_answers) > 0){
+                                            $get_first_answer = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' ORDER BY id ASC LIMIT 1");
+                                            $get_profile_data = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '{$get_first_answer->user_id}'");
+                                            ?>
+                                            <div class="question-first-answer">
+                                                <div class="answer-info d-flex flex-row justify-content-between align-items-center py-2 px-4">
+                                                    <p class="mb-0 rz-color imit-font count-answer rz-color fw-500"><?php echo count($all_answers); ?> Answers</p>
+                                                    <a href="<?php the_permalink(); ?>" class="imit-font rz-color fw-500 fz-16">See all</a>
+                                                </div>
+                                                <ul class="answers py-3 px-4 mb-0">
+                                                <li class="answer-list list-unstyled">
+                                                    <div class="answer-header border-bottom-0 d-flex flex-row justify-content-between align-items-center">
+                                                        <div class="user-data d-flex flex-row justify-content-start align-items-center">
+                                                            <div class="profile-image">
+                                                                <img src="<?php getProfileImageById($get_first_answer->user_id); ?>" alt="">
+                                                            </div>
+                                                            <div class="user-info ms-1">
+                                                                <a href="<?php echo site_url().'/'.get_user_by('user_login', $get_first_answer->user_id); ?>" class="imit-font fz-16"><?php echo getUserNameById($get_first_answer->user_id); ?></a>
+                                                                <p class="mb-0 rz-secondary-color imit-font fz-12"><?php echo $get_profile_data->occupation; ?></p>
+                                                            </div>
+                                                        </div>
+                                                        <p class="rz-secondary-color imit-font fz-14 mb-0">Answered: 3pm April 25 ,2021</p>
+                                                    </div>
+                                                    <div class="answer-body mt-3 d-flex flex-row justify-content-start align-items-start">
+                                                        <?php 
+                                                        $current_user_id = get_current_user_id();
+                                                        $answer_id = $get_first_answer->id;
+                                                        $get_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                                        $get_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+        
+                                                        $count_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                                        $count_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+                                                        ?>
+                                                        <ul class="body-left d-flex flex-column justify-content-start align-items-center ps-0 mb-0" id="vote<?php echo $answer_id; ?>">
+                                                            <li class="list-unstyled">
+                                                                <a href="#" class="vote d-block <?php if(count($get_upvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="up-vote"><i class="fas fa-arrow-up"></i></a>
+                                                            </li>
+                                                            <li class="list-unstyled">
+                                                                <p class="counter fz-16 imit-font my-1 <?php if((count($count_upvote) - count($count_downvote)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="counter<?php echo $answer_id ; ?>"><?php echo count($count_upvote) - count($count_downvote); ?></p>
+                                                            </li>
+                                                            <li class="list-unstyled">
+                                                                <a href="#" class="vote d-block <?php if(count($get_downvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="down-vote"><i class="fas fa-arrow-down"></i></a>
+                                                            </li>
+                                                        </ul>
+                                                        <div class="answer-details ms-3">
+                                                            <?php 
+                                                            if(str_word_count($get_first_answer->answer_text) > 20){
+                                                                ?>
+                                                                <p class="imit-font fz-16 answer-text" id="answer-text"><?php echo wp_trim_words($get_first_answer->answer_text, 20, ' ...'); ?></p>
+                                                                <a href="#" class="rz-color fw-500 imit-font fz-16" data-answer_id="<?php echo $get_first_answer->id; ?>" id="read-more-answer">Read More</a>
+                                                                <p class="imit-font fz-16 answer-text" id="answer-text<?php echo $get_first_answer->id; ?>" style="display: none;"><?php echo $get_first_answer->answer_text; ?></p>
+                                                                <?php
+                                                            }else{
+                                                                ?>
+                                                                <p class="imit-font fz-16 answer-text"><?php echo $get_first_answer->answer_text; ?></p>
+                                                                <?php
+                                                            }
+                                                            ?>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            </div>
+                                            <?php
+                                        }
+                                    ?>
+
                               </div>
                               <div class="card-footer border-top-0 p-3 d-flex flex-row justify-content-between align-items-center">
                                   <div class="views text-dark fz-14">
@@ -593,7 +660,7 @@ add_shortcode('imit-questions', function(){
           $page_num = sanitize_key($_POST['page_num']);
             $popularpost  = new WP_Query(array(
                     'post_type' => 'rz_post_question',
-                'posts_per_page' => 10,
+                'posts_per_page' => 20,
                 'meta_key' => 'post_views_count',
                 'orderby' => 'meta_value_num',
                 'order' => 'DESC',
@@ -611,12 +678,21 @@ add_shortcode('imit-questions', function(){
                     $post_id = get_the_ID();
                     $user_id = get_the_author_meta('ID');
                     $answer_count = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND user_id != '$user_id'", ARRAY_A);
+
+                    $current_user = get_current_user_id(  );
+                    $rz_following_questions = $wpdb->prefix.'rz_following_questions';
+                    $is_user_already_followed_question = $wpdb->get_row("SELECT * FROM {$rz_following_questions} WHERE user_id = '{$current_user}' AND question_id = '{$post_id}'");
                     ?>
                     <li class="news-feed-list mt-3" id="question<?php echo $post_id; ?>">
                         <div class="card rz-br">
                             <div class="card-body p-0">
                                 <div class="p-4">
-                                    <div class="created-at rz-secondary-color fz-14 imit-font">Asked on: <?php the_time(); ?></div>
+                                    <div class="d-flex flex-row justify-content-between align-items-center">
+                                        <div class="created-at rz-secondary-color fz-14 imit-font">Asked on: <?php the_time('g a F d, Y'); ?></div>
+                                        <?php if(is_user_logged_in(  )){ ?>
+                                        <button type="button" class="border-0 <?php if(!empty($is_user_already_followed_question)){echo 'rz-color';}else{echo 'rz-secondary-color';} ?> fz-14 p-0 bg-transparent" id="follow-question" data-question_id="<?php echo $post_id; ?>"><?php if(!empty($is_user_already_followed_question)){echo '<i class="fas fa-check-square"></i>';}else{echo '<i class="fas fa-plus-circle"></i>';} ?></button>
+                                        <?php } ?>
+                                    </div>
                                     <a href="<?php the_permalink(); ?>" class="question-title imit-font fw-500 text-decoration-none text-dark rz-lh-38"><span class="rz-color mr-1">Q.</span> <?php the_title(); ?></a>
                                     <div class="rz-br my-3">
                                         <?php the_post_thumbnail('full', ['img-fluid']); ?>
@@ -673,6 +749,74 @@ add_shortcode('imit-questions', function(){
                                     }
                                     ?>
                                 </div>
+                                <?php
+                                $all_answers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND status = '1'", ARRAY_A);
+                                if(count($all_answers) > 0){
+                                    $get_first_answer = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' ORDER BY id ASC LIMIT 1");
+                                    $get_profile_data = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '{$get_first_answer->user_id}'");
+                                    ?>
+                                    <div class="question-first-answer">
+                                        <div class="answer-info d-flex flex-row justify-content-between align-items-center py-2 px-4">
+                                            <p class="mb-0 rz-color imit-font count-answer rz-color fw-500"><?php echo count($all_answers); ?> Answers</p>
+                                            <a href="<?php the_permalink(); ?>" class="imit-font rz-color fw-500 fz-16">See all</a>
+                                        </div>
+                                        <ul class="answers py-3 px-4 mb-0">
+                                            <li class="answer-list list-unstyled">
+                                                <div class="answer-header border-bottom-0 d-flex flex-row justify-content-between align-items-center">
+                                                    <div class="user-data d-flex flex-row justify-content-start align-items-center">
+                                                        <div class="profile-image">
+                                                            <img src="<?php getProfileImageById($get_first_answer->user_id); ?>" alt="">
+                                                        </div>
+                                                        <div class="user-info ms-1">
+                                                            <a href="<?php echo site_url().'/'.get_user_by('user_login', $get_first_answer->user_id); ?>" class="imit-font fz-16"><?php echo getUserNameById($get_first_answer->user_id); ?></a>
+                                                            <p class="mb-0 rz-secondary-color imit-font fz-12"><?php echo $get_profile_data->occupation; ?></p>
+                                                        </div>
+                                                    </div>
+                                                    <p class="rz-secondary-color imit-font fz-14 mb-0">Answered: 3pm April 25 ,2021</p>
+                                                </div>
+                                                <div class="answer-body mt-3 d-flex flex-row justify-content-start align-items-start">
+                                                    <?php
+                                                    $current_user_id = get_current_user_id();
+                                                    $answer_id = $get_first_answer->id;
+                                                    $get_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                                    $get_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+
+                                                    $count_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                                    $count_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+                                                    ?>
+                                                    <ul class="body-left d-flex flex-column justify-content-start align-items-center ps-0 mb-0" id="vote<?php echo $answer_id; ?>">
+                                                        <li class="list-unstyled">
+                                                            <a href="#" class="vote d-block <?php if(count($get_upvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="up-vote"><i class="fas fa-arrow-up"></i></a>
+                                                        </li>
+                                                        <li class="list-unstyled">
+                                                            <p class="counter fz-16 imit-font my-1 <?php if((count($count_upvote) - count($count_downvote)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="counter<?php echo $answer_id ; ?>"><?php echo count($count_upvote) - count($count_downvote); ?></p>
+                                                        </li>
+                                                        <li class="list-unstyled">
+                                                            <a href="#" class="vote d-block <?php if(count($get_downvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="down-vote"><i class="fas fa-arrow-down"></i></a>
+                                                        </li>
+                                                    </ul>
+                                                    <div class="answer-details ms-3">
+                                                        <?php
+                                                        if(str_word_count($get_first_answer->answer_text) > 20){
+                                                            ?>
+                                                            <p class="imit-font fz-16 answer-text" id="answer-text"><?php echo wp_trim_words($get_first_answer->answer_text, 20, ' ...'); ?></p>
+                                                            <a href="#" class="rz-color fw-500 imit-font fz-16" data-answer_id="<?php echo $get_first_answer->id; ?>" id="read-more-answer">Read More</a>
+                                                            <p class="imit-font fz-16 answer-text" id="answer-text<?php echo $get_first_answer->id; ?>" style="display: none;"><?php echo $get_first_answer->answer_text; ?></p>
+                                                            <?php
+                                                        }else{
+                                                            ?>
+                                                            <p class="imit-font fz-16 answer-text"><?php echo $get_first_answer->answer_text; ?></p>
+                                                            <?php
+                                                        }
+                                                        ?>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <?php
+                                }
+                                ?>
                             </div>
                             <div class="card-footer p-3 border-top-0 d-flex flex-row justify-content-between align-items-center">
                                 <div class="views text-dark fz-14">
@@ -723,7 +867,7 @@ add_shortcode('imit-questions', function(){
             }
             $most_answered_post = new WP_Query([
                     'post_type' => 'rz_post_question',
-                'posts_per_page' => 10,
+                'posts_per_page' => 20,
                 'post__in' => $answer_post_ids,
                 'orderby' => 'post__in',
                 'paged' => $page_num,
@@ -740,12 +884,21 @@ add_shortcode('imit-questions', function(){
                     $post_id = get_the_ID();
                     $user_id = get_the_author_meta('ID');
                     $answer_count = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND user_id != '$user_id'", ARRAY_A);
+
+                    $current_user = get_current_user_id(  );
+                        $rz_following_questions = $wpdb->prefix.'rz_following_questions';
+                        $is_user_already_followed_question = $wpdb->get_row("SELECT * FROM {$rz_following_questions} WHERE user_id = '{$current_user}' AND question_id = '{$post_id}'");
                     ?>
                     <li class="news-feed-list mt-3" id="question<?php echo $post_id; ?>">
                         <div class="card rz-br">
                             <div class="card-body p-0">
                                 <div class="p-4">
-                                    <div class="created-at rz-secondary-color fz-14 imit-font">Asked on: <?php the_time(); ?></div>
+                                    <div class="d-flex flex-row justify-content-between align-items-center">
+                                        <div class="created-at rz-secondary-color fz-14 imit-font">Asked on: <?php the_time('g a F d, Y'); ?></div>
+                                        <?php if(is_user_logged_in(  )){ ?>
+                                        <button type="button" class="border-0 <?php if(!empty($is_user_already_followed_question)){echo 'rz-color';}else{echo 'rz-secondary-color';} ?> fz-14 p-0 bg-transparent" id="follow-question" data-question_id="<?php echo $post_id; ?>"><?php if(!empty($is_user_already_followed_question)){echo '<i class="fas fa-check-square"></i>';}else{echo '<i class="fas fa-plus-circle"></i>';} ?></button>
+                                        <?php } ?>
+                                    </div>
                                     <a href="<?php the_permalink(); ?>" class="question-title imit-font fw-500 text-decoration-none text-dark rz-lh-38"><span class="rz-color mr-1">Q.</span> <?php the_title(); ?></a>
                                     <div class="rz-br my-3">
                                         <?php the_post_thumbnail('full', ['img-fluid']); ?>
@@ -802,6 +955,74 @@ add_shortcode('imit-questions', function(){
                                     }
                                     ?>
                                 </div>
+                                <?php 
+                                        $all_answers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND status = '1'", ARRAY_A);
+                                        if(count($all_answers) > 0){
+                                            $get_first_answer = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' ORDER BY id ASC LIMIT 1");
+                                            $get_profile_data = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '{$get_first_answer->user_id}'");
+                                            ?>
+                                            <div class="question-first-answer">
+                                                <div class="answer-info d-flex flex-row justify-content-between align-items-center py-2 px-4">
+                                                    <p class="mb-0 rz-color imit-font count-answer rz-color fw-500"><?php echo count($all_answers); ?> Answers</p>
+                                                    <a href="<?php the_permalink(); ?>" class="imit-font rz-color fw-500 fz-16">See all</a>
+                                                </div>
+                                                <ul class="answers py-3 px-4 mb-0">
+                                                <li class="answer-list list-unstyled">
+                                                    <div class="answer-header border-bottom-0 d-flex flex-row justify-content-between align-items-center">
+                                                        <div class="user-data d-flex flex-row justify-content-start align-items-center">
+                                                            <div class="profile-image">
+                                                                <img src="<?php getProfileImageById($get_first_answer->user_id); ?>" alt="">
+                                                            </div>
+                                                            <div class="user-info ms-1">
+                                                                <a href="<?php echo site_url().'/'.get_user_by('user_login', $get_first_answer->user_id); ?>" class="imit-font fz-16"><?php echo getUserNameById($get_first_answer->user_id); ?></a>
+                                                                <p class="mb-0 rz-secondary-color imit-font fz-12"><?php echo $get_profile_data->occupation; ?></p>
+                                                            </div>
+                                                        </div>
+                                                        <p class="rz-secondary-color imit-font fz-14 mb-0">Answered: 3pm April 25 ,2021</p>
+                                                    </div>
+                                                    <div class="answer-body mt-3 d-flex flex-row justify-content-start align-items-start">
+                                                        <?php 
+                                                        $current_user_id = get_current_user_id();
+                                                        $answer_id = $get_first_answer->id;
+                                                        $get_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                                        $get_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+        
+                                                        $count_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                                        $count_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+                                                        ?>
+                                                        <ul class="body-left d-flex flex-column justify-content-start align-items-center ps-0 mb-0" id="vote<?php echo $answer_id; ?>">
+                                                            <li class="list-unstyled">
+                                                                <a href="#" class="vote d-block <?php if(count($get_upvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="up-vote"><i class="fas fa-arrow-up"></i></a>
+                                                            </li>
+                                                            <li class="list-unstyled">
+                                                                <p class="counter fz-16 imit-font my-1 <?php if((count($count_upvote) - count($count_downvote)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="counter<?php echo $answer_id ; ?>"><?php echo count($count_upvote) - count($count_downvote); ?></p>
+                                                            </li>
+                                                            <li class="list-unstyled">
+                                                                <a href="#" class="vote d-block <?php if(count($get_downvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="down-vote"><i class="fas fa-arrow-down"></i></a>
+                                                            </li>
+                                                        </ul>
+                                                        <div class="answer-details ms-3">
+                                                            <?php 
+                                                            if(str_word_count($get_first_answer->answer_text) > 20){
+                                                                ?>
+                                                                <p class="imit-font fz-16 answer-text" id="answer-text"><?php echo wp_trim_words($get_first_answer->answer_text, 20, ' ...'); ?></p>
+                                                                <a href="#" class="rz-color fw-500 imit-font fz-16" data-answer_id="<?php echo $get_first_answer->id; ?>" id="read-more-answer">Read More</a>
+                                                                <p class="imit-font fz-16 answer-text" id="answer-text<?php echo $get_first_answer->id; ?>" style="display: none;"><?php echo $get_first_answer->answer_text; ?></p>
+                                                                <?php
+                                                            }else{
+                                                                ?>
+                                                                <p class="imit-font fz-16 answer-text"><?php echo $get_first_answer->answer_text; ?></p>
+                                                                <?php
+                                                            }
+                                                            ?>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            </div>
+                                            <?php
+                                        }
+                                    ?>
                             </div>
                             <div class="card-footer p-3 border-top-0 d-flex flex-row justify-content-between align-items-center">
                                 <div class="views text-dark fz-14">
@@ -861,12 +1082,312 @@ add_shortcode('imit-questions', function(){
                     'post_id' => $post_id
                 ]);
 
-                wp_delete_attachment($post_id, true);
+                wp_delete_attachment($post_id, false);
 
-                wp_delete_post($post_id, true);
+                wp_delete_post($post_id, false);
 
                 exit('done');
            }
        }
       die();
   });
+
+
+  /**
+   * follow question
+   */
+  add_action('wp_ajax_rz_follow_question', function(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce( $nonce, 'rz-follow-question-nonce' )){
+        $question_id = sanitize_key( $_POST['question_id'] );
+        $user_id = get_current_user_id(  );
+        $rz_following_questions = $wpdb->prefix.'rz_following_questions';
+
+        $is_user_already_followed = $wpdb->get_row("SELECT * FROM {$rz_following_questions} WHERE user_id = '{$user_id}' AND question_id = '{$question_id}'");
+
+        if(!empty($is_user_already_followed)){
+            $wpdb->delete($rz_following_questions, [
+                'user_id' => $user_id,
+                'question_id' => $question_id
+            ]);
+            $response['response'] = false;
+        }else{
+            $wpdb->insert($rz_following_questions, [
+                'user_id' => $user_id,
+                'question_id' => $question_id
+            ]);
+            $response['response'] = true;
+        }
+
+        echo json_encode($response);
+    }
+    die();
+  });
+
+
+  /**
+   * get all following questions
+   */
+  add_action('wp_ajax_nopriv_rz_get_all_following_questions', 'get_all_profile_following_question');
+  add_action('wp_ajax_rz_get_all_following_questions', 'get_all_profile_following_question');
+  function get_all_profile_following_question(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce( $nonce, 'rz-get-following-questions-nonce' )){
+        $user_id = sanitize_key( $_POST['user_id'] );
+        $start = sanitize_key( $_POST['start'] );
+        $limit = sanitize_key( $_POST['limit'] );
+        $all_following_questions = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_following_questions WHERE user_id = '{$user_id}' ORDER BY id DESC LIMIT $start, $limit", ARRAY_A);
+        if(count($all_following_questions) > 0){
+            $question_ids = [];
+            foreach($all_following_questions as $fw_question){
+                array_push($question_ids, $fw_question['question_id']);
+            }
+            $following_questions = new WP_Query([
+                'post_type' => 'rz_post_question',
+                'posts_per_page' => 10,
+                'post__in' => $question_ids,
+                'orderby' => 'post__in',
+            ]);
+            if($following_questions->have_posts(  )){
+                while($following_questions->have_posts()):$following_questions->the_post();
+                $post_id = get_the_ID();
+                $current_user = get_current_user_id(  );
+                $rz_following_questions = $wpdb->prefix.'rz_following_questions';
+                $is_user_already_followed_question = $wpdb->get_row("SELECT * FROM {$rz_following_questions} WHERE user_id = '{$current_user}' AND question_id = '{$post_id}'");
+                ?>
+                <li class="question-list rz-border rz-br p-4 mt-3 list-unstyled bg-white">
+                    <div class="d-flex flex-row justify-content-between align-items-center">
+                        <p class="mb-0 rz-secondary-color fz-14 imit-font">Asked on: <?php the_time('g a F d, Y'); ?></p>
+                        <?php if(is_user_logged_in(  )){ ?>
+                        <button type="button" class="border-0 <?php if(!empty($is_user_already_followed_question)){echo 'rz-color';}else{echo 'rz-secondary-color';} ?> fz-14 p-0 bg-transparent" id="follow-question" data-question_id="<?php echo $post_id; ?>"><?php if(!empty($is_user_already_followed_question)){echo '<i class="fas fa-check-square"></i>';}else{echo '<i class="fas fa-plus-circle"></i>';} ?></button>
+                        <?php } ?>
+                    </div>
+                    <a href="<?php the_permalink(); ?>" class="text-dark question-title imit-font fw-500 my-3 d-block"><span class="rz-color">Q</span> <?php the_title(); ?></a>
+                    <ul class="tags ps-0 mb-0 d-flex flex-row align-items-center justify-content-start">
+                        <?php 
+                        $tags = wp_get_post_terms(get_the_ID(), 'question_tags');
+                        foreach($tags as $tag){
+                            ?>
+                            <li class="list-unstyled tag-list">
+                                <a href="<?php echo get_term_link($tag->term_id, 'question_tags'); ?>" class="tag-link rounded imit-font fz-12 rz-secondary-color"><?php echo $tag->name; ?></a>
+                            </li>
+                            <?php
+                        }
+                        ?>
+                    </ul>
+                </li>
+                <?php endwhile;
+            }
+        }else{
+            exit('followingQuestionReachmax');
+        }
+    }
+    die();
+  }
+
+  /**
+   * get posts by tag
+   */
+  add_action('wp_ajax_nopriv_rz_get_post_using_tags', 'imit_get_post_using_tags');
+  add_action('wp_ajax_rz_get_post_using_tags', 'imit_get_post_using_tags');
+
+  function imit_get_post_using_tags(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce( $nonce, 'rz-get-post-using-tags-nonce' )){
+        $tag = sanitize_text_field( $_POST['tag'] );
+        $page_number = sanitize_key($_POST['page_num']);
+
+        $args = array(
+            'post_type'  => 'rz_post_question',
+            'posts_per_page' => 20,
+            'paged' => $page_number,
+            'tax_query'  => array(
+                array(
+                    'taxonomy'  => 'question_tags',
+                    'field'     => 'slug',
+                    'terms'     =>  $tag
+                ),
+            ),
+        );
+        
+        $posts_array = new WP_Query( $args );
+        
+
+        if($posts_array -> have_posts(  )){
+            while($posts_array->have_posts()):$posts_array->the_post();
+            $post_id = get_the_ID();
+                $user_id = get_the_author_meta('ID');
+                $answer_count = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND user_id != '$user_id'", ARRAY_A);
+
+                $current_user = get_current_user_id(  );
+                $rz_following_questions = $wpdb->prefix.'rz_following_questions';
+                $is_user_already_followed_question = $wpdb->get_row("SELECT * FROM {$rz_following_questions} WHERE user_id = '{$current_user}' AND question_id = '{$post_id}'");
+                ?>
+                <li class="news-feed-list mt-3" id="question<?php echo $post_id; ?>">
+                    <div class="card rz-br">
+                        <div class="card-body p-0">
+                            <div class="p-4">
+                                <div class="d-flex flex-row justify-content-between align-items-center">
+                                    <div class="created-at rz-secondary-color fz-14 imit-font">Asked on: <?php the_time('g a F d, Y'); ?></div>
+                                    <?php if(is_user_logged_in(  )){ ?>
+                                    <button type="button" class="border-0 <?php if(!empty($is_user_already_followed_question)){echo 'rz-color';}else{echo 'rz-secondary-color';} ?> fz-14 p-0 bg-transparent" id="follow-question" data-question_id="<?php echo $post_id; ?>"><?php if(!empty($is_user_already_followed_question)){echo '<i class="fas fa-check-square"></i>';}else{echo '<i class="fas fa-plus-circle"></i>';} ?></button>
+                                    <?php } ?>
+                                </div>
+                                <a href="<?php the_permalink(); ?>" class="question-title imit-font fw-500 text-decoration-none text-dark rz-lh-38"><span class="rz-color mr-1">Q.</span> <?php the_title(); ?></a>
+                                <div class="rz-br my-3">
+                                    <?php the_post_thumbnail('full', ['img-fluid']); ?>
+                                </div>
+                                <ul class="tags ps-0 d-flex flex-row justify-content-start align-items-center">
+                                    <?php
+                                    $tags = wp_get_post_terms(get_the_ID(), 'question_tags');
+                                    foreach($tags as $tag){
+                                        echo '<li class="tag-list"><a href="'.get_term_link($tag->term_id, 'question_tags').'" class="tag-link imit-font fz-12 fw-500 rounded">'.$tag->name.'</a></li>';
+                                    }
+                                    ?>
+                                </ul>
+
+                                <?php
+                                if(is_user_logged_in(  )){
+                                    ?>
+                                    <div class="d-flex flex-row justify-content-start align-items-center mt-3">
+                                        <a href="#" class="answer-button btn imit-font fz-14 rz-color fw-500 me-2" data-target="most-answer-form<?php echo get_the_ID(); ?>" id="comment-button"><?php if(count($answer_count) <= 0 && $user_id !== get_current_user_id()){echo 'Be first to write answer';}else{echo 'Write an answer';} ?></a>
+                                        <?php
+                                        if($user_id !== get_current_user_id()){
+                                            if(count($answer_count) >= 1){
+                                                ?>
+                                                <span class="point-badge imit-font fz-14 fw-500"><img src="<?php echo plugins_url('images/Group (3).png', __FILE__); ?>" alt=""> <span class=" rz-secondary-color">10 Point</span></span>
+                                                <?php
+                                            }else{
+                                                ?>
+                                                <span class="point-badge imit-font fz-14 fw-500"><img src="<?php echo plugins_url('images/Group.png', __FILE__); ?>" alt=""> <span class=" rz-secondary-color">20 Point</span></span>
+                                                <?php
+                                            }
+                                        }
+                                        ?>
+                                    </div>
+                                    <div class="answer-wrapper mt-3" id="most-answer-form<?php echo get_the_ID(); ?>" style="display: none;">
+                                        <form action="" id="answer-form" data-post_id="<?php echo get_the_ID(); ?>">
+                                            <div class="row">
+                                                <div class="col-md-1">
+                                                    <div class="profile-image">
+                                                        <img src="<?php getProfileImageById(get_current_user_id()); ?>" alt="">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-11">
+                                                    <div class="answer-editor">
+                                                        <textarea name="answer<?php echo get_the_ID(); ?>" class="imit-font fz-14 form-control" id="answer-textarea" cols="30" rows="10" data-post_id="<?php echo get_the_ID(); ?>"></textarea>
+                                                        <ul class="list-group" id="answer_hashtag<?php echo get_the_ID(); ?>">
+
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button type="submit" class="btn rz-bg-color text-white imit-font fz-14 ms-auto d-table mt-2 fw-500">Submit Answer</button>
+                                        </form>
+                                    </div>
+                                    <?php
+                                }
+                                ?>
+                            </div>
+                            <?php 
+                                        $all_answers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND status = '1'", ARRAY_A);
+                                        if(count($all_answers) > 0){
+                                            $get_first_answer = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' ORDER BY id ASC LIMIT 1");
+                                            $get_profile_data = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '{$get_first_answer->user_id}'");
+                                            ?>
+                                            <div class="question-first-answer">
+                                                <div class="answer-info d-flex flex-row justify-content-between align-items-center py-2 px-4">
+                                                    <p class="mb-0 rz-color imit-font count-answer rz-color fw-500"><?php echo count($all_answers); ?> Answers</p>
+                                                    <a href="<?php the_permalink(); ?>" class="imit-font rz-color fw-500 fz-16">See all</a>
+                                                </div>
+                                                <ul class="answers py-3 px-4 mb-0">
+                                                <li class="answer-list list-unstyled">
+                                                    <div class="answer-header border-bottom-0 d-flex flex-row justify-content-between align-items-center">
+                                                        <div class="user-data d-flex flex-row justify-content-start align-items-center">
+                                                            <div class="profile-image">
+                                                                <img src="<?php getProfileImageById($get_first_answer->user_id); ?>" alt="">
+                                                            </div>
+                                                            <div class="user-info ms-1">
+                                                                <a href="<?php echo site_url().'/'.get_user_by('user_login', $get_first_answer->user_id); ?>" class="imit-font fz-16"><?php echo getUserNameById($get_first_answer->user_id); ?></a>
+                                                                <p class="mb-0 rz-secondary-color imit-font fz-12"><?php echo $get_profile_data->occupation; ?></p>
+                                                            </div>
+                                                        </div>
+                                                        <p class="rz-secondary-color imit-font fz-14 mb-0">Answered: 3pm April 25 ,2021</p>
+                                                    </div>
+                                                    <div class="answer-body mt-3 d-flex flex-row justify-content-start align-items-start">
+                                                        <?php 
+                                                        $current_user_id = get_current_user_id();
+                                                        $answer_id = $get_first_answer->id;
+                                                        $get_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                                        $get_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+        
+                                                        $count_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                                        $count_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+                                                        ?>
+                                                        <ul class="body-left d-flex flex-column justify-content-start align-items-center ps-0 mb-0" id="vote<?php echo $answer_id; ?>">
+                                                            <li class="list-unstyled">
+                                                                <a href="#" class="vote d-block <?php if(count($get_upvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="up-vote"><i class="fas fa-arrow-up"></i></a>
+                                                            </li>
+                                                            <li class="list-unstyled">
+                                                                <p class="counter fz-16 imit-font my-1 <?php if((count($count_upvote) - count($count_downvote)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="counter<?php echo $answer_id ; ?>"><?php echo count($count_upvote) - count($count_downvote); ?></p>
+                                                            </li>
+                                                            <li class="list-unstyled">
+                                                                <a href="#" class="vote d-block <?php if(count($get_downvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="down-vote"><i class="fas fa-arrow-down"></i></a>
+                                                            </li>
+                                                        </ul>
+                                                        <div class="answer-details ms-3">
+                                                            <?php 
+                                                            if(str_word_count($get_first_answer->answer_text) > 20){
+                                                                ?>
+                                                                <p class="imit-font fz-16 answer-text" id="answer-text"><?php echo wp_trim_words($get_first_answer->answer_text, 20, ' ...'); ?></p>
+                                                                <a href="#" class="rz-color fw-500 imit-font fz-16" data-answer_id="<?php echo $get_first_answer->id; ?>" id="read-more-answer">Read More</a>
+                                                                <p class="imit-font fz-16 answer-text" id="answer-text<?php echo $get_first_answer->id; ?>" style="display: none;"><?php echo $get_first_answer->answer_text; ?></p>
+                                                                <?php
+                                                            }else{
+                                                                ?>
+                                                                <p class="imit-font fz-16 answer-text"><?php echo $get_first_answer->answer_text; ?></p>
+                                                                <?php
+                                                            }
+                                                            ?>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                            </div>
+                                            <?php
+                                        }
+                                    ?>
+                        </div>
+                        <div class="card-footer p-3 border-top-0 d-flex flex-row justify-content-between align-items-center">
+                            <div class="views text-dark fz-14">
+                                <i class="fas fa-eye"></i>
+                                <span class="counter imit-font fw-500"><span class="counter"><?php echo getPostViews(get_the_ID()) ?></span></span>
+                            </div>
+                            <?php if(is_user_logged_in(  ) && $user_id === get_current_user_id(  )){
+                                ?>
+                                <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
+                                    <div class="dropdown">
+                                        <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </a>
+                                        <ul class="dropdown-menu" aria-labelledby="more-option-feed">
+                                            <li><a class="dropdown-item imit-font fz-14 text-dark" href="#" id="delete-question" data-question_id="<?php echo $post_id; ?>">Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <?php
+                            } ?>
+                        </div>
+                    </div>
+                </li>
+                <?php
+            endwhile;
+        }else{
+            exit('tagPostReachMax');
+        }
+    }
+    die();
+  }

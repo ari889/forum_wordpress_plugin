@@ -49,6 +49,8 @@ function imit_rz_init(){
     $rz_point_table = $wpdb->prefix.'rz_point_table';
     $rz_quizzes = $wpdb->prefix.'rz_quizzes';
     $rz_quiz_questions = $wpdb->prefix.'rz_quiz_questions';
+    $rz_following_questions = $wpdb->prefix.'rz_following_questions';
+    $rz_following_tags = $wpdb->prefix.'rz_following_tags';
 
     require_once (ABSPATH.'wp-admin/includes/upgrade.php');
 
@@ -287,6 +289,27 @@ function imit_rz_init(){
         PRIMARY KEY (id)
     );";
 
+    $sql[] = "CREATE TABLE {$rz_following_questions} (
+        id INT (11) NOT NULL AUTO_INCREMENT,
+        user_id INT (11) NOT NULL,
+        question_id INT (11) NOT NULL,
+        status VARCHAR (100) DEFAULT ('1'),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id)
+    );";
+
+
+    $sql[] = "CREATE TABLE {$rz_following_tags} (
+        id INT (11) NOT NULL AUTO_INCREMENT,
+        user_id INT (11) NOT NULL,
+        term_id INT (11) NOT NULL,
+        status VARCHAR (100) DEFAULT ('1'),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (id)
+    );";
+
 
 
     dbDelta( $sql );
@@ -384,9 +407,12 @@ add_action('wp_enqueue_scripts', function(){
     wp_enqueue_script( 'imit-sweetalert', PLUGINS_URL('js/sweetalert.min.js', __FILE__), ['jQuery'], true, true);
     wp_enqueue_script( 'imit-recozilla', PLUGINS_URL('js/recozilla.js', __FILE__), ['jQuery'], true, true);
 
+    global $post;
+    $post_type = $post->post_type;
+
     if(is_page('discuss')){
         wp_enqueue_script( 'imit-rz-discuss', PLUGINS_URL('js/rz-discuss.js', __FILE__), ['jQuery'], true, true );
-    }else if(is_page('questions')){
+    }else if(is_page('questions') || $post_type == 'rz_post_question'){
         wp_enqueue_script( 'imit-rz-question', PLUGINS_URL('js/rz-question.js', __FILE__), ['jQuery'], true, true );
     }else if(is_page('user')){
         wp_enqueue_script( 'imit-rz-profile', PLUGINS_URL('js/rz-profile.js', __FILE__), ['jQuery'], true, true );
@@ -854,7 +880,88 @@ add_action('wp_enqueue_scripts', function(){
         'rz_delete_question_nonce' => $rz_delete_question_nonce
     ] );
 
+    /**
+     * delete discuss reply
+     */
+    $rz_delete_discuss_reply_nonce = wp_create_nonce( 'rz-delete-discuss-reply-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzDeleteDiscussReply', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_delete_discuss_reply_nonce' => $rz_delete_discuss_reply_nonce
+    ] );
 
+    /**
+     * delete discuss comment
+     */
+    $rz_delete_discuss_comment_nonce = wp_create_nonce( 'rz-delete-discuss-comment-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzDeleteDiscussComment', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_delete_discuss_comment_nonce' => $rz_delete_discuss_comment_nonce
+    ] );
+
+    /**
+     * delete discuss post
+     */
+    $rz_delete_discuss_post_nonce = wp_create_nonce( 'rz-delete-discuss-post-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzDeleteDiscussPost', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_delete_discuss_post_nonce' => $rz_delete_discuss_post_nonce
+    ] );
+
+    /**
+     * redeem point nonce
+     */
+    $rz_redeem_point_nonce = wp_create_nonce( 'rz-redeem-point-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzRedeemPoint', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_redeem_point_nonce' => $rz_redeem_point_nonce
+    ] );
+
+    /**
+     * follow questions nonce
+     */
+    $rz_follow_question = wp_create_nonce( 'rz-follow-question-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzFolowQuestion', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_follow_question' => $rz_follow_question
+    ] );
+
+    /**
+     * following tags
+     */
+    $rz_follow_tag = wp_create_nonce( 'rz-follow-tag-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzFolowTag', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_follow_tag' => $rz_follow_tag
+    ] );
+
+
+
+    /**
+     * get all following questions
+     */
+    $rz_get_following_questions = wp_create_nonce( 'rz-get-following-questions-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzFollowingQuestions', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_get_following_questions' => $rz_get_following_questions
+    ] );
+
+    /**
+     * get all following tags
+     */
+    $rz_get_following_tags = wp_create_nonce( 'rz-get-following-tags-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzFollowingTags', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_get_following_tags' => $rz_get_following_tags
+    ] );
+
+    /**
+     * get post using tags nonce
+     */
+    $rz_get_posts_using_tags = wp_create_nonce( 'rz-get-post-using-tags-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzGetPostUsingTags', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_get_posts_using_tags' => $rz_get_posts_using_tags
+    ] );
 
 
 });
@@ -968,6 +1075,14 @@ function getUserNameById($user_id){
         return $get_userdata->display_name;
     }
 }
+
+/**
+ * send message with html formats
+ */
+function wpse27856_set_content_type(){
+    return "text/html";
+}
+add_filter( 'wp_mail_content_type','wpse27856_set_content_type' );
 
 
 /**
@@ -1279,12 +1394,16 @@ add_shortcode('imit-tags-archive', function(){
                                     }
                                     $total_view += $count;
                                 }
+                                $term_id = $tag->term_id;
+                                $user_id = get_current_user_id();
+                                $rz_following_tags = $wpdb->prefix.'rz_following_tags';
+                                $is_user_already_followed = $wpdb->get_row("SELECT * FROM {$rz_following_tags} WHERE user_id = '{$user_id}' AND term_id = '{$term_id}'");
                                 ?>
                                 <li class="hash-list list-unstyled col-md-4 my-2">
                                     <div class="bg-white py-2 px-3 rounded border">
                                         <div class="hash-top d-flex flex-row justify-content-between align-items-center">
                                             <a href="<?php echo get_term_link($tag->term_id, 'question_tags'); ?>" class="imit-font fw-500 fz-16 text-dark d-block">#<?php echo $tag->name; ?></a>
-        <!--                                            <button type="button" class="add-post-by-tag p-0 rz-secondary-color bg-transparent fz-14"><i class="fas fa-plus-circle"></i></button>-->
+                                            <button type="button" class="add-post-by-tag p-0 <?php if(!empty($is_user_already_followed)){echo 'rz-color';}else{echo 'rz-secondary-color';} ?> bg-transparent fz-14 border-0" data-term_id="<?php echo $tag->term_id; ?>" id="follow-tag"><?php if(!empty($is_user_already_followed)){echo '<i class="fas fa-check-square"></i>';}else{echo '<i class="fas fa-plus-circle"></i>';} ?></button>
                                         </div>
                                         <div class="d-flex flex-row justify-content-between align-items-center me-2">
                                             <p class="rz-secondary-color imit-font fz-12 fw-400 mb-0"><?php echo $tag->count; ?> Question</p>
@@ -1397,12 +1516,17 @@ function rz_get_terms_by_name(){
                     }
                     $total_view += $count;
                 }
+
+                $term_id = $tag->term_id;
+                $user_id = get_current_user_id();
+                $rz_following_tags = $wpdb->prefix.'rz_following_tags';
+                $is_user_already_followed = $wpdb->get_row("SELECT * FROM {$rz_following_tags} WHERE user_id = '{$user_id}' AND term_id = '{$term_id}'");
                 ?>
                 <li class="hash-list list-unstyled col-md-4 my-2">
                         <div class="bg-white py-2 px-3 rounded border">
                             <div class="hash-top d-flex flex-row justify-content-between align-items-center">
                                 <a href="<?php echo get_term_link($tag->term_id, $tag->taxonomy); ?>" class="imit-font fw-500 fz-16 text-dark d-block">#<?php echo $tag->name; ?></a>
-<!--                                            <button type="button" class="add-post-by-tag p-0 rz-secondary-color bg-transparent fz-14"><i class="fas fa-plus-circle"></i></button>-->
+                                <button type="button" class="add-post-by-tag p-0 <?php if(!empty($is_user_already_followed)){echo 'rz-color';}else{echo 'rz-secondary-color';} ?> bg-transparent fz-14 border-0" data-term_id="<?php echo $tag->term_id; ?>" id="follow-tag"><?php if(!empty($is_user_already_followed)){echo '<i class="fas fa-check-square"></i>';}else{echo '<i class="fas fa-plus-circle"></i>';} ?></button>
                             </div>
                             <div class="d-flex flex-row justify-content-between align-items-center me-2">
                                 <p class="rz-secondary-color imit-font fz-12 fw-400 mb-0"><?php echo $tag->count; ?> Question</p>
@@ -1559,4 +1683,37 @@ add_action('um_hourly_scheduled_events', function(){
     $post_id = get_the_ID();
     wp_set_post_terms($post_id, 'uncategorised', 'question_category');
     endwhile;
+});
+
+/**
+ * following tags
+ */
+add_action('wp_ajax_rz_follwoing_tags_action', function(){
+    global $wpdb;
+    $nonce = $_POST['nonce'];
+    if(wp_verify_nonce( $nonce, 'rz-follow-tag-nonce' )){
+        $rz_following_tags = $wpdb->prefix.'rz_following_tags';
+        $term_id = sanitize_key( $_POST['term_id'] );
+        $user_id = get_current_user_id();
+
+        $is_user_already_followed = $wpdb->get_row("SELECT * FROM {$rz_following_tags} WHERE user_id = '{$user_id}' AND term_id = '{$term_id}'");
+
+        if(!empty($is_user_already_followed)){
+            $wpdb->delete($rz_following_tags, [
+                'user_id' => $user_id,
+                'term_id' => $term_id
+            ]);
+
+            $response['response'] = false;
+        }else{
+            $wpdb->insert($rz_following_tags, [
+                'user_id' => $user_id,
+                'term_id' => $term_id
+            ]);
+            $response['response'] = true;
+        }
+
+        echo json_encode($response);
+    }
+    die();
 });

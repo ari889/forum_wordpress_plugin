@@ -14,6 +14,7 @@ h1,h2,h3,h4,h5{
 import roboto font
 */
 @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Roboto:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cantata+One&display=swap');
 
 
 body{
@@ -126,6 +127,9 @@ a{
             font-size: 24px;
             line-height: 38px;
             margin: 20px 0;
+            span{
+                font-family: 'Cantata One', serif;
+            }
         }
         .tags{
             margin-top: 20px;
@@ -178,6 +182,55 @@ a{
         }
         .active{
             background-color: #721B65;
+        }
+        .question-first-answer{
+            background-color: #FDFDFD;
+            .answer-info{
+                border-top: 1px solid #FAEDE5;
+                .count-answer{
+                    font-size: 23px;
+                    line-height: 38px;
+                }
+            }
+            .answers{
+                .answer-list{
+                    .answer-header{
+                        .profile-image{
+                            max-width: 42px;
+                            max-height: 42px;
+                            border-radius: 50%;
+                            img{
+                                width: 42px;
+                                height: 42px;
+                                border-radius: 50%;
+                            }
+                        }
+                        .user-info{
+                            a{
+                                line-height: 14px;
+                                color: #170514;
+                            }
+                        }
+                    }
+                    .answer-body{
+                        .body-left{
+                            .vote{
+                                width: 30px;
+                                height: 30px;
+                                line-height: 30px;
+                                text-align: center;
+                                font-size: 14px;
+                                border-radius: 50%;
+                                background-color: rgba(23,5,20,0.5);
+                                color: #fff;
+                            }
+                            .active{
+                                background-color: #721B65;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     .pinned{
@@ -291,6 +344,18 @@ a{
                 .active{
                     border-bottom: 3px solid #fff;
                 }
+            }
+        }
+        .custom-dropdown{
+            a{
+                &:active{
+                    background-color: #721B65;
+                    color: #fff;
+                }
+            }
+            .active{
+                background-color: #721B65;
+                color: #fff;
             }
         }
     }
@@ -1065,6 +1130,253 @@ design for notification
                     background-color: #eee;
                 }
             }
+        }
+    }
+}
+
+/**
+* design for reedem points
+*/
+.redeem-points-body{
+    input[type="text"]{
+        border-radius: 6px;
+    }
+
+    .radio-button{
+        input[type="radio"]:checked ~ label{
+            background-color: #FAEDE5;
+        }
+        &:last-child{
+            label{
+                margin-right: 0;
+            }
+        }
+        label{
+            padding: 10px;
+            border: 1px solid #FAEDE5;
+            border-radius: 3px;
+            margin-right: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            &:hover{
+                background-color: #FAEDE5;
+            }
+        }
+    }
+}
+
+/**
+* following user tabs
+*/
+.following-tab{
+    .tab-list{
+        .following-link{
+            border-bottom: 2px solid transparent;
+            transition: 0.3s;
+            &:hover{
+                border-bottom: 2px solid #721B65;
+            }
+        }
+        .active{
+            border-bottom: 2px solid #721B65;
+        }
+    }
+}
+.question-list{
+    .question-title{
+        font-size: 24px;
+        line-height: 38px;
+        span{
+            font-family: 'Cantata One', serif;
+        }
+    }
+    .tags{
+        .tag-list{
+            &:last-child{
+                .tag-link{
+                    margin-right: 0;
+                }
+            }
+            .tag-link{
+                display: block;
+                border: 1px solid #E5E5E5;
+                padding: 0 5px;
+                transition: 0.3s;
+                color: rgba(23,5,20,0.5);
+                margin-right: 5px;
+                &:hover{
+                    background-color: #E5E5E5;
+                }
+            }
+        }
+    }
+}
+
+
+.form-check-input:checked {
+    background-color: #721B65;
+    border-color: #721B65;
+}
+
+.form-check-input:focus {
+    border-color: #8b8f96;
+    outline: 0;
+    box-shadow: none;
+}
+
+/**
+* align password toggler button
+*/
+#rz-login{
+    #show-password{
+        font-size: 16px;
+        color: #280A39;
+        opacity: 0.5;
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+        transition: 0.3s;
+        &:hover{
+            opacity: 1;
+        }
+    }
+    input[type="text"], input[type="password"]{
+        background-color: #F8F6F5;
+        padding: 15px 20px;
+        border-radius: 6px;
+    }
+}
+
+/**
+* design for register form
+*/
+#rz-register-form{
+    input[type="text"], input[type="password"]{
+        background-color: #F8F6F5;
+        padding: 15px 20px;
+        border-radius: 6px;
+    }
+}
+
+/**
+* single page post design
+ */
+.imit-single-questions{
+    .news-feed-list{
+        list-style: none;
+        .card{
+            border: 1px solid #FAEDE5;
+        }
+        .question-title{
+            font-size: 24px;
+            line-height: 38px;
+            margin: 20px 0;
+            span{
+                font-family: 'Cantata One', serif;
+            }
+        }
+        .tags{
+            margin-top: 20px;
+            .tag-list{
+                list-style: none;
+                &:last-child{
+                    .tag-link{
+                        margin-right: 0;
+                    }
+                }
+                .tag-link{
+                    display: block;
+                    border: 1px solid #E5E5E5;
+                    padding: 0 5px;
+                    transition: 0.3s;
+                    color: rgba(23,5,20,0.5);
+                    margin-right: 5px;
+                    &:hover{
+                        background-color: #E5E5E5;
+                    }
+                }
+            }
+        }
+        .answer-button{
+            background-color: #FAEDE5;
+        }
+        .question-first-answer{
+            background-color: #FDFDFD;
+            .answer-info{
+                border-top: 1px solid #FAEDE5;
+                border-bottom: 1px solid #FAEDE5;
+                .count-answer{
+                    font-size: 23px;
+                    line-height: 38px;
+                }
+            }
+            .answers{
+                .answer-list{
+                    .answer-header{
+                        .profile-image{
+                            max-width: 42px;
+                            max-height: 42px;
+                            border-radius: 50%;
+                            img{
+                                width: 42px;
+                                height: 42px;
+                                border-radius: 50%;
+                            }
+                        }
+                        .user-info{
+                            a{
+                                line-height: 14px;
+                                color: #170514;
+                            }
+                        }
+                    }
+                    .answer-body{
+                        .body-left{
+                            .vote{
+                                width: 30px;
+                                height: 30px;
+                                line-height: 30px;
+                                text-align: center;
+                                font-size: 14px;
+                                border-radius: 50%;
+                                background-color: rgba(23,5,20,0.5);
+                                color: #fff;
+                            }
+                            .active{
+                                background-color: #721B65;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .rz-tabs{
+        .rz-tab-list{
+            .rz-tab-link{
+                &:hover{
+                    background-color: #FAEDE5 !important;
+                    color: #721B65 !important;
+                }
+            }
+            .active{
+                background-color: #FAEDE5 !important;
+                color: #721B65 !important;
+            }
+        }
+    }
+    .custom-dropdown{
+        a{
+            &:active{
+                background-color: #721B65;
+                color: #fff;
+            }
+        }
+        .active{
+            background-color: #721B65;
+            color: #fff;
         }
     }
 }

@@ -7,8 +7,16 @@
         $(document).on('submit', '#rz-login', function(e){
             e.preventDefault();
             let form_data = new FormData(this);
+            let remember = $('#rz-login input[name="remember-me"]:checked').val();
+            let login_remember;
+            if(remember == 'yes'){
+                login_remember = 'yes';
+            }else{
+                login_remember = 'no';
+            }
             form_data.append('action', 'imit_recozilla_login');
             form_data.append('nonce', rzLogin.recozilla_login_nonce);
+            form_data.append('remember', login_remember);
             $.ajax({
                 url: rzLogin.ajax_url,
                 method: 'POST',
@@ -20,6 +28,7 @@
                     $('#rz-login button[type="submit"]').addClass('disabled');
                 },
                 success: function(data){
+                    console.log(data);
                     if(data.email == true){
                         $('#rz-login input[name="email"]').addClass('is-invalid');
                         $('#login-email').html(data.email_message);
@@ -67,6 +76,7 @@
                     $('#rz-register-form button[type="submit"]').addClass('disabled');
                 },
                 success: function(data){
+                    console.log(data);
                     if(data.username_error == true){
                         $('#rz-register-form input[name="username"]').addClass('is-invalid');
                         $('#rz-register-form #reg-username-err').html(data.username_message);
@@ -251,6 +261,7 @@
                     console.log(data);
                     form[0].reset();
                     $('#answer-comment-form button[type="submit"]').removeClass('disabled');
+                    window.location.reload();
                 }
             });
         });
@@ -328,43 +339,6 @@
             });
         });
 
-
-        /**
-         * hash tag or mention
-         */
-         var regex = /[#](\w+)$/ig;
-         $(document).on('keyup', '#add-question-form textarea[name="content"]', function(){
-             var content = $.trim($(this).val());
-             var text = content.match(regex);
- 
-             if(text != null){
-                 var dataString = 'hashtag='+text;
-                 $.ajax({
-                     url 	: rzHashtagShow.ajax_url,
-                     type 	: "POST",
-                     data 	: {'hashtag': text, 'nonce': rzHashtagShow.rz_hashtag_show_nonce, 'action': 'rz_show_hashtags_data'},
-                     cache 	: false,
-                     success : function(data){
-                         console.log(data);
-                         $('#rz-hashbox').html(data);
-                         $('#rz-hashbox li').click(function(){
-                             var value = $.trim($(this).find('.getValue').text());
-                             var oldContent = $('#add-question-form textarea[name="content"]').val();
-                             var newContent = oldContent.replace(regex, "");
- 
-                             $('#add-question-form textarea[name="content"]').val(newContent+value+' ');
-                             $('#rz-hashbox li').hide();
-                             $('#add-question-form textarea[name="content"]').focus();
- 
-                             // $('#count').text(content.length);
-                         });
-                     }
-                 });
-             }else{
-                 $('#rz-hashbox li').hide();
-             }
-         });
-
          /**
           * for answer
           */
@@ -430,6 +404,7 @@
                     console.log(data);
                     form[0].reset();
                     $('#submit-replay-form button[type="submit"]').removeClass('disabled');
+                    window.location.reload();
                 }
             });
         });
@@ -531,6 +506,7 @@
                     $('#discussion-error').html(data);
                     form[0].reset();
                     $('#add_discussion_form button[type="submit"]').removeClass('disabled');
+                    window.location.reload();
                 }
             });
         });
@@ -552,6 +528,7 @@
                 success: function(data){
                     console.log(data);
                     $('#add_comment_discussion button[type="submit"]').removeClass('disabled');
+                    window.location.reload();
                 }
             });
         });
@@ -563,7 +540,6 @@
             e.preventDefault();
             let button = $(this);
             let comment_id = button.data('comment_id');
-            let counter = $('#dis-counter'+comment_id).text();
             $.ajax({
                 url: rzLikeDislikeDiscussComment.ajax_url,
                 method: 'POST',
@@ -571,28 +547,23 @@
                 dataType: 'JSON',
                 success: function(data){
                     console.log(data);
-                    if(data.data_res == true){
-                        button.addClass('active');
-                        counter++;
-                        $('#dis-counter'+comment_id).text(counter);
-                        if(counter < 0){
-                            $('#dis-counter'+comment_id).removeClass('text-success');
-                            $('#dis-counter'+comment_id).addClass('text-danger');
-                        }else{
-                            $('#dis-counter'+comment_id).addClass('text-success');
-                            $('#dis-counter'+comment_id).removeClass('text-danger');
-                        }
+                    $('#comment-action'+comment_id+' #dis-counter'+comment_id).text(data.counter);
+                    if(data.counter < 0){
+                        $('#comment-action'+comment_id+' #dis-counter'+comment_id).removeClass('text-success');
+                        $('#comment-action'+comment_id+' #dis-counter'+comment_id).addClass('text-danger');
                     }else{
-                        button.removeClass('active');
-                        counter--;
-                        $('#dis-counter'+comment_id).text(counter);
-                        if(counter < 0){
-                            $('#dis-counter'+comment_id).removeClass('text-success');
-                            $('#dis-counter'+comment_id).addClass('text-danger');
-                        }else{
-                            $('#dis-counter'+comment_id).addClass('text-success');
-                            $('#dis-counter'+comment_id).removeClass('text-danger');
-                        }
+                        $('#comment-action'+comment_id+' #dis-counter'+comment_id).addClass('text-success');
+                        $('#comment-action'+comment_id+' #dis-counter'+comment_id).removeClass('text-danger');
+                    }
+                    if(data.up_like == true){
+                        $('#comment-action'+comment_id+' #comment-discuss-up').addClass('active');
+                        $('#comment-action'+comment_id+' #comment-discuss-down').removeClass('active');
+                    }else if(data.down_like == true){
+                        $('#comment-action'+comment_id+' #comment-discuss-down').addClass('active');
+                        $('#comment-action'+comment_id+' #comment-discuss-up').removeClass('active');
+                    }else{
+                        $('#comment-action'+comment_id+' #comment-discuss-up').removeClass('active');
+                        $('#comment-action'+comment_id+' #comment-discuss-down').removeClass('active');
                     }
                 }
             });
@@ -613,28 +584,23 @@
                 dataType: 'JSON',
                 success: function(data){
                     console.log(data);
-                    if(data.data_res == true){
-                        button.addClass('active');
-                        counter--;
-                        $('#dis-counter'+comment_id).text(counter);
-                        if(counter < 0){
-                            $('#dis-counter'+comment_id).removeClass('text-success');
-                            $('#dis-counter'+comment_id).addClass('text-danger');
-                        }else{
-                            $('#dis-counter'+comment_id).addClass('text-success');
-                            $('#dis-counter'+comment_id).removeClass('text-danger');
-                        }
+                    $('#comment-action'+comment_id+' #dis-counter'+comment_id).text(data.counter);
+                    if(data.counter < 0){
+                        $('#comment-action'+comment_id+' #dis-counter'+comment_id).removeClass('text-success');
+                        $('#comment-action'+comment_id+' #dis-counter'+comment_id).addClass('text-danger');
                     }else{
-                        button.removeClass('active');
-                        counter++;
-                        $('#dis-counter'+comment_id).text(counter);
-                        if(counter < 0){
-                            $('#dis-counter'+comment_id).removeClass('text-success');
-                            $('#dis-counter'+comment_id).addClass('text-danger');
-                        }else{
-                            $('#dis-counter'+comment_id).addClass('text-success');
-                            $('#dis-counter'+comment_id).removeClass('text-danger');
-                        }
+                        $('#comment-action'+comment_id+' #dis-counter'+comment_id).addClass('text-success');
+                        $('#comment-action'+comment_id+' #dis-counter'+comment_id).removeClass('text-danger');
+                    }
+                    if(data.up_like == true){
+                        $('#comment-action'+comment_id+' #comment-discuss-up').addClass('active');
+                        $('#comment-action'+comment_id+' #comment-discuss-down').removeClass('active');
+                    }else if(data.down_like == true){
+                        $('#comment-action'+comment_id+' #comment-discuss-down').addClass('active');
+                        $('#comment-action'+comment_id+' #comment-discuss-up').removeClass('active');
+                    }else{
+                        $('#comment-action'+comment_id+' #comment-discuss-up').removeClass('active');
+                        $('#comment-action'+comment_id+' #comment-discuss-down').removeClass('active');
                     }
                 }
             });
@@ -658,6 +624,7 @@
                 success: function(data){
                     console.log(data);
                     $('#add_discussion_comment_replay button[type="submit"]').removeClass('disabled');
+                    window.location.reload();
                 }
             });
         });
@@ -677,28 +644,23 @@
                 dataType: 'JSON',
                 success: function(data){
                     console.log(data);
-                    if(data.data_res == true){
-                        button.addClass('active');
-                        counter++;
-                        $('#reply-like-counter'+reply_id).text(counter);
-                        if(counter < 0){
-                            $('#reply-like-counter'+reply_id).removeClass('text-success');
-                            $('#reply-like-counter'+reply_id).addClass('text-danger');
-                        }else{
-                            $('#reply-like-counter'+reply_id).addClass('text-success');
-                            $('#reply-like-counter'+reply_id).removeClass('text-danger');
-                        }
+                    $('#reply-action'+reply_id+' #reply-like-counter'+reply_id).text(data.counter);
+                    if(data.counter < 0){
+                        $('#reply-action'+reply_id+' #reply-like-counter'+reply_id).removeClass('text-success');
+                        $('#reply-action'+reply_id+' #reply-like-counter'+reply_id).addClass('text-danger');
                     }else{
-                        button.removeClass('active');
-                        counter--;
-                        $('#reply-like-counter'+reply_id).text(counter);
-                        if(counter < 0){
-                            $('#reply-like-counter'+reply_id).removeClass('text-success');
-                            $('#reply-like-counter'+reply_id).addClass('text-danger');
-                        }else{
-                            $('#reply-like-counter'+reply_id).addClass('text-success');
-                            $('#reply-like-counter'+reply_id).removeClass('text-danger');
-                        }
+                        $('#reply-action'+reply_id+' #reply-like-counter'+reply_id).addClass('text-success');
+                        $('#reply-action'+reply_id+' #reply-like-counter'+reply_id).removeClass('text-danger');
+                    }
+                    if(data.up_reply == true){
+                        $('#reply-action'+reply_id+' #discuss-replay-like-up').addClass('active');
+                        $('#reply-action'+reply_id+' #discuss-replay-like-down').removeClass('active');
+                    }else if(data.down_reply == true){
+                        $('#reply-action'+reply_id+' #discuss-replay-like-down').addClass('active');
+                        $('#reply-action'+reply_id+' #discuss-replay-like-up').removeClass('active');
+                    }else{
+                        $('#reply-action'+reply_id+' #discuss-replay-like-up').removeClass('active');
+                        $('#reply-action'+reply_id+' #discuss-replay-like-down').removeClass('active');
                     }
                 }
             });
@@ -711,7 +673,6 @@
             e.preventDefault();
             let button = $(this);
             let reply_id = button.data('reply_id');
-            let counter = $('#reply-like-counter'+reply_id).text();
             $.ajax({
                 url: rzAddRemoveLikeReply.ajax_url,
                 method: 'POST',
@@ -719,28 +680,23 @@
                 dataType: 'JSON',
                 success: function(data){
                     console.log(data);
-                    if(data.data_res == true){
-                        button.addClass('active');
-                        counter--;
-                        $('#reply-like-counter'+reply_id).text(counter);
-                        if(counter < 0){
-                            $('#reply-like-counter'+reply_id).removeClass('text-success');
-                            $('#reply-like-counter'+reply_id).addClass('text-danger');
-                        }else{
-                            $('#reply-like-counter'+reply_id).addClass('text-success');
-                            $('#reply-like-counter'+reply_id).removeClass('text-danger');
-                        }
+                    $('#reply-action'+reply_id+' #reply-like-counter'+reply_id).text(data.counter);
+                    if(data.counter < 0){
+                        $('#reply-action'+reply_id+' #reply-like-counter'+reply_id).removeClass('text-success');
+                        $('#reply-action'+reply_id+' #reply-like-counter'+reply_id).addClass('text-danger');
                     }else{
-                        button.removeClass('active');
-                        counter++;
-                        $('#reply-like-counter'+reply_id).text(counter);
-                        if(counter < 0){
-                            $('#reply-like-counter'+reply_id).removeClass('text-success');
-                            $('#reply-like-counter'+reply_id).addClass('text-danger');
-                        }else{
-                            $('#reply-like-counter'+reply_id).addClass('text-success');
-                            $('#reply-like-counter'+reply_id).removeClass('text-danger');
-                        }
+                        $('#reply-action'+reply_id+' #reply-like-counter'+reply_id).addClass('text-success');
+                        $('#reply-action'+reply_id+' #reply-like-counter'+reply_id).removeClass('text-danger');
+                    }
+                    if(data.up_reply == true){
+                        $('#reply-action'+reply_id+' #discuss-replay-like-up').addClass('active');
+                        $('#reply-action'+reply_id+' #discuss-replay-like-down').removeClass('active');
+                    }else if(data.down_reply == true){
+                        $('#reply-action'+reply_id+' #discuss-replay-like-down').addClass('active');
+                        $('#reply-action'+reply_id+' #discuss-replay-like-up').removeClass('active');
+                    }else{
+                        $('#reply-action'+reply_id+' #discuss-replay-like-up').removeClass('active');
+                        $('#reply-action'+reply_id+' #discuss-replay-like-down').removeClass('active');
                     }
                 }
             });
@@ -753,35 +709,30 @@
            e.preventDefault();
            let button = $(this);
            let post_id = button.data('post_id');
-           let counter = $('#discuss-like-counter'+post_id).text();
            $.ajax({
                url: rzAddLikeOrDislikeOnDiscuss.ajax_url,
                method: 'POST',
                data: {'action': 'imit_add_like_or_dislike_on_discussion', 'nonce' : rzAddLikeOrDislikeOnDiscuss.rz_like_dis_or_dislike_discuss_post_nonce, 'like_type' : 'up-like', 'post_id' : post_id},
                dataType: 'JSON',
                success: function(data){
-                   if(data.data_res == true){
-                       button.addClass('active');
-                       counter++;
-                       $('#discuss-like-counter'+post_id).text(counter);
-                       if(counter < 0){
-                           $('#discuss-like-counter'+post_id).removeClass('text-success');
-                           $('#discuss-like-counter'+post_id).addClass('text-danger');
-                       }else{
-                           $('#discuss-like-counter'+post_id).addClass('text-success');
-                           $('#discuss-like-counter'+post_id).removeClass('text-danger');
-                       }
+                   console.log(data);
+                   $('#discuss-action'+post_id+' #discuss-like-counter'+post_id).text(data.counter);
+                   if(data.counter < 0){
+                       $('#discuss-action'+post_id+' #discuss-like-counter'+post_id).removeClass('text-success');
+                       $('#discuss-action'+post_id+' #discuss-like-counter'+post_id).addClass('text-danger');
                    }else{
-                       button.removeClass('active');
-                       counter--;
-                       $('#discuss-like-counter'+post_id).text(counter);
-                       if(counter < 0){
-                           $('#discuss-like-counter'+post_id).removeClass('text-success');
-                           $('#discuss-like-counter'+post_id).addClass('text-danger');
-                       }else{
-                           $('#discuss-like-counter'+post_id).addClass('text-success');
-                           $('#discuss-like-counter'+post_id).removeClass('text-danger');
-                       }
+                       $('#discuss-action'+post_id+' #discuss-like-counter'+post_id).addClass('text-success');
+                       $('#discuss-action'+post_id+' #discuss-like-counter'+post_id).removeClass('text-danger');
+                   }
+                   if(data.up_like == true){
+                       $('#discuss-action'+post_id+' #discuss-up-like').addClass('active');
+                       $('#discuss-action'+post_id+' #discuss-down-like').removeClass('active');
+                   }else if(data.down_like == true){
+                       $('#discuss-action'+post_id+' #discuss-down-like').addClass('active');
+                       $('#discuss-action'+post_id+' #discuss-up-like').removeClass('active');
+                   }else{
+                       $('#discuss-action'+post_id+' #discuss-up-like').removeClass('active');
+                       $('#discuss-action'+post_id+' #discuss-down-like').removeClass('active');
                    }
                }
            })
@@ -803,28 +754,23 @@
                dataType: 'JSON',
                success: function(data){
                    console.log(data);
-                   if(data.data_res == true){
-                       button.addClass('active');
-                       counter--;
-                       $('#discuss-like-counter'+post_id).text(counter);
-                       if(counter < 0){
-                           $('#discuss-like-counter'+post_id).removeClass('text-success');
-                           $('#discuss-like-counter'+post_id).addClass('text-danger');
-                       }else{
-                           $('#discuss-like-counter'+post_id).addClass('text-success');
-                           $('#discuss-like-counter'+post_id).removeClass('text-danger');
-                       }
+                   $('#discuss-action'+post_id+' #discuss-like-counter'+post_id).text(data.counter);
+                   if(data.counter < 0){
+                       $('#discuss-action'+post_id+' #discuss-like-counter'+post_id).removeClass('text-success');
+                       $('#discuss-action'+post_id+' #discuss-like-counter'+post_id).addClass('text-danger');
                    }else{
-                       button.removeClass('active');
-                       counter++;
-                       $('#discuss-like-counter'+post_id).text(counter);
-                       if(counter < 0){
-                           $('#discuss-like-counter'+post_id).removeClass('text-success');
-                           $('#discuss-like-counter'+post_id).addClass('text-danger');
-                       }else{
-                           $('#discuss-like-counter'+post_id).addClass('text-success');
-                           $('#discuss-like-counter'+post_id).removeClass('text-danger');
-                       }
+                       $('#discuss-action'+post_id+' #discuss-like-counter'+post_id).addClass('text-success');
+                       $('#discuss-action'+post_id+' #discuss-like-counter'+post_id).removeClass('text-danger');
+                   }
+                   if(data.up_like == true){
+                       $('#discuss-action'+post_id+' #discuss-up-like').addClass('active');
+                       $('#discuss-action'+post_id+' #discuss-down-like').removeClass('active');
+                   }else if(data.down_like == true){
+                       $('#discuss-action'+post_id+' #discuss-down-like').addClass('active');
+                       $('#discuss-action'+post_id+' #discuss-up-like').removeClass('active');
+                   }else{
+                       $('#discuss-action'+post_id+' #discuss-up-like').removeClass('active');
+                       $('#discuss-action'+post_id+' #discuss-down-like').removeClass('active');
                    }
                }
            })
@@ -1142,6 +1088,18 @@
             e.preventDefault();
             $(this).parent().parent().fadeOut('fast');
             $('#add_discussion_form').slideDown();
+        });
+
+        $(document).mouseup(function(e)
+        {
+            var container = $("#add_discussion_form");
+
+            // if the target of the click isn't the container nor a descendant of the container
+            if (!container.is(e.target) && container.has(e.target).length === 0)
+            {
+                $('.create-new-post').parent().parent().fadeIn('fast');
+                $('#add_discussion_form').slideUp();
+            }
         });
 
 
@@ -1468,6 +1426,331 @@
                     swal("Your imaginary file is safe!");
                 }
             });
+        });
+
+        /**
+         * delete discuss reply
+         */
+        $(document).on('click', '#discuss-reply-delete', function(e){
+            e.preventDefault();
+            let reply_id = $(this).data('reply_id');
+            swal({
+                title: "Are you sure to delete this reply?",
+                text: "Once deleted, you will not be able to recover this imaginary file!",
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if(willDelete){
+                    $.ajax({
+                        url: rzDeleteDiscussReply.ajax_url,
+                        method: 'POST',
+                        data: {'action': 'rz_delete_discuss_reply', 'nonce': rzDeleteDiscussReply.rz_delete_discuss_reply_nonce, 'reply_id' : reply_id},
+                        success: function(data){
+                            console.log(data);
+                            if(data == 'done'){
+                                $('#dis-reply'+reply_id).html('<div class="text-center"><i class="fas fa-trash text-danger fz-20"></i><p class="mb-0 fz-16 rz-secondary-color">Reply deleted!</p></div>');
+                                swal("Poof! Your imaginary file has been deleted!", {
+                                    icon: "success",
+                                });
+                            }else{
+                                swal("Failed! Something went wrong.", {
+                                    icon: "warning",
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        /**
+         * delete discuss comment
+         */
+        $(document).on('click', '#delete-discuss-comment', function(e){
+            e.preventDefault();
+            let comment_id = $(this).data('comment_id');
+            swal({
+                title: "Are you sure to delete this comment?",
+                text: "Once deleted, you will not be able to recover this imaginary file!",
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if(willDelete){
+                    $.ajax({
+                        url: rzDeleteDiscussComment.ajax_url,
+                        method: 'POST',
+                        data: {'action': 'rz_delete_discuss_comment', 'nonce': rzDeleteDiscussComment.rz_delete_discuss_comment_nonce, 'comment_id' : comment_id},
+                        success: function(data){
+                            console.log(data);
+                            if(data == 'done'){
+                                $('#dis-comment'+comment_id).html('<div class="text-center"><i class="fas fa-trash text-danger fz-20"></i><p class="mb-0 fz-16 rz-secondary-color">Comment deleted!</p></div>');
+                                swal("Poof! Your imaginary file has been deleted!", {
+                                    icon: "success",
+                                });
+                            }else{
+                                swal("Failed! Something went wrong.", {
+                                    icon: "warning",
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        /**
+         * delete discuss post
+         */
+        $(document).on('click', '#delete-discuss-post', function(e){
+           e.preventDefault();
+           let post_id = $(this).data('post_id');
+            swal({
+                title: "Are you sure to delete this post?",
+                text: "Once deleted, you will not be able to recover this imaginary file!",
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if(willDelete){
+                    $.ajax({
+                        url: rzDeleteDiscussPost.ajax_url,
+                        method: 'POST',
+                        data: {'action': 'rz_delete_discuss_post', 'nonce': rzDeleteDiscussPost.rz_delete_discuss_post_nonce, 'post_id' : post_id},
+                        success: function(data){
+                            console.log(data);
+                            if(data == 'done'){
+                                $('#dis-post'+post_id).html('<div class="text-center"><i class="fas fa-trash text-danger fz-20"></i><p class="mb-0 fz-16 rz-secondary-color">Post deleted!</p></div>');
+                                swal("Poof! Your imaginary file has been deleted!", {
+                                    icon: "success",
+                                });
+                            }else{
+                                swal("Failed! Something went wrong.", {
+                                    icon: "warning",
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        /**
+         * get payment method data
+         */
+        $(document).on('change', '.redeem-points-body .radio-button input[type="radio"]', function(e){
+            e.preventDefault();
+            let payment = $('.redeem-points-body .radio-button input[type="radio"]:checked').val();
+
+            if(payment == 'Paytm'){
+                $('.redeem-points-body #payment-details').html('<div class="row mb-3">\n' +
+                    '                                            <label for="paytm-name" class="col-sm-3 col-form-label imit-font fz-16">Name</label>\n' +
+                    '                                            <div class="col-sm-9">\n' +
+                    '                                            <input name="name" type="text" class="form-control border fz-14 border-1 imit-font" id="paytm-name">\n' +
+                    '                                            </div>\n' +
+                    '                                        </div>\n' +
+                    '\n' +
+                    '                                        <div class="row mb-3">\n' +
+                    '                                            <label for="paytm-mobile" class="col-sm-3 col-form-label imit-font fz-16">Mobile number</label>\n' +
+                    '                                            <div class="col-sm-9">\n' +
+                    '                                            <input name="mobile" type="text" class="form-control border fz-14 border-1 imit-font" id="paytm-mobile">\n' +
+                    '                                            </div>\n' +
+                    '                                        </div>');
+            }else if(payment == 'Google Pay'){
+                $('.redeem-points-body #payment-details').html('<div class="row mb-3">\n' +
+                    '                                            <label for="paytm-name" class="col-sm-3 col-form-label imit-font fz-16">Name</label>\n' +
+                    '                                            <div class="col-sm-9">\n' +
+                    '                                            <input name="name" type="text" class="form-control border fz-14 border-1 imit-font" id="paytm-name">\n' +
+                    '                                            </div>\n' +
+                    '                                        </div>\n' +
+                    '\n' +
+                    '                                        <div class="row mb-3">\n' +
+                    '                                            <label for="paytm-mobile" class="col-sm-3 col-form-label imit-font fz-16">Mobile number</label>\n' +
+                    '                                            <div class="col-sm-9">\n' +
+                    '                                            <input name="mobile" type="text" class="form-control border fz-14 border-1 imit-font" id="paytm-mobile">\n' +
+                    '                                            </div>\n' +
+                    '                                        </div>');
+            }else if(payment == 'UPI'){
+                $('.redeem-points-body #payment-details').html('<div class="row mb-3">\n' +
+                    '                                            <label for="paytm-name" class="col-sm-3 col-form-label imit-font fz-16">Name</label>\n' +
+                    '                                            <div class="col-sm-9">\n' +
+                    '                                            <input name="name" type="text" class="form-control border fz-14 border-1 imit-font" id="paytm-name">\n' +
+                    '                                            </div>\n' +
+                    '                                        </div>\n' +
+                    '\n' +
+                    '                                        <div class="row mb-3">\n' +
+                    '                                            <label for="paytm-mobile" class="col-sm-3 col-form-label imit-font fz-16">Mobile number</label>\n' +
+                    '                                            <div class="col-sm-9">\n' +
+                    '                                            <input name="mobile" type="text" class="form-control border fz-14 border-1 imit-font" id="paytm-mobile">\n' +
+                    '                                            </div>\n' +
+                    '                                        </div>\n' +
+                    '\n' +
+                    '\n' +
+                    '                                        <div class="row mb-3">\n' +
+                    '                                            <label for="upi-id" class="col-sm-3 col-form-label imit-font fz-16">UPI ID</label>\n' +
+                    '                                            <div class="col-sm-9">\n' +
+                    '                                            <input name="upi-id" type="text" class="form-control border fz-14 border-1 imit-font" id="upi-id">\n' +
+                    '                                            </div>\n' +
+                    '                                        </div>');
+            }else if(payment == 'Bank Transfer'){
+                $('.redeem-points-body #payment-details').html('<div class="row mb-3">\n' +
+                    '                                            <label for="account-name" class="col-sm-3 col-form-label imit-font fz-16">Name of Account</label>\n' +
+                    '                                            <div class="col-sm-9">\n' +
+                    '                                            <input name="account-name" type="text" class="form-control border fz-14 border-1 imit-font" id="account-name">\n' +
+                    '                                            </div>\n' +
+                    '                                        </div>\n' +
+                    '\n' +
+                    '\n' +
+                    '                                        <div class="row mb-3">\n' +
+                    '                                            <label for="account-number" class="col-sm-3 col-form-label imit-font fz-16">Account Number</label>\n' +
+                    '                                            <div class="col-sm-9">\n' +
+                    '                                            <input name="account-number" type="text" class="form-control border fz-14 border-1 imit-font" id="account-number">\n' +
+                    '                                            </div>\n' +
+                    '                                        </div>\n' +
+                    '\n' +
+                    '\n' +
+                    '                                        <div class="row mb-3">\n' +
+                    '                                            <label for="ifsc-code" class="col-sm-3 col-form-label imit-font fz-16">IFSC Code</label>\n' +
+                    '                                            <div class="col-sm-9">\n' +
+                    '                                            <input name="ifsc-code" type="text" class="form-control border fz-14 border-1 imit-font" id="ifsc-code">\n' +
+                    '                                            </div>\n' +
+                    '                                        </div>\n' +
+                    '\n' +
+                    '\n' +
+                    '                                        <div class="row mb-3">\n' +
+                    '                                            <label for="bank-name" class="col-sm-3 col-form-label imit-font fz-16">Bank Name</label>\n' +
+                    '                                            <div class="col-sm-9">\n' +
+                    '                                            <input name="bank-name" type="text" class="form-control border fz-14 border-1 imit-font" id="bank-name">\n' +
+                    '                                            </div>\n' +
+                    '                                        </div>\n' +
+                    '\n' +
+                    '\n' +
+                    '                                        <div class="row mb-3">\n' +
+                    '                                            <label for="branch-name" class="col-sm-3 col-form-label imit-font fz-16">Branch Name</label>\n' +
+                    '                                            <div class="col-sm-9">\n' +
+                    '                                            <input name="branch-name" type="text" class="form-control border fz-14 border-1 imit-font" id="branch-name">\n' +
+                    '                                            </div>\n' +
+                    '                                        </div>');
+            }
+        });
+
+        /**
+         * if user submit reedem point form
+         */
+        $(document).on('submit', '#redeem-point-form', function(e){
+            e.preventDefault();
+            let form_data = new FormData(this);
+            form_data.append('action', 'rz_redeem_point_action');
+            form_data.append('nonce', rzRedeemPoint.rz_redeem_point_nonce);
+            $.ajax({
+                url: rzRedeemPoint.ajax_url,
+                method: 'POST',
+                data: form_data,
+                contentType: false,
+                processData: false,
+                success: function(data){
+                    console.log(data);
+                    $('#redeem-point-message').html(data);
+                }
+            });
+        });
+
+        /**
+         * follow question
+         */
+        $(document).on('click', '#follow-question', function(e){
+            e.preventDefault();
+            let question_id = $(this).data('question_id');
+            let button = $(this);
+            $.ajax({
+                url: rzFolowQuestion.ajax_url,
+                method: 'POST',
+                data: {'action': 'rz_follow_question', 'nonce': rzFolowQuestion.rz_follow_question, 'question_id' : question_id},
+                dataType: 'JSON',
+                beforeSend: function(){
+                    button.addClass('disabled');
+                },
+                success: function(data){
+                    console.log(data);
+                    if(data.response == true){
+                        button.removeClass('rz-secondary-color');
+                        button.addClass('rz-color');
+                        button.html('<i class="fas fa-check-square"></i>');
+                    }else{
+                        button.addClass('rz-secondary-color');
+                        button.removeClass('rz-color');
+                        button.html('<i class="fas fa-plus-circle"></i>');
+                    }
+                    button.removeClass('disabled');
+                }
+            });
+        });
+
+        /**
+         * follow tag
+         */
+        $(document).on('click', '#follow-tag', function(e){
+            e.preventDefault();
+            let button = $(this);
+            let term_id = button.data('term_id');
+            $.ajax({
+                url: rzFolowTag.ajax_url,
+                method: 'POST',
+                data: {'action': 'rz_follwoing_tags_action', 'nonce' : rzFolowTag.rz_follow_tag, 'term_id' : term_id},
+                dataType: 'JSON',
+                beforeSend: function(){
+                    button.addClass('disabled');
+                },
+                success: function(data){
+                    console.log(data);
+                    if(data.response == true){
+                        button.removeClass('rz-secondary-color');
+                        button.addClass('rz-color');
+                        button.html('<i class="fas fa-check-square"></i>');
+                    }else{
+                        button.addClass('rz-secondary-color');
+                        button.removeClass('rz-color');
+                        button.html('<i class="fas fa-plus-circle"></i>');
+                    }
+                    button.removeClass('disabled');
+                }
+            });
+        });
+
+
+        /**
+         * if user click show password on login page
+         */
+        $(document).on('click', '#show-password', function(e){
+            e.preventDefault();
+            $(this).toggleClass("fa-eye fa-eye-slash");
+            var input = $("#rz-login input[name='password']");
+            if (input.attr("type") === "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+        });
+
+        /**
+         * read more answer
+         */
+        $(document).on('click', '#read-more-answer', function(e){
+            e.preventDefault();
+            let answer_id = $(this).data('answer_id');
+            $(this).remove();
+            $('#answer-text').remove();
+            $('#answer-text'+answer_id).show();
+        });
+
+        /**
+         * expand answer comment
+         */
+        $(document).on('click', '#comment-expand', function(e){
+            e.preventDefault();
+            let answer_id = $(this).data('answer_id');
+            $('#answer-comment-form'+answer_id).slideToggle('fast');
         });
 
         /**

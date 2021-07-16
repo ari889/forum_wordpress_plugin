@@ -6,7 +6,7 @@
 add_shortcode( 'imit-rz-register', function(){
     ob_start();
         ?>
-        <section class="login overflow-hidden" style="background-image: url('<?php echo plugins_url('images/loginbg.png', __FILE__); ?>');">
+        <section class="login overflow-hidden" style="background-image: url('<?php echo plugins_url('images/loginbg.jpeg', __FILE__); ?>');">
             <div class="rz-mid">
                 <div class="row" style="min-height: 100vh;">
                     <div class="col-lg-6">
@@ -24,17 +24,17 @@ add_shortcode( 'imit-rz-register', function(){
                                 <form id="rz-register-form" class="mt-4 px-4">
                                     <div class="mb-3">
                                         <label for="" class="imit-font fz-16 fw-16">Enter username</label>
-                                        <input name="username" type="text" class="form-control mt-2 imit-font fz-14 rounded" placeholder="Ex: jhondoe">
+                                        <input name="username" type="text" class="form-control border-0 mt-2 imit-font fz-14 rounded" placeholder="Ex: jhondoe">
                                         <div class="invalid-feedback imit-font fz-16" id="reg-username-err"></div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="" class="imit-font fz-16 fw-16">Enter your email</label>
-                                        <input name="email" type="text" class="form-control mt-2 imit-font fz-14 rounded" placeholder="Ex: you@email.com">
+                                        <input name="email" type="text" class="form-control border-0 mt-2 imit-font fz-14 rounded" placeholder="Ex: you@email.com">
                                         <div class="invalid-feedback imit-font fz-16" id="reg-email-err"></div>
                                     </div>
                                     <div class="mb-3">
                                         <label for="" class="imit-font fz-16 fw-16">Enter your password</label>
-                                        <input name="password" type="password" class="form-control mt-2 imit-font fz-14 rounded" placeholder="************">
+                                        <input name="password" type="password" class="form-control border-0 mt-2 imit-font fz-14 rounded" placeholder="************">
                                         <div class="invalid-feedback imit-font fz-16" id="reg-password-err"></div>
                                     </div>
 
@@ -114,9 +114,13 @@ add_shortcode( 'imit-rz-register', function(){
                     $response['email_error'] = true;
                     $response['redirect'] = false;
                 }
-            }else if(validate_username($username) === false){
+            }else if(preg_match('/^[a-z0-9]+$/', $username) === 0){
                 $response['username_message'] = 'Username contains characters and numbers only.';
                 $response['username_error'] = true;
+                $response['redirect'] = false;
+            }else if(strlen($password) < 8){
+                $response['password_message'] = 'Password atleast 8 characters';
+                $response['password_error'] = true;
                 $response['redirect'] = false;
             }else{
 
