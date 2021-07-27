@@ -148,10 +148,10 @@ add_shortcode('imit-user-profile', function(){
                         <div class="d-flex flex-row justify-content-between align-items-center">
                             <ul class="tab-menu ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
                                 <li class="tab-list list-unstyled">
-                                    <a href="#" class="tab-link text-decoration-none me-3 pt-3 pb-2 d-block imit-font text-white fz-14 active" data-target="profile-feed">Question asked</a>
+                                    <a href="#" class="tab-link text-decoration-none me-3 pt-3 pb-2 d-block imit-font text-white fz-14 active" data-target="rz-profile-user-answers">Answers</a>
                                 </li>
                                 <li class="tab-list list-unstyled">
-                                    <a href="#" class="tab-link text-decoration-none me-3 pt-3 pb-2 d-block imit-font text-white fz-14" data-target="rz-profile-user-answers">Answers</a>
+                                    <a href="#" class="tab-link text-decoration-none me-3 pt-3 pb-2 d-block imit-font text-white fz-14" data-target="profile-feed">Question asked</a>
                                 </li>
                                 <li class="tab-list list-unstyled">
                                     <a href="#" class="tab-link text-decoration-none me-3 pt-3 pb-2 d-block imit-font text-white fz-14" data-target="rz-profile-user-vote">Question Voted</a>
@@ -162,7 +162,7 @@ add_shortcode('imit-user-profile', function(){
                                 
                             </ul>
 
-                            <div class="dropdown">
+                            <div class="dropdown custom-dropdown">
                                 <a class="see-more text-white fz-16" href="#" role="button" id="feed-more-tabs" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </a>
@@ -172,21 +172,21 @@ add_shortcode('imit-user-profile', function(){
                                     if(is_user_logged_in() && get_current_user_id() == um_profile_id()){
                                         if(!count($is_user_requested) > 0){
                                             ?>
-                                            <li><a class="dropdown-item imit-font fz-14 text-dark tab-link" href="#" data-target="partner-program">Join partner program</a></li>
+                                            <li><a class="dropdown-item imit-font fz-14 tab-link" href="#" data-target="partner-program">Join partner program</a></li>
                                             <?php
                                         }
                                     }
 
                                     if(is_user_logged_in() && get_current_user_id() == um_profile_id()){
                                         ?>
-                                        <li><a class="tab-link dropdown-item imit-font fz-14 text-dark" href="#" data-target="user-points">Points earned</a></li>
+                                        <li><a class="tab-link dropdown-item imit-font fz-14" href="#" data-target="user-points">Points earned</a></li>
                                         <?php
                                     }
 
 
                                     if(is_user_logged_in() && get_current_user_id() == um_profile_id()){
                                         ?>
-                                        <li><a class="dropdown-item imit-font fz-14 text-dark tab-link" href="#" data-target="redeem-points">Redeem Points</a></li>
+                                        <li><a class="dropdown-item imit-font fz-14 tab-link" href="#" data-target="redeem-points">Redeem Points</a></li>
                                         <?php
                                     }
                                     ?>
@@ -194,24 +194,29 @@ add_shortcode('imit-user-profile', function(){
                                     <a href="#" class="tab-link text-decoration-none me-3 pt-3 pb-2 d-block imit-font text-white fz-14" data-target="following-user" data-user_id="<?php echo $user_id; ?>">Following</a>
                                 </li> -->
                                     
-                                    <li><a class="tab-link dropdown-item imit-font fz-14 text-dark" href="#" data-target="following-question">Following</a></li>
+                                    <li><a class="tab-link dropdown-item imit-font fz-14" href="#" data-target="following-question">Following</a></li>
+                                    <?php if(is_user_logged_in(  ) && um_profile_id() == get_current_user_id(  )){
+                                        ?>
+                                        <li><a class="dropdown-item imit-font fz-14" href="<?php echo site_url(); ?>/message">Message</a></li>
+                                        <?php
+                                    } ?>
                                 </ul>
                             </div>
                         </div>
                     </div>
 
-                    <div class="tab-content" id="profile-feed">
-                        <ul class="imit-news-feed ps-0 mb-0 runded-3" id="profile-feed-ul">
 
-                        </ul>
-                    </div>
-
-
-                    <div class="tab-content" id="rz-profile-user-answers" style="display: none;">
+                    <div class="tab-content" id="rz-profile-user-answers">
                         <ul class="imit-news-feed ps-0 mb-0 runded-3" id="rz-profile-user-answers-ul">
 
                         </ul>
-                    </div>             
+                    </div>  
+
+                    <div class="tab-content" id="profile-feed" style="display: none;">
+                        <ul class="imit-news-feed ps-0 mb-0 runded-3" id="profile-feed-ul">
+
+                        </ul>
+                    </div>           
 
 
                     <div class="tab-content" id="rz-profile-user-vote" style="display: none;">
@@ -277,6 +282,9 @@ add_shortcode('imit-user-profile', function(){
                                 <div class="card-body bg-white">
                                     <form id="add-dairy">
                                         <div id="dairy-message"></div>
+                                        <?php //wp_editor( '', 'dairy-text', [
+                                            //'media_buttons' => false
+                                        //] ); ?>
                                         <textarea name="dairy-text" id="" cols="30" rows="10" class="form-control fz-14 imit-font" placeholder="Write Something..."></textarea>
                                         <div class="d-flex flex-row justify-content-between align-items-center mt-3">
                                             <div class="form-check">
@@ -307,16 +315,16 @@ add_shortcode('imit-user-profile', function(){
                                         <h3 class="m-0 title rz-color fw-500">Join Partner Program</h3>
                                     </div>
                                     <div class="card-body">
-                                        <div id="partner-message"></div>
-                                        <div class="d-flex flex-row justify-content-start align-items-center">
-                                            <p class="imit-font fz-14 text-dark mb-0 fw-500">Join Partner Program?</p>
-                                            <i class="fas fa-check-square ms-2 rz-color fz-14"></i>
-                                        </div>
-                                        <p class="imit-font rz-secondary-color fz-14 mt-2">Read our <strong class="rz-color">Guidlines</strong> for Partner Program</p>
-
-                                        <p class="imit-font fz-14 rz-secondary-color description">Give us some information about yourself-links to blogs you have writter in past ( on any website), links of answers you wrote on other Q&A websites or any other example depicting your writing skills. Our team will review these to approve your request.</p>
-
                                         <form id="join-partner-program">
+                                            <div id="partner-message"></div>
+                                            <div class="d-flex flex-row justify-content-start align-items-center">
+                                                <label class="imit-font fz-14 text-dark mb-0 fw-500 me-2" for="join">Join Partner Program?</label>
+                                                <input type="checkbox" class="form-check-input" name="join" value="yes" id="join">
+                                            </div>
+                                            <p class="imit-font rz-secondary-color fz-14 mt-2">Read our <strong class="rz-color">Guidlines</strong> for Partner Program</p>
+
+                                            <p class="imit-font fz-14 rz-secondary-color description">Give us some information about yourself-links to blogs you have writter in past ( on any website), links of answers you wrote on other Q&A websites or any other example depicting your writing skills. Our team will review these to approve your request.</p>
+
                                             <textarea name="partner_message" cols="30" rows="10" placeholder="Write here..." class="form-control fz-14 imit-font"></textarea>
                                             <button type="submit" class="btn rz-bg-color text-white imit-font fz-14 mt-2 d-table ms-auto">Submit</button>
                                         </form>
@@ -908,6 +916,41 @@ add_shortcode('imit-user-profile', function(){
             </div>
             <?php
         }
+
+
+        if(is_user_logged_in(  )){
+            ?>
+            <div class="modal fade" id="dairy-edit-modal">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 class="imit-font fz-14 fw-500 text-dark m-0">Edit dairy</h2>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="edit-dairy-form">
+                                <div id="edit-dairy-message"></div>
+                                <?php //wp_editor( '', 'dairy-text', [
+                                    //'media_buttons' => false
+                                //] ); ?>
+                                <textarea name="dairy-text" id="" cols="30" rows="10" class="form-control fz-14 imit-font" placeholder="Write Something..."></textarea>
+                                <input type="hidden" value="" name="id">
+                                <div class="d-flex flex-row justify-content-between align-items-center mt-3">
+                                    <div class="form-check">
+                                        <input name="dairy-visiblity" class="form-check-input" type="checkbox" value="yes" id="edit-dairy-visiblity">
+                                        <label class="form-check-label rz-secondary-color imit-font fz-14" for="edit-dairy-visiblity">
+                                            Make it Public
+                                        </label>
+                                    </div>
+                                    <button type="submit" class="btn rz-bg-color text-light fz-16 imit-font">Save</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php
+        }
         ?>
         <script type="text/javascript">
             let profile_user_id = <?php echo um_profile_id(); ?>;
@@ -1194,6 +1237,74 @@ function imit_rz_question_asked_posts(){
                                 ?>
                             </ul>
                         </div>
+                        <?php 
+                        $all_answers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND status = '1'", ARRAY_A);
+                        if(count($all_answers) > 0){
+                            $get_first_answer = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' ORDER BY id ASC LIMIT 1");
+                            $get_profile_data = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '{$get_first_answer->user_id}'");
+                            ?>
+                            <div class="question-first-answer">
+                                <div class="answer-info d-flex flex-row justify-content-between align-items-center py-2 px-4">
+                                    <p class="mb-0 rz-color imit-font count-answer rz-color fw-500"><?php echo count($all_answers); ?> Answers</p>
+                                    <a href="<?php the_permalink(); ?>" class="imit-font rz-color fw-500 fz-16">See all</a>
+                                </div>
+                                <ul class="answers py-3 px-4 mb-0">
+                                <li class="answer-list list-unstyled">
+                                    <div class="answer-header border-bottom-0 d-flex flex-row justify-content-between align-items-center">
+                                        <div class="user-data d-flex flex-row justify-content-start align-items-center">
+                                            <div class="profile-image">
+                                                <img src="<?php getProfileImageById($get_first_answer->user_id); ?>" alt="">
+                                            </div>
+                                            <div class="user-info ms-1">
+                                                <a href="<?php echo site_url().'/'.get_user_by('user_login', $get_first_answer->user_id); ?>" class="imit-font fz-16"><?php echo getUserNameById($get_first_answer->user_id); ?></a>
+                                                <p class="mb-0 rz-secondary-color imit-font fz-12"><?php echo $get_profile_data->occupation; ?></p>
+                                            </div>
+                                        </div>
+                                        <p class="rz-secondary-color imit-font fz-14 mb-0">Answered: 3pm April 25 ,2021</p>
+                                    </div>
+                                    <div class="answer-body mt-3 d-flex flex-row justify-content-start align-items-start">
+                                        <?php 
+                                        $current_user_id = get_current_user_id();
+                                        $answer_id = $get_first_answer->id;
+                                        $get_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                        $get_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+
+                                        $count_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                        $count_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+                                        ?>
+                                        <ul class="body-left d-flex flex-column justify-content-start align-items-center ps-0 mb-0" id="vote<?php echo $answer_id; ?>">
+                                            <li class="list-unstyled">
+                                                <a href="#" class="vote d-block <?php if(count($get_upvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="up-vote"><i class="fas fa-arrow-up"></i></a>
+                                            </li>
+                                            <li class="list-unstyled">
+                                                <p class="counter fz-16 imit-font my-1 <?php if((count($count_upvote) - count($count_downvote)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="counter<?php echo $answer_id ; ?>"><?php echo count($count_upvote) - count($count_downvote); ?></p>
+                                            </li>
+                                            <li class="list-unstyled">
+                                                <a href="#" class="vote d-block <?php if(count($get_downvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="down-vote"><i class="fas fa-arrow-down"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="answer-details ms-3">
+                                            <?php 
+                                            if(str_word_count($get_first_answer->answer_text) > 20){
+                                                ?>
+                                                <p class="imit-font fz-16 answer-text" id="answer-text"><?php echo wp_trim_words($get_first_answer->answer_text, 20, ' ...'); ?></p>
+                                                <a href="#" class="rz-color fw-500 imit-font fz-16" data-answer_id="<?php echo $get_first_answer->id; ?>" id="read-more-answer">Read More</a>
+                                                <p class="imit-font fz-16 answer-text" id="answer-text<?php echo $get_first_answer->id; ?>" style="display: none;"><?php echo $get_first_answer->answer_text; ?></p>
+                                                <?php
+                                            }else{
+                                                ?>
+                                                <p class="imit-font fz-16 answer-text"><?php echo $get_first_answer->answer_text; ?></p>
+                                                <?php
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                            </div>
+                            <?php
+                        }
+                    ?>
                     </div>
                     <div class="card-footer d-flex flex-row justify-content-between align-items-center p-3 border-top-0">
                         <div class="views text-dark fz-14">
@@ -1274,6 +1385,74 @@ function rz_answered_questions(){
                                 ?>
                             </ul>
                         </div>
+                        <?php 
+                        $all_answers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND status = '1'", ARRAY_A);
+                        if(count($all_answers) > 0){
+                            $get_first_answer = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' ORDER BY id ASC LIMIT 1");
+                            $get_profile_data = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '{$get_first_answer->user_id}'");
+                            ?>
+                            <div class="question-first-answer">
+                                <div class="answer-info d-flex flex-row justify-content-between align-items-center py-2 px-4">
+                                    <p class="mb-0 rz-color imit-font count-answer rz-color fw-500"><?php echo count($all_answers); ?> Answers</p>
+                                    <a href="<?php the_permalink(); ?>" class="imit-font rz-color fw-500 fz-16">See all</a>
+                                </div>
+                                <ul class="answers py-3 px-4 mb-0">
+                                <li class="answer-list list-unstyled">
+                                    <div class="answer-header border-bottom-0 d-flex flex-row justify-content-between align-items-center">
+                                        <div class="user-data d-flex flex-row justify-content-start align-items-center">
+                                            <div class="profile-image">
+                                                <img src="<?php getProfileImageById($get_first_answer->user_id); ?>" alt="">
+                                            </div>
+                                            <div class="user-info ms-1">
+                                                <a href="<?php echo site_url().'/'.get_user_by('user_login', $get_first_answer->user_id); ?>" class="imit-font fz-16"><?php echo getUserNameById($get_first_answer->user_id); ?></a>
+                                                <p class="mb-0 rz-secondary-color imit-font fz-12"><?php echo $get_profile_data->occupation; ?></p>
+                                            </div>
+                                        </div>
+                                        <p class="rz-secondary-color imit-font fz-14 mb-0">Answered: 3pm April 25 ,2021</p>
+                                    </div>
+                                    <div class="answer-body mt-3 d-flex flex-row justify-content-start align-items-start">
+                                        <?php 
+                                        $current_user_id = get_current_user_id();
+                                        $answer_id = $get_first_answer->id;
+                                        $get_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                        $get_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+
+                                        $count_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                        $count_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+                                        ?>
+                                        <ul class="body-left d-flex flex-column justify-content-start align-items-center ps-0 mb-0" id="vote<?php echo $answer_id; ?>">
+                                            <li class="list-unstyled">
+                                                <a href="#" class="vote d-block <?php if(count($get_upvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="up-vote"><i class="fas fa-arrow-up"></i></a>
+                                            </li>
+                                            <li class="list-unstyled">
+                                                <p class="counter fz-16 imit-font my-1 <?php if((count($count_upvote) - count($count_downvote)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="counter<?php echo $answer_id ; ?>"><?php echo count($count_upvote) - count($count_downvote); ?></p>
+                                            </li>
+                                            <li class="list-unstyled">
+                                                <a href="#" class="vote d-block <?php if(count($get_downvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="down-vote"><i class="fas fa-arrow-down"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="answer-details ms-3">
+                                            <?php 
+                                            if(str_word_count($get_first_answer->answer_text) > 20){
+                                                ?>
+                                                <p class="imit-font fz-16 answer-text" id="answer-text"><?php echo wp_trim_words($get_first_answer->answer_text, 20, ' ...'); ?></p>
+                                                <a href="#" class="rz-color fw-500 imit-font fz-16" data-answer_id="<?php echo $get_first_answer->id; ?>" id="read-more-answer">Read More</a>
+                                                <p class="imit-font fz-16 answer-text" id="answer-text<?php echo $get_first_answer->id; ?>" style="display: none;"><?php echo $get_first_answer->answer_text; ?></p>
+                                                <?php
+                                            }else{
+                                                ?>
+                                                <p class="imit-font fz-16 answer-text"><?php echo $get_first_answer->answer_text; ?></p>
+                                                <?php
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                            </div>
+                            <?php
+                        }
+                    ?>
                     </div>
                     <div class="card-footer d-flex flex-row justify-content-between align-items-center p-3 border-top-0">
                         <div class="views text-dark fz-14">
@@ -1353,6 +1532,74 @@ function rz_voted_questions_data(){
                                 ?>
                             </ul>
                         </div>
+                        <?php 
+                        $all_answers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND status = '1'", ARRAY_A);
+                        if(count($all_answers) > 0){
+                            $get_first_answer = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' ORDER BY id ASC LIMIT 1");
+                            $get_profile_data = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '{$get_first_answer->user_id}'");
+                            ?>
+                            <div class="question-first-answer">
+                                <div class="answer-info d-flex flex-row justify-content-between align-items-center py-2 px-4">
+                                    <p class="mb-0 rz-color imit-font count-answer rz-color fw-500"><?php echo count($all_answers); ?> Answers</p>
+                                    <a href="<?php the_permalink(); ?>" class="imit-font rz-color fw-500 fz-16">See all</a>
+                                </div>
+                                <ul class="answers py-3 px-4 mb-0">
+                                <li class="answer-list list-unstyled">
+                                    <div class="answer-header border-bottom-0 d-flex flex-row justify-content-between align-items-center">
+                                        <div class="user-data d-flex flex-row justify-content-start align-items-center">
+                                            <div class="profile-image">
+                                                <img src="<?php getProfileImageById($get_first_answer->user_id); ?>" alt="">
+                                            </div>
+                                            <div class="user-info ms-1">
+                                                <a href="<?php echo site_url().'/'.get_user_by('user_login', $get_first_answer->user_id); ?>" class="imit-font fz-16"><?php echo getUserNameById($get_first_answer->user_id); ?></a>
+                                                <p class="mb-0 rz-secondary-color imit-font fz-12"><?php echo $get_profile_data->occupation; ?></p>
+                                            </div>
+                                        </div>
+                                        <p class="rz-secondary-color imit-font fz-14 mb-0">Answered: 3pm April 25 ,2021</p>
+                                    </div>
+                                    <div class="answer-body mt-3 d-flex flex-row justify-content-start align-items-start">
+                                        <?php 
+                                        $current_user_id = get_current_user_id();
+                                        $answer_id = $get_first_answer->id;
+                                        $get_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                        $get_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+
+                                        $count_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                        $count_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+                                        ?>
+                                        <ul class="body-left d-flex flex-column justify-content-start align-items-center ps-0 mb-0" id="vote<?php echo $answer_id; ?>">
+                                            <li class="list-unstyled">
+                                                <a href="#" class="vote d-block <?php if(count($get_upvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="up-vote"><i class="fas fa-arrow-up"></i></a>
+                                            </li>
+                                            <li class="list-unstyled">
+                                                <p class="counter fz-16 imit-font my-1 <?php if((count($count_upvote) - count($count_downvote)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="counter<?php echo $answer_id ; ?>"><?php echo count($count_upvote) - count($count_downvote); ?></p>
+                                            </li>
+                                            <li class="list-unstyled">
+                                                <a href="#" class="vote d-block <?php if(count($get_downvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="down-vote"><i class="fas fa-arrow-down"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="answer-details ms-3">
+                                            <?php 
+                                            if(str_word_count($get_first_answer->answer_text) > 20){
+                                                ?>
+                                                <p class="imit-font fz-16 answer-text" id="answer-text"><?php echo wp_trim_words($get_first_answer->answer_text, 20, ' ...'); ?></p>
+                                                <a href="#" class="rz-color fw-500 imit-font fz-16" data-answer_id="<?php echo $get_first_answer->id; ?>" id="read-more-answer">Read More</a>
+                                                <p class="imit-font fz-16 answer-text" id="answer-text<?php echo $get_first_answer->id; ?>" style="display: none;"><?php echo $get_first_answer->answer_text; ?></p>
+                                                <?php
+                                            }else{
+                                                ?>
+                                                <p class="imit-font fz-16 answer-text"><?php echo $get_first_answer->answer_text; ?></p>
+                                                <?php
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                            </div>
+                            <?php
+                        }
+                    ?>
                     </div>
                     <div class="card-footer d-flex flex-row justify-content-between align-items-center border-top-0 p-3">
                         <div class="views text-dark fz-14">
@@ -1432,6 +1679,74 @@ function rz_all_commented_questions(){
                                     ?>
                                 </ul>
                             </div>
+                            <?php 
+                            $all_answers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' AND status = '1'", ARRAY_A);
+                            if(count($all_answers) > 0){
+                                $get_first_answer = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_answers WHERE post_id = '$post_id' ORDER BY id ASC LIMIT 1");
+                                $get_profile_data = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '{$get_first_answer->user_id}'");
+                                ?>
+                                <div class="question-first-answer">
+                                    <div class="answer-info d-flex flex-row justify-content-between align-items-center py-2 px-4">
+                                        <p class="mb-0 rz-color imit-font count-answer rz-color fw-500"><?php echo count($all_answers); ?> Answers</p>
+                                        <a href="<?php the_permalink(); ?>" class="imit-font rz-color fw-500 fz-16">See all</a>
+                                    </div>
+                                    <ul class="answers py-3 px-4 mb-0">
+                                    <li class="answer-list list-unstyled">
+                                        <div class="answer-header border-bottom-0 d-flex flex-row justify-content-between align-items-center">
+                                            <div class="user-data d-flex flex-row justify-content-start align-items-center">
+                                                <div class="profile-image">
+                                                    <img src="<?php getProfileImageById($get_first_answer->user_id); ?>" alt="">
+                                                </div>
+                                                <div class="user-info ms-1">
+                                                    <a href="<?php echo site_url().'/'.get_user_by('user_login', $get_first_answer->user_id); ?>" class="imit-font fz-16"><?php echo getUserNameById($get_first_answer->user_id); ?></a>
+                                                    <p class="mb-0 rz-secondary-color imit-font fz-12"><?php echo $get_profile_data->occupation; ?></p>
+                                                </div>
+                                            </div>
+                                            <p class="rz-secondary-color imit-font fz-14 mb-0">Answered: 3pm April 25 ,2021</p>
+                                        </div>
+                                        <div class="answer-body mt-3 d-flex flex-row justify-content-start align-items-start">
+                                            <?php 
+                                            $current_user_id = get_current_user_id();
+                                            $answer_id = $get_first_answer->id;
+                                            $get_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                            $get_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE user_id = '$current_user_id' AND answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+
+                                            $count_upvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='up-vote'", ARRAY_A);
+                                            $count_downvote = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_vote WHERE answer_id='$answer_id' AND vote_type='down-vote'", ARRAY_A);
+                                            ?>
+                                            <ul class="body-left d-flex flex-column justify-content-start align-items-center ps-0 mb-0" id="vote<?php echo $answer_id; ?>">
+                                                <li class="list-unstyled">
+                                                    <a href="#" class="vote d-block <?php if(count($get_upvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="up-vote"><i class="fas fa-arrow-up"></i></a>
+                                                </li>
+                                                <li class="list-unstyled">
+                                                    <p class="counter fz-16 imit-font my-1 <?php if((count($count_upvote) - count($count_downvote)) < 0){echo 'text-danger';}else{echo 'text-success';} ?>" id="counter<?php echo $answer_id ; ?>"><?php echo count($count_upvote) - count($count_downvote); ?></p>
+                                                </li>
+                                                <li class="list-unstyled">
+                                                    <a href="#" class="vote d-block <?php if(count($get_downvote) > 0){echo 'active';} ?>" data-answer_id="<?php echo $answer_id; ?>" id="down-vote"><i class="fas fa-arrow-down"></i></a>
+                                                </li>
+                                            </ul>
+                                            <div class="answer-details ms-3">
+                                                <?php 
+                                                if(str_word_count($get_first_answer->answer_text) > 20){
+                                                    ?>
+                                                    <p class="imit-font fz-16 answer-text" id="answer-text"><?php echo wp_trim_words($get_first_answer->answer_text, 20, ' ...'); ?></p>
+                                                    <a href="#" class="rz-color fw-500 imit-font fz-16" data-answer_id="<?php echo $get_first_answer->id; ?>" id="read-more-answer">Read More</a>
+                                                    <p class="imit-font fz-16 answer-text" id="answer-text<?php echo $get_first_answer->id; ?>" style="display: none;"><?php echo $get_first_answer->answer_text; ?></p>
+                                                    <?php
+                                                }else{
+                                                    ?>
+                                                    <p class="imit-font fz-16 answer-text"><?php echo $get_first_answer->answer_text; ?></p>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                                </div>
+                                <?php
+                            }
+                        ?>
                         </div>
                         <div class="card-footer d-flex flex-row justify-content-between align-items-center border-top-0 p-3">
                             <div class="views text-dark fz-14">
@@ -1678,21 +1993,34 @@ function rz_user_all_dairy_posts(){
         if($dairy_data->have_posts(  )){
             while($dairy_data->have_posts()):$dairy_data->the_post();
                 ?>
-                <li class="dairy-list list-unstyled rz-border rz-br p-3 mt-3 bg-white">
+                <li class="dairy-list list-unstyled rz-border rz-br p-3 mt-3 bg-white" id="dairy<?php echo get_the_ID(); ?>">
                     <div class="d-flex flex-row justify-content-between align-items-center">
-                        <p class="mb-0 rz-secondary-color imit-font fz-14">Added on: <?php the_time('f-d-Y g:i:a'); ?></p>
+                        <p class="mb-0 rz-secondary-color imit-font fz-14">Added on: <?php the_time('g a F d, Y'); ?></p>
                         <div class="dropdown">
                             <button class="text-dark border-0 bg-transparent" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-ellipsis-h"></i>
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                <li><a class="dropdown-item imit-font fz-14" href="#">Action</a></li>
-                                <li><a class="dropdown-item imit-font fz-14" href="#">Another action</a></li>
-                                <li><a class="dropdown-item imit-font fz-14" href="#">Something else here</a></li>
+                            <ul class="dropdown-menu border-0 shadow" aria-labelledby="dropdownMenuButton1">
+                                <li><a class="dropdown-item imit-font fz-14 fw-500" href="#" id="edit-dairy" data-post_id="<?php echo get_the_ID(); ?>">Edit</a></li>
+                                <li><a class="dropdown-item imit-font fz-14 fw-500" href="#" id="delete-dairy" data-post_id="<?php echo get_the_ID(); ?>">Delete</a></li>
+                                <li class="px-2">
+                                    <p class="imit-font text-dark fw-12 fw-500 pt-2 px-2">Visiblity</p>
+                                    <div class="switch-button">
+                                        <input class="switch-button-checkbox" name="dairy-visiblity" type="checkbox" value="public" id="dairy-visiblity" data-post_id="<?php echo get_the_ID(); ?>" <?php if(get_post_status() == 'publish'){echo 'checked';} ?>/>
+                                        <label class="switch-button-label imit-font fw-500 fz-14" for="dairy-visiblity"><span class="switch-button-label-span">Public</span></label>
+                                    </div>
+                                </li>
                             </ul>
                         </div>
                     </div>
-                    <p class="dairy-text text-dark fz-16 mt-3 mb-0 imit-font" style="line-height: 32px;"><?php echo get_the_content(); ?></p>
+                    <p class="dairy-text text-dark fz-16 mt-3 mb-0 imit-font" style="line-height: 32px;"><?php echo wp_trim_words( get_the_content(), 100, ' ...' ); ?>
+                        <?php if(str_word_count(get_the_content()) > 100 ){
+                            ?>
+                            <a href="#" class="imit-font fz-16 fw-500 rz-color d-block mt-2" id="dairy-read-more" data-post_id="<?php echo get_the_ID(); ?>">Read More</a>
+                            <?php
+                        } ?>
+                    </p>
+                    <p class="dairy-text text-dark fz-16 mt-3 mb-0 imit-font" style="line-height: 32px;display: none;" id="dairy-text-expand<?php echo get_the_ID(); ?>"><?php echo get_the_content(); ?></p>
                 </li>
             <?php
             endwhile;

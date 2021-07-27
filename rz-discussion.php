@@ -12,19 +12,19 @@ add_shortcode('imit-discuss', function(){
     <div class="rz-mid">
         <div class="row">
         <div class="col-lg-9">
-            <div class="d-flex flex-row justify-content-between align-items-center rz-bg-color rounded-2">
+            <div class="d-flex flex-row justify-content-between align-items-center rz-bg-color rounded">
                 <ul class="rz-tabs d-flex flex-row justify-content-start align-items-center ps-0 mb-0">
                     <li class="rz-tab-list list-unstyled">
-                        <a href="#" class="rz-tab-link tab-link imit-font fz-14 d-block text-white fw-500 py-3 px-4 active" data-target="discuss-and-debate">Discuss & Debate</a>
+                        <a href="#" class="rz-tab-link tab-link imit-font fz-14 d-block text-white fw-500 px-4 active" data-target="discuss-and-debate">Discuss & Debate <span></span></a>
                     </li>
                     <li class="rz-tab-list list-unstyled">
-                        <a href="#" class="rz-tab-link tab-link imit-font fz-14 d-block text-white fw-500 py-3 px-4" data-target="newest">Newest</a>
+                        <a href="#" class="rz-tab-link tab-link imit-font fz-14 d-block text-white fw-500 px-4" data-target="newest">Newest <span></span></a>
                     </li>
                     <li class="rz-tab-list list-unstyled">
-                        <a href="#" class="rz-tab-link tab-link imit-font fz-14 d-block text-white fw-500 py-3 px-4" data-target="most-viwed">Most Viewed</a>
+                        <a href="#" class="rz-tab-link tab-link imit-font fz-14 d-block text-white fw-500 px-4" data-target="most-viwed">Most Viewed <span></span></a>
                     </li>
                     <li class="rz-tab-list list-unstyled">
-                        <a href="#" class="rz-tab-link tab-link imit-font fz-14 d-block text-white fw-500 py-3 px-4" data-target="hotely-debated">Hotly Debated</a>
+                        <a href="#" class="rz-tab-link tab-link imit-font fz-14 d-block text-white fw-500 px-4" data-target="hotely-debated">Hotly Debated <span></span></a>
                     </li>
                 </ul>
             </div>
@@ -36,7 +36,7 @@ add_shortcode('imit-discuss', function(){
                             <div class="profile-image">
                                 <img src="<?php getProfileImageById(get_current_user_id(  )); ?>" alt="">
                             </div>
-                            <div class="rz-border rz-br p-2 px-3 create-new-post ms-2 me-3">
+                            <div class="rz-border p-2 px-3 create-new-post ms-2" style="margin-right: 25px;border-radius: 6px;">
                                 <span class="rz-secondary-color imit-font fz-14 fw-400 d-block">Create new post</span>
                             </div>
                             <div class="d-flex flex-row justify-content-end align-items-center point">
@@ -50,7 +50,10 @@ add_shortcode('imit-discuss', function(){
                         <input type="text" name="title" class="mb-3 form-control rounded imit-font fw-400 fz-16 text-dark" placeholder="Title">
                         <input type="text" name="tag" class="mb-3 form-control rounded imit-font fw-400 fz-16 text-dark" placeholder="Enter tags Eg: wordpres, php">
                         <input type="file" name="featured-image" class="form-control imit-font fz-16 mb-3">
-                        <textarea name="editor" class="form-control imit-font fz-16" id="" cols="30" rows="10" placeholder="Add description here."></textarea>
+                        <?php wp_editor('', 'editor', [
+                            'media_buttons' => false
+                        ]); ?>
+                        <!-- <textarea name="editor" class="form-control imit-font fz-16" id="" cols="30" rows="10" placeholder="Add description here."></textarea> -->
                         <button type="submit" class="btn rz-bg-color imit-font fw-500 fz-16 d-table ms-auto text-white mt-2">Submit</button>
                     </form>
                 </div>
@@ -118,6 +121,26 @@ add_shortcode('imit-discuss', function(){
     </div>
     </div>
     </section>
+    
+
+    <!-- share post modal -->
+    <div class="modal fade" id="share-post-modal">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="imit-font fz-20 fz-color fw-500 m-0">Share question</h2>
+                    <button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="share-link d-flex flex-row justify-content-between align-items-center">
+                        <a href="#" class="facebook" id="share-facebook" data-shareurl = ""><i class="fab fa-facebook-f"></i></a>
+                        <a class="twitter" id="tweet-data" data-shareurl = "" href="#"><i class="fab fa-twitter"></i></a>
+                        <a class="linkedin" id="share-linkedin" href="#" data-shareurl = ""><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <?php
     
     return ob_get_clean();
@@ -134,7 +157,7 @@ add_action('wp_ajax_rz_add_discussion', function(){
 
         $title = sanitize_text_field($_POST['title']);
         $tags = sanitize_text_field($_POST['tag']);
-        $editor = sanitize_text_field($_POST['editor']);
+        $editor = $_POST['editor'];
         $image = $_FILES['featured-image']['name'];
         $image_tmp = $_FILES['featured-image']['tmp_name'];
         $rz_partner_program = $wpdb->prefix.'rz_user_programs';
@@ -412,7 +435,12 @@ function imit_rz_discuss_and_debate_posts(){
                         </div>
                         <div class="blog-body">
                             <a href="<?php the_permalink(); ?>" class="my-3 title imit-font text-dark fw-500 d-block"><?php the_title(); ?> </a>
-                            <p class="description imit-font fz-14 rz-secondary-color"><?php echo wp_trim_words(get_the_content(), 100, false); ?></p>
+                            <p class="description imit-font fz-14 rz-secondary-color"><?php echo wp_trim_words(get_the_content(), 100, ' ...'); ?></p>
+                            <?php if(str_word_count(get_the_content()) > 100){
+                                ?>
+                                <a href="<?php the_permalink( ); ?>" class="imit-font fz-16 rz-color fw-500 d-block mb-3">Read More</a>
+                                <?php
+                            } ?>
                             <?php the_post_thumbnail('full', ['class' => 'img-fluid mb-3']); ?>
                             <ul class="tags ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
                                 <?php
@@ -457,7 +485,7 @@ function imit_rz_discuss_and_debate_posts(){
                         if(is_user_logged_in() && $post_author == get_current_user_id() ){
                             ?>
                             <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
-                                <!--                                        <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>-->
+                            <a href="#" class="text-dark fz-16 me-3" id="share-post-data" data-post_url="<?php the_permalink(); ?>" data-bs-toggle="modal" data-bs-target="#share-post-modal"><i class="fas fa-share"></i></a>
                                 <div class="dropdown">
                                     <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-ellipsis-h"></i>
@@ -540,6 +568,11 @@ function get_all_newest_posts(){
                         <div class="blog-body">
                             <a href="<?php the_permalink(); ?>" class="my-3 title imit-font text-dark fw-500 d-block"><?php the_title(); ?> </a>
                             <p class="description imit-font fz-14 rz-secondary-color"><?php echo wp_trim_words(get_the_content(), 100, false); ?></p>
+                            <?php if(str_word_count(get_the_content()) > 100){
+                                ?>
+                                <a href="<?php the_permalink( ); ?>" class="imit-font fz-16 rz-color fw-500 d-block mb-3">Read More</a>
+                                <?php
+                            } ?>
                             <?php the_post_thumbnail('full', ['class' => 'img-fluid mb-3']); ?>
                             <ul class="tags ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
                                 <?php
@@ -584,7 +617,7 @@ function get_all_newest_posts(){
                         if(is_user_logged_in() && $post_author == get_current_user_id() ){
                             ?>
                             <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
-                                <!--                                        <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>-->
+                            <a href="#" class="text-dark fz-16 me-3" id="share-post-data" data-post_url="<?php the_permalink(); ?>" data-bs-toggle="modal" data-bs-target="#share-post-modal"><i class="fas fa-share"></i></a>
                                 <div class="dropdown">
                                     <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-ellipsis-h"></i>
@@ -669,6 +702,11 @@ function imit_rz_get_most_viwed_posts(){
                         <div class="blog-body">
                             <a href="<?php the_permalink(); ?>" class="my-3 title imit-font text-dark fw-500 d-block"><?php the_title(); ?> </a>
                             <p class="description imit-font fz-14 rz-secondary-color"><?php echo wp_trim_words(get_the_content(), 100, false); ?></p>
+                            <?php if(str_word_count(get_the_content()) > 100){
+                                ?>
+                                <a href="<?php the_permalink( ); ?>" class="imit-font fz-16 rz-color fw-500 d-block mb-3">Read More</a>
+                                <?php
+                            } ?>
                             <?php the_post_thumbnail('full', ['class' => 'img-fluid mb-3']); ?>
                             <ul class="tags ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
                                 <?php
@@ -713,7 +751,7 @@ function imit_rz_get_most_viwed_posts(){
                         if(is_user_logged_in() && $post_author == get_current_user_id() ){
                             ?>
                             <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
-                                <!--                                        <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>-->
+                            <a href="#" class="text-dark fz-16 me-3" id="share-post-data" data-post_url="<?php the_permalink(); ?>" data-bs-toggle="modal" data-bs-target="#share-post-modal"><i class="fas fa-share"></i></a>
                                 <div class="dropdown">
                                     <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-ellipsis-h"></i>
@@ -802,6 +840,11 @@ function imit_rz_most_hotely_debated_posts(){
                         <div class="blog-body">
                             <a href="<?php the_permalink(); ?>" class="my-3 title imit-font text-dark fw-500 d-block"><?php the_title(); ?> </a>
                             <p class="description imit-font fz-14 rz-secondary-color"><?php echo wp_trim_words(get_the_content(), 100, false); ?></p>
+                            <?php if(str_word_count(get_the_content()) > 100){
+                                ?>
+                                <a href="<?php the_permalink( ); ?>" class="imit-font fz-16 rz-color fw-500 d-block mb-3">Read More</a>
+                                <?php
+                            } ?>
                             <?php the_post_thumbnail('full', ['class' => 'img-fluid mb-3']); ?>
                             <ul class="tags ps-0 mb-0 d-flex flex-row justify-content-start align-items-center">
                                 <?php
@@ -845,7 +888,7 @@ function imit_rz_most_hotely_debated_posts(){
                         if(is_user_logged_in() && $post_author == get_current_user_id() ){
                             ?>
                             <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
-                                <!--                                        <a href="#" class="fz-14 text-dark me-2"><i class="fas fa-share"></i></a>-->
+                            <a href="#" class="text-dark fz-16 me-3" id="share-post-data" data-post_url="<?php the_permalink(); ?>" data-bs-toggle="modal" data-bs-target="#share-post-modal"><i class="fas fa-share"></i></a>
                                 <div class="dropdown">
                                     <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-ellipsis-h"></i>

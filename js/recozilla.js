@@ -1011,6 +1011,7 @@
                     form[0].reset();
                     $('#dairy-message').html(data);
                     $('#add-dairy button[type="submit"]').removeClass('disabled');
+                    window.location.reload();
                 }
             });
         });
@@ -1023,23 +1024,31 @@
            e.preventDefault();
            let form_data = new FormData(this);
            let form = $(this);
-           form_data.append('action', 'rz_join_partner_program');
-           form_data.append('nonce', rzAddPartnerProgram.rz_add_partner_program);
-           $.ajax({
-               url: rzAddPartnerProgram.ajax_url,
-               method: 'POST',
-               data: form_data,
-               contentType: false,
-               processData: false,
-               beforeSend: function(){
-                   $('#join-partner-program button[type="submit"]').addClass('disabled');
-               },
-               success: function(data){
-                   form[0].reset();
-                   $('#partner-message').html(data);
-                   $('#join-partner-program button[type="submit"]').removeClass('disabled');
-               }
-           });
+           let permit = $('#join-partner-program input[name="join"]:checked').val();
+           if(permit == 'yes'){
+            form_data.append('action', 'rz_join_partner_program');
+            form_data.append('nonce', rzAddPartnerProgram.rz_add_partner_program);
+            $.ajax({
+                url: rzAddPartnerProgram.ajax_url,
+                method: 'POST',
+                data: form_data,
+                contentType: false,
+                processData: false,
+                beforeSend: function(){
+                    $('#join-partner-program button[type="submit"]').addClass('disabled');
+                },
+                success: function(data){
+                    form[0].reset();
+                    $('#partner-message').html(data);
+                    $('#join-partner-program button[type="submit"]').removeClass('disabled');
+                }
+            });
+           }else{
+                $('#partner-message').html(`<div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>Warning!</strong> Please make sure that you are accepted to join our partner programme.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>`);
+           }
         });
 
 
@@ -1206,21 +1215,21 @@
         /**
          * live check notification
          */
-         get_all_live_notification();
-        function get_all_live_notification(){
-            $.ajax({
-                url: rzGetLiveNotifiation.ajax_url,
-                method: 'POST',
-                data: {'action' : 'rz_get_live_notification', 'nonce' : rzGetLiveNotifiation.rz_get_live_notification_nonce},
-                success: function(data){
-                    console.log(data);
-                    if(data == 'exists'){
-                        $('#notification-active').html('<span></span>');
-                    }
-                    setTimeout(get_all_live_notification, 3000);
-                }
-            });
-        }
+        //  get_all_live_notification();
+        // function get_all_live_notification(){
+        //     $.ajax({
+        //         url: rzGetLiveNotifiation.ajax_url,
+        //         method: 'POST',
+        //         data: {'action' : 'rz_get_live_notification', 'nonce' : rzGetLiveNotifiation.rz_get_live_notification_nonce},
+        //         success: function(data){
+        //             console.log(data);
+        //             if(data == 'exists'){
+        //                 $('#notification-active').html('<span></span>');
+        //             }
+        //             setTimeout(get_all_live_notification, 3000);
+        //         }
+        //     });
+        // }
 
 
         /**
@@ -1754,6 +1763,176 @@
         });
 
         /**
+         * if user trying to delete dairy
+         */
+        $(document).on('click', '#delete-dairy', function(e){
+            e.preventDefault();
+            let post_id = $(this).data('post_id');
+            swal({
+                title: "Are you sure to delete this dairy?",
+                text: "Once deleted, you will not be able to recover this imaginary file!",
+                icon: 'warning',
+                buttons: true,
+                dangerMode: true,
+            }).then((willDelete) => {
+                if(willDelete){
+                    $.ajax({
+                        url: rzDeleteDairy.ajax_url,
+                        method: "POST",
+                        data: {'action': 'rz_delete_dairy', nonce: rzDeleteDairy.rz_delete_dairy_nonce, 'post_id' : post_id},
+                        success: function(data){
+                            console.log(data);
+                            if(data == 'done'){
+                                $('#dairy'+post_id).html('<div class="text-center"><i class="fas fa-trash text-danger fz-20"></i><p class="mb-0 fz-16 rz-secondary-color">Dairy deleted!</p></div>');
+                                swal("Poof! Your imaginary file has been deleted!", {
+                                    icon: "success",
+                                });
+                            }else{
+                                swal("Failed! Something went wrong.", {
+                                    icon: "warning",
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        /**
+         * dairy visiblity option
+         */
+        $(document).on('change', '#dairy-visiblity', function(e){
+            e.preventDefault();
+            let post_id = $(this).data('post_id');
+            let dairy_visiblity;
+            if($(this).prop("checked") == true){
+                dairy_visiblity = 'publish';
+            }
+            else if($(this).prop("checked") == false){
+                dairy_visiblity = 'private';
+            }
+            $.ajax({
+                url: rzChangeVisiblity.ajax_url,
+                method: 'POST',
+                data: {'action' : 'rz_change_dairy_visiblity_status', 'nonce' : rzChangeVisiblity.rz_change_dairy_visiblity_nonce, 'post_id' : post_id, 'visiblity': dairy_visiblity},
+                success: function(data){
+                    console.log(data);
+                }
+            });
+        });
+
+        /**
+         * if user click dairy read more button
+         */
+        $(document).on('click', '#dairy-read-more', function(e){
+            e.preventDefault();
+            let post_id = $(this).data('post_id');
+            $(this).parent().hide();
+            $('#dairy-text-expand'+post_id).show();
+        });
+
+        /**
+         * facebook share
+         */
+        $(document).on('click', '#share-facebook', function(e) 
+         {
+             e.preventDefault();
+             let url = $(this).data('shareurl');
+             window.open('https://www.facebook.com/sharer/sharer.php?u='+escape(url)+'&t='+document.title, '', 
+             'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');
+         });
+
+         /**
+          * twitter share
+          */
+         $(document).on('click', '#tweet-data', function(e){
+            e.preventDefault();
+            let url = $(this).data('shareurl');
+            window.open("https://twitter.com/share?url="+ encodeURIComponent(url)+"&text="+document.title, '', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=300,width=600');
+         });
+
+         /**
+          * share linkedin
+          */
+         $(document).on('click', '#share-linkedin', function(e){
+            e.preventDefault();
+            let url = $(this).data('shareurl');
+            window.open("https://www.linkedin.com/sharing/share-offsite/?url=" + encodeURIComponent(url));
+         });
+
+         /**
+          * if user click share post button
+          */
+         $(document).on('click', '#share-post-data', function(e){
+            e.preventDefault();
+            let url = $(this).data('post_url');
+
+            $('#share-post-modal #share-facebook').data('shareurl', url);
+            $('#share-post-modal #tweet-data').data('shareurl', url);
+            $('#share-post-modal #share-linkedin').data('shareurl', url);
+         });
+
+        /**
+         * edit dairy
+         */
+         let dairy_edit = new bootstrap.Modal(document.getElementById('dairy-edit-modal'));
+        $(document).on('click', '#edit-dairy', function(e){
+            e.preventDefault();
+            let post_id = $(this).data('post_id');
+            $.ajax({
+                url: rzGetPostById.ajax_url,
+                method: "POST",
+                data: {'action' : 'rz_get_post_by_id', 'nonce' : rzGetPostById.rz_get_post_by_id_nonce, 'post_id' : post_id},
+                dataType: 'JSON',
+                success: function(data){
+                    console.log(data);
+                    $('#edit-dairy-form textarea[name="dairy-text"]').text(data.post_content);
+                    $('#edit-dairy-form input[name="id"]').val(data.ID);
+                    if(data.post_status == 'publish'){
+                        $('#edit-dairy-form input[name="dairy-visiblity"]').attr('checked', true);
+                    }else{
+                        $('#edit-dairy-form input[name="dairy-visiblity"]').removeAttr('checked'); 
+                    }
+                    dairy_edit.show();
+                }
+            });
+        });
+
+        /**
+         * if user update dairy
+         */
+        $(document).on('submit', '#edit-dairy-form', function(e){
+            e.preventDefault();
+            let post_id = $('#edit-dairy-form input[name="id"]').val();
+            let text = $('#edit-dairy-form textarea[name="dairy-text"]').val();
+            let form_data = new FormData(this);
+            form_data.append('action', 'rz_edit_dairy');
+            form_data.append('nonce', rzEditDairy.rz_edit_dairy_nonce);
+            $.ajax({
+                url: rzEditDairy.ajax_url,
+                method: 'POST',
+                data: form_data,
+                contentType: false,
+                processData: false,
+                dataType: 'JSON',
+                beforeSend: function(){
+                    $('#edit-dairy-form button[type="submit"]').addClass('disabled');
+                },
+                success: function(data){
+                    console.log(data);
+                    if(data.error == true){
+                        $('#edit-dairy-form #edit-dairy-message').html(data.message);
+                    }else{
+                        $('#dairy'+post_id+' .dairy-text').text(text);
+                        $('#edit-dairy-form #edit-dairy-message').html(data.message);
+                        dairy_edit.hide();
+                    }
+                    $('#edit-dairy-form button[type="submit"]').removeClass('disabled'); 
+                }
+            });
+        });
+        
+        /**
          * opend modal with user data
          */
          let login_modal = new bootstrap.Modal(document.getElementById('send-message-modal'));
@@ -1763,36 +1942,8 @@
 
             let username = $('#name'+user_id).text();
             $('#send-message-modal h2').text('Send message to "'+username+'"');
-            $('#send-message-form').data('user_id', user_id);
+            $('#send-message-form').attr('data-user_id', user_id);
             login_modal.show();
-        });
-
-        /**
-         * send message
-         */
-        $(document).on('submit', '#send-message-form', function(e){
-            e.preventDefault();
-
-            let user_id = $(this).data('user_id');
-            let form_data = new FormData(this);
-            form_data.append('user_id', user_id);
-            form_data.append('action', 'rz_add_message_action');
-            form_data.append('nonce', rzSendMessage.rz_send_message_nonce);
-            $('#send-message-form button[type="submit"]').addClass('disabled');
-
-            $.ajax({
-                url: rzSendMessage.ajax_url,
-                method: "POST",
-                data: form_data,
-                contentType: false,
-                processData: false,
-                success: function(data){
-                    console.log(login_modal);
-                    login_modal.hide();
-                    swal('success', 'Message send successfully.');
-                    $('#send-message-form button[type="submit"]').removeClass('disabled');
-                }
-            });
         });
 
 

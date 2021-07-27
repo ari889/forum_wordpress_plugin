@@ -315,6 +315,24 @@ add_shortcode('imit-questions', function(){
             </div>
         </div>
     </section>
+
+    <div class="modal fade" id="share-post-modal">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="imit-font fz-20 fz-color fw-500 m-0">Share question</h2>
+                    <button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="share-link d-flex flex-row justify-content-between align-items-center">
+                        <a href="#" class="facebook" id="share-facebook" data-shareurl = ""><i class="fab fa-facebook-f"></i></a>
+                        <a class="twitter" id="tweet-data" data-shareurl = "" href="#"><i class="fab fa-twitter"></i></a>
+                        <a class="linkedin" id="share-linkedin" href="#" data-shareurl = ""><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <?php
     return ob_get_clean();
 });
@@ -621,6 +639,7 @@ add_shortcode('imit-questions', function(){
                                     <?php if(is_user_logged_in(  ) && $user_id === get_current_user_id(  )){
                                         ?>
                                         <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
+                                            <a href="#" class="text-dark fz-16 me-3" id="share-post-data" data-post_url="<?php the_permalink(); ?>" data-bs-toggle="modal" data-bs-target="#share-post-modal"><i class="fas fa-share"></i></a>
                                             <div class="dropdown">
                                                 <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                                     <i class="fas fa-ellipsis-h"></i>
@@ -826,6 +845,7 @@ add_shortcode('imit-questions', function(){
                                 <?php if(is_user_logged_in(  ) && $user_id === get_current_user_id(  )){
                                     ?>
                                     <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
+                                    <a href="#" class="text-dark fz-16 me-3" id="share-post-data" data-post_url="<?php the_permalink(); ?>" data-bs-toggle="modal" data-bs-target="#share-post-modal"><i class="fas fa-share"></i></a>
                                         <div class="dropdown">
                                             <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                                 <i class="fas fa-ellipsis-h"></i>
@@ -1032,6 +1052,7 @@ add_shortcode('imit-questions', function(){
                                 <?php if(is_user_logged_in(  ) && $user_id === get_current_user_id(  )){
                                     ?>
                                     <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
+                                    <a href="#" class="text-dark fz-16 me-3" id="share-post-data" data-post_url="<?php the_permalink(); ?>" data-bs-toggle="modal" data-bs-target="#share-post-modal"><i class="fas fa-share"></i></a>
                                         <div class="dropdown">
                                             <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                                 <i class="fas fa-ellipsis-h"></i>
@@ -1369,6 +1390,7 @@ add_shortcode('imit-questions', function(){
                             <?php if(is_user_logged_in(  ) && $user_id === get_current_user_id(  )){
                                 ?>
                                 <div class="other text-dark d-flex flex-row justify-content-end align-items-center">
+                                <a href="#" class="text-dark fz-16 me-3" id="share-post-data" data-post_url="<?php the_permalink(); ?>" data-bs-toggle="modal" data-bs-target="#share-post-modal"><i class="fas fa-share"></i></a>
                                     <div class="dropdown">
                                         <a class="text-dark fz-16" href="#" role="button" id="more-option-feed" data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fas fa-ellipsis-h"></i>

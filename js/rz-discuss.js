@@ -77,12 +77,10 @@
                             postReachMax = true;
                             if(action == 'html'){
                                 $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
                             }else{
                                 $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
                             }
@@ -118,12 +116,10 @@
                             postReachMax = true;
                             if(action == 'html'){
                                 $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
                             }else{
                                 $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
                             }
@@ -159,12 +155,10 @@
                             postReachMax = true;
                             if(action == 'html'){
                                 $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
                             }else{
                                 $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
                             }
@@ -199,12 +193,10 @@
                             postReachMax = true;
                             if(action == 'html'){
                                 $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
                             }else{
                                 $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                '                                    <i class="fas fa-blog"></i>\n' +
                                 '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
                                 '                                </li>');
                             }

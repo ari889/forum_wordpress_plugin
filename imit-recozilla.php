@@ -964,6 +964,44 @@ add_action('wp_enqueue_scripts', function(){
     ] );
 
 
+    /**
+     * delete dairy
+     */
+    $rz_delete_dairy_nonce = wp_create_nonce( 'rz-delete-dairy-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzDeleteDairy', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_delete_dairy_nonce' => $rz_delete_dairy_nonce
+    ] );
+
+    /**
+     * change post visiblity
+     */
+    $rz_change_dairy_visiblity_nonce = wp_create_nonce( 'rz-change-post-visiblity-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzChangeVisiblity', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_change_dairy_visiblity_nonce' => $rz_change_dairy_visiblity_nonce
+    ] );
+    
+
+    /**
+     * get post by id
+     */
+    $rz_get_post_by_id_nonce = wp_create_nonce( 'rz-get-post-by-id-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzGetPostById', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_get_post_by_id_nonce' => $rz_get_post_by_id_nonce
+    ] );
+
+    /**
+     * edit dairy
+     */
+    $rz_edit_dairy_nonce = wp_create_nonce( 'rz-edit-dairy-nonce' );
+    wp_localize_script( 'imit-recozilla', 'rzEditDairy', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'rz_edit_dairy_nonce' => $rz_edit_dairy_nonce
+    ] );
+
+
 });
 
 /**
@@ -1041,7 +1079,6 @@ add_action('admin_enqueue_scripts', function($hook){
             'ajax_url' => admin_url('admin-ajax.php'),
             'rz_answer_on_quiz_nonce' => $rz_answer_on_quiz_nonce
         ] );
-
 
     }
 

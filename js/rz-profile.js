@@ -6,7 +6,7 @@
              * get current user asked questions
              */
             let start = 0;
-            let target = 'profile-feed';
+            let target = 'rz-profile-user-answers';
             let page_num = 1;
             let win = $(window);
             let postReachMax = false;
@@ -124,7 +124,6 @@
             /**
             * get user all asked question
             */
-            question_asked('profile-feed');
             function question_asked(target, action = 'html', page_num = 1){
                 if(postReachMax === false){
                     postReachMax = true;
@@ -165,6 +164,7 @@
             /**
             * get user answered questions
             */
+             get_answered_questions(target);
             function get_answered_questions(target, action = 'html', page_num = 1){
                 if(postReachMax === false){
                     postReachMax = true;
