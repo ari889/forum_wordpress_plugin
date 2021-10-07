@@ -1,5 +1,13 @@
 <?php
 
+
+/**
+ * direct access not allowed
+ */
+if(!defined('ABSPATH')){
+    die(__('Direct access not allowed.', 'imit-recozilla'));
+}
+
 /**
  * show hashtags data
  */

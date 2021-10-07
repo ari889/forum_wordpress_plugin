@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * direct access not allowed
+ */
+if(!defined('ABSPATH')){
+    die(__('Direct access not allowed.', 'imit-recozilla'));
+}
+
 
 /**
  *
@@ -9,7 +16,7 @@ add_action('wp_ajax_imit_rz_add_dairy', function(){
    global $wpdb;
     $nonce = $_POST['nonce'];
     if(wp_verify_nonce($nonce, 'rz-add-dairy-nonce')){
-        $dairy_text = sanitize_text_field($_POST['dairy-text']);
+        $dairy_text = stripslashes($_POST['dairy-text']);
         $dairy_visiblity = sanitize_text_field($_POST['dairy-visiblity']);
         $user_id = get_current_user_id();
         if(empty($dairy_visiblity)){

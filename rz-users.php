@@ -2,6 +2,13 @@
 
 
 /**
+ * direct access not allowed
+ */
+if(!defined('ABSPATH')){
+    die(__('Direct access not allowed.', 'imit-recozilla'));
+}
+
+/**
  * add users
  */
 add_shortcode('imit-rz-users', function(){
@@ -10,10 +17,14 @@ add_shortcode('imit-rz-users', function(){
     ?>
     <section class="users">
         <div class="rz-mid">
-            <div class="row">
-                <div class="col-md-9">
+            <div class="row mx-lg-0 mx-1">
+                <?php 
+                $user_id = get_current_user_id(  );
+                $is_user_already_a_partner = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_user_programs WHERE user_id = '$user_id' AND (status = '1' OR status = '0')", ARRAY_A);
+                ?>
+                <div class="<?php echo (is_user_logged_in(  ) == false || count($is_user_already_a_partner) < 1) ? 'col-lg-9' : 'col-12'; ?>">
 
-                    <div class="user-header d-flex flex-row justify-content-between align-items-center">
+                    <div class="user-header d-flex flex-sm-row flex-column justify-content-between align-items-center">
                         <div class="user-header-left">
                             <ul class="ps-0 mb-0 bread-crumb d-flex flex-row justify-content-between align-items-center">
                                 <li class="list-unstyled">
@@ -24,9 +35,9 @@ add_shortcode('imit-rz-users', function(){
                                 </li>
                             </ul>
                         </div>
-                        <div class="user-header-right">
+                        <div class="user-header-right mt-sm-0 mt-2">
                             <form id="user-live-search">
-                                <input name="search-user" type="text" class="form-control imit-font fz-14" placeholder="Search Users">
+                                <input name="search-user" type="text" class="form-control imit-font fz-14 w-100 w-sm-auto" placeholder="Search Users">
                                 <button type="submit" class="text-dark fz-14 border-0 bg-transparent"><i class="fas fa-search"></i></button>
                             </form>
                         </div>
@@ -42,11 +53,8 @@ add_shortcode('imit-rz-users', function(){
                        </div>
                    </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="join rz-br rz-bg-color rounded-2 p-3" style="background-image: url('<?php echo plugins_url('images/Group 237.png', __FILE__); ?>');">
-                        <h3 class="title m-0 text-white imit-font fz-20 fw-500">Join our Partner Program and earn money on Recozilla</h3>
-                        <a href="<?php echo site_url(); ?>/join-partner-program/" class="btn bg-white fz-12 rz-color imit-font fw-500 mt-3">Join Now</a>
-                    </div>
+                <div class="col-lg-3 mt-3 mt-lg-0">
+                    <?php echo do_shortcode( '[join-partner-program]' ); ?>
                 </div>
             </div>
         </div>
@@ -79,33 +87,40 @@ add_shortcode('imit-rz-users', function(){
 /**
  * search user
  */
-add_action('wp_ajax_rz_search_user', function(){
+add_action('wp_ajax_rz_search_user', 'rzSearchUser');
+add_action('wp_ajax_nopriv_rz_search_user', 'rzSearchUser');
+
+function rzSearchUser(){
     global $wpdb;
     $nonce = $_POST['nonce'];
     if(wp_verify_nonce($nonce, 'rz-search-user-nonce')){
         $search_key = sanitize_text_field(strtolower($_POST['search_key']));
         $current_user = get_current_user_id();
+
+        /**
+         * get search user data
+         */
         $get_all_users = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}users WHERE (LOWER(user_login) LIKE '%{$search_key}%' OR LOWER(user_nicename) = '%{$search_key}%' OR LOWER(user_email) LIKE '%{$search_key}%' OR LOWER(display_name) LIKE '%{$search_key}%') AND ID NOT IN (SELECT ID FROM {$wpdb->prefix}users WHERE ID = '{$current_user}') UNION SELECT * FROM {$wpdb->prefix}users WHERE ID IN(SELECT user_id FROM {$wpdb->prefix}usermeta WHERE (meta_key = 'first_name' AND LOWER(meta_value) LIKE '%{$search_key}%') OR (meta_key = 'last_name' AND LOWER(meta_value) LIKE '%{$search_key}%')) AND ID NOT IN (SELECT ID FROM wp_users WHERE ID = '{$current_user}') ORDER BY RAND()", ARRAY_A);
+
+        /**
+         * check current is partner or not
+         */
+        $is_user_already_a_partner = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_user_programs WHERE user_id = '$user_id' AND (status = '1' OR status = '0')", ARRAY_A);
         foreach($get_all_users as $user){
             $user_id = $user['ID'];
             $get_user_data = get_userdata($user['ID']);
             $get_profile_data = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '$user_id'");
             ?>
-            <li class="col-md-6 list-unstyled mt-3">
+            <li class="<?php echo (is_user_logged_in(  ) == false || count($is_user_already_a_partner) < 1) ? 'col-sm-6' : 'col-sm-4'; ?> list-unstyled mt-3">
                 <div class="card rz-br rz-border">
                     <div class="card-body rz-br rz-border p-0">
                         <div class="d-flex flex-row justify-content-start align-items-center py-3 px-4 pb-0">
-                            <div class="user-avatar">
-                                <img src="<?php getProfileImageById($user['ID']); ?>" alt="">
-                            </div>
+                            <a href="<?php echo site_url().'/user/'.$get_user_data->user_login; ?>" class="user-avatar d-block">
+                                <img src="<?php echo getProfileImageById($user['ID']); ?>" alt="">
+                            </a>
                             <div class="ms-2">
+                                <a href="<?php echo site_url().'/user/'.$get_user_data->user_login; ?>" class="username fz-16 text-dark fw-500 imit-font text-decoration-none" id="name<?php echo $user_id; ?>"><?php echo getUserNameById($user_id); ?></a>
                                 <?php
-                                if(!empty($get_user_data->user_firstname) && !empty($get_user_data->user_lastname)){
-                                    echo '<a href="'.site_url().'/user/'.$get_user_data->user_login.'" class="username fz-16 text-dark fw-500 imit-font text-decoration-none" id="name'.$user_id.'">'.$get_user_data->user_firstname.' '.$get_user_data->user_lastname.'</a>';
-                                }else{
-                                    echo '<a href="'.site_url().'/user/'.$get_user_data->user_login.'" class="username fz-16 text-dark fw-500 imit-font text-decoration-none" id="name'.$user_id.'">'.$get_user_data->display_name.'</a>';
-                                }
-
                                 if(!empty($get_profile_data->occupation)){
                                     echo '<p class="mb-0 designation rz-secondary-color fz-12 imit-font">'.$get_profile_data->occupation.'</p>';
                                 }
@@ -130,35 +145,26 @@ add_action('wp_ajax_rz_search_user', function(){
                             </li>
                         </ul>
 
-                        <div class="profile-action d-flex flex-row justify-content-between align-items-center py-3 px-4">
-                            <?php if(is_user_logged_in()){
+                        <div class="profile-action d-flex flex-sm-row flex-column justify-content-between align-items-center py-3 px-4">
+                            <?php 
                                 if(get_current_user_id() !== $user_id){
                                     $sender_id = get_current_user_id();
                                     $receiver_id = $user_id;
                                     $get_all_followers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_followers WHERE (sender_id = '$sender_id' AND receiver_id = '$receiver_id') OR (sender_id = '$receiver_id' AND receiver_id = '$sender_id')", ARRAY_A);
-                                    if(count($get_all_followers) > 0){
-                                        ?>
-                                        <a href="#" class="btn btn-secondary d-block text-center imit-font fz-14 text-white w-50 me-1" id="rz-follow" data-receiver_id="<?php echo $user_id; ?>"><i class="fas fa-minus-circle me-2"></i>Unfollow</a>
-                                        <?php
-                                    }else{
-                                        ?>
-                                        <a href="#" class="btn follow d-block text-center imit-font fz-14 text-white w-50 me-1" id="rz-follow" data-receiver_id="<?php echo $user_id; ?>"><i class="fas fa-plus-circle me-2"></i>Follow</a>
-                                        <?php
-                                    }
                                     ?>
-                                    <a href="#" class="btn message d-block text-center imit-font fz-14 w-50 ms-1" data-user_id="<?php echo $receiver_id; ?>" id="send-message-button"><i class="fas fa-comments me-2"></i>Message</a>
+                                    <a href="#" class="btn rz-bg-color d-block text-center imit-font fz-14 text-white w-sm-50 w-100 me-sm-1 me-0 <?php echo ( (is_user_logged_in() && count($get_all_followers) > 0) ? 'following' : '' ); ?>" <?php echo ( (is_user_logged_in()) ? 'id="rz-follow" data-receiver_id="'.$receiver_id.'"' : 'data-bs-toggle="modal" data-bs-target="#login-modal"' ); ?>><?php echo ( (is_user_logged_in() && count($get_all_followers) > 0) ? '<i class="fas fa-check-square me-2"></i>Following' : '<i class="fas fa-plus-circle me-2"></i>Follow' ); ?></a>
+                                    <a href="#" class="btn message d-block text-center imit-font fz-14 w-sm-50 w-100 ms-sm-1 ms-0 mt-sm-0 mt-2" <?php echo ( (is_user_logged_in()) ? 'data-user_id="'.$receiver_id.'" id="send-message-button"' : 'data-bs-toggle="modal" data-bs-target="#login-modal"' ); ?>><i class="fas fa-comments me-2"></i>Message</a>
                                     <?php
                                 }else{
+                                    if(is_user_logged_in()){
                                     ?>
-                                    <a href="#" class="btn follow d-block text-center imit-font fz-14 text-whit w-50 me-1e" data-bs-toggle="modal" data-bs-target="#rz-profile-edit-modal"><i class="fas fa-edit me-2"></i>Edit Profile</a>
-                                    <a href="#" class="btn message d-block text-center imit-font fz-14 w-50 ms-1">Search Pad</a>
+                                        <a href="#" class="btn follow d-block text-center imit-font fz-14 text-whit w-sm-50 w-100 me-sm-1 me-0" data-bs-toggle="modal" data-bs-target="#rz-profile-edit-modal"><i class="fas fa-edit me-2"></i>Edit Profile</a>
+                                        <a href="#" class="btn message d-block text-center imit-font fz-14 w-sm-50 w-100 ms-sm-1 ms-0 mt-sm-0 mt-2">Search Pad</a>
                                     <?php
+                                    }
                                 }
-                            }?>
-                        </div>
-                        <?php 
-                        if(!empty($get_profile_data->country) || !empty($get_profile_data->city) || !empty($get_profile_data->languages) || !empty($get_profile_data->skill)){
                             ?>
+                        </div>
                             <ul class="about mb-0 py-3 px-4">
                                 <?php
                                 $all_workplaces_data = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_user_work WHERE user_id = '$user_id'", ARRAY_A);
@@ -203,10 +209,12 @@ add_action('wp_ajax_rz_search_user', function(){
                                     <?php
                                 }
                                 ?>
+
+                                <li class="about-list rz-secondary-color list-unstyled my-2">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    <span class="imit-font fz-14">Joined <strong class="rz-color"><?php echo date('F, Y', strtotime($get_user_data->user_registered)); ?></strong></span>
+                                </li>
                             </ul>
-                        <?php
-                        }
-                        ?>
                     </div>
                 </div>
             </li>
@@ -214,7 +222,7 @@ add_action('wp_ajax_rz_search_user', function(){
         }
     }
     die();
-});
+}
 
 
 /**
@@ -230,7 +238,16 @@ function get_all_suggested_users(){
         $start = sanitize_key( $_POST['start'] );
         $limit = sanitize_key( $_POST['limit'] );
         $current_user = get_current_user_id();
-        $get_all_users = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}users WHERE ID NOT IN (SELECT sender_id FROM {$wpdb->prefix}rz_followers WHERE receiver_id = '$current_user' UNION SELECT receiver_id FROM {$wpdb->prefix}rz_followers WHERE sender_id = '$current_user' UNION SELECT ID FROM {$wpdb->prefix}users WHERE ID = '$current_user') ORDER BY RAND() LIMIT $start, $limit", ARRAY_A);
+
+        /**
+         * get all user data
+         */
+        $get_all_users = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}users WHERE ID NOT IN (SELECT sender_id FROM {$wpdb->prefix}rz_followers WHERE receiver_id = '$current_user' UNION SELECT receiver_id FROM {$wpdb->prefix}rz_followers WHERE sender_id = '$current_user') ORDER BY RAND() LIMIT $start, $limit", ARRAY_A);
+
+         /**
+         * check current is partner or not
+         */
+        $is_user_already_a_partner = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_user_programs WHERE user_id = '$current_user' AND (status = '1' OR status = '0')", ARRAY_A);
 
         if(count($get_all_users) > 0){
             foreach($get_all_users as $user){
@@ -238,21 +255,16 @@ function get_all_suggested_users(){
                 $get_user_data = get_userdata($user['ID']);
                 $get_profile_data = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}rz_user_profile_data WHERE user_id = '$user_id'");
                 ?>
-                <li class="col-md-6 list-unstyled mt-3">
+                <li class="<?php echo ((is_user_logged_in(  ) == false || count($is_user_already_a_partner) < 1) ? 'col-md-6' : 'col-lg-4 col-md-6'); ?> list-unstyled mt-3">
                     <div class="card rz-br rz-border">
                         <div class="card-body rz-br rz-border p-0">
                             <div class="d-flex flex-row justify-content-start align-items-center py-3 px-4 pb-0">
-                                <div class="user-avatar">
-                                    <img src="<?php getProfileImageById($user['ID']); ?>" alt="">
-                                </div>
+                                <a href="<?php echo site_url().'/user/'.$get_user_data->user_login; ?>" class="user-avatar d-block">
+                                    <img src="<?php echo getProfileImageById($user['ID']); ?>" alt="">
+                                </a>
                                 <div class="ms-2">
-                                    <?php
-                                    if(!empty($get_user_data->user_firstname) && !empty($get_user_data->user_lastname)){
-                                        echo '<a href="'.site_url().'/user/'.$get_user_data->user_login.'" class="username fz-16 text-dark fw-500 imit-font text-decoration-none" id="name'.$user_id.'">'.$get_user_data->user_firstname.' '.$get_user_data->user_lastname.'</a>';
-                                    }else{
-                                        echo '<a href="'.site_url().'/user/'.$get_user_data->user_login.'" class="username fz-16 text-dark fw-500 imit-font text-decoration-none" id="name'.$user_id.'">'.$get_user_data->display_name.'</a>';
-                                    }
-    
+                                    <a href="<?php echo site_url().'/user/'.$get_user_data->user_login; ?>" class="username fz-16 text-dark fw-500 imit-font text-decoration-none" id="name<?php echo $user_id; ?>"><?php echo getUserNameById($user_id); ?></a>
+                                    <?php    
                                     if(!empty($get_profile_data->occupation)){
                                         echo '<p class="mb-0 designation rz-secondary-color fz-12 imit-font">'.$get_profile_data->occupation.'</p>';
                                     }
@@ -277,35 +289,26 @@ function get_all_suggested_users(){
                                 </li>
                             </ul>
     
-                            <div class="profile-action d-flex flex-row justify-content-between align-items-center py-3 px-4">
-                                <?php if(is_user_logged_in()){
-                                    if(get_current_user_id() !== $user_id){
-                                        $sender_id = get_current_user_id();
-                                        $receiver_id = $user_id;
-                                        $get_all_followers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_followers WHERE (sender_id = '$sender_id' AND receiver_id = '$receiver_id') OR (sender_id = '$receiver_id' AND receiver_id = '$sender_id')", ARRAY_A);
-                                        if(count($get_all_followers) > 0){
-                                            ?>
-                                            <a href="#" class="btn btn-secondary d-block text-center imit-font fz-14 text-white w-50 me-1" id="rz-follow" data-receiver_id="<?php echo $user_id; ?>"><i class="fas fa-minus-circle me-2"></i>Unfollow</a>
-                                            <?php
-                                        }else{
-                                            ?>
-                                            <a href="#" class="btn follow d-block text-center imit-font fz-14 text-white w-50 me-1" id="rz-follow" data-receiver_id="<?php echo $user_id; ?>"><i class="fas fa-plus-circle me-2"></i>Follow</a>
-                                            <?php
-                                        }
+                            <div class="profile-action d-flex flex-sm-row flex-column justify-content-between align-items-center py-3 px-4">
+                                <?php
+                                if(get_current_user_id() !== $user_id){
+                                    $sender_id = get_current_user_id();
+                                    $receiver_id = $user_id;
+                                    $get_all_followers = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_followers WHERE (sender_id = '$sender_id' AND receiver_id = '$receiver_id') OR (sender_id = '$receiver_id' AND receiver_id = '$sender_id')", ARRAY_A);
+                                    ?>
+                                        <a href="#" class="btn rz-bg-color d-block text-center imit-font fz-14 text-white w-sm-50 w-100 me-sm-1 me-0 <?php echo ( (is_user_logged_in() && count($get_all_followers) > 0) ? 'following' : '' ); ?>" <?php echo ( (is_user_logged_in()) ? 'id="rz-follow" data-receiver_id="'.$receiver_id.'"' : 'data-bs-toggle="modal" data-bs-target="#login-modal"' ); ?>><?php echo ( (is_user_logged_in() && count($get_all_followers) > 0) ? '<i class="fas fa-check-square me-2"></i>Following' : '<i class="fas fa-plus-circle me-2"></i>Follow' ); ?></a>
+                                        <a href="#" class="btn message d-block text-center imit-font fz-14 w-sm-50 w-100 ms-0 ms-sm-1 mt-sm-0 mt-2" <?php echo ( (is_user_logged_in()) ? 'data-user_id="'.$receiver_id.'" id="send-message-button"' : 'data-bs-toggle="modal" data-bs-target="#login-modal"' ) ?>><i class="fas fa-comments me-2"></i>Message</a>
+                                    <?php
+                                }else{
+                                    if(is_user_logged_in(  )){
                                         ?>
-                                        <a href="#" class="btn message d-block text-center imit-font fz-14 w-50 ms-1" data-user_id="<?php echo $receiver_id; ?>" id="send-message-button"><i class="fas fa-comments me-2"></i>Message</a>
-                                        <?php
-                                    }else{
-                                        ?>
-                                        <a href="#" class="btn follow d-block text-center imit-font fz-14 text-whit w-50 me-1e" data-bs-toggle="modal" data-bs-target="#rz-profile-edit-modal"><i class="fas fa-edit me-2"></i>Edit Profile</a>
-                                        <a href="#" class="btn message d-block text-center imit-font fz-14 w-50 ms-1">Search Pad</a>
+                                            <a href="#" class="btn follow d-block text-center imit-font fz-14 text-whit w-sm-50 w-100 me-sm-1 me-0" data-bs-toggle="modal" data-bs-target="#rz-profile-edit-modal"><i class="fas fa-edit me-2"></i>Edit Profile</a>
+                                            <a href="#" class="btn message d-block text-center imit-font fz-14 w-sm-50 w-100 ms-sm-1 ms-0 mt-sm-0 mt-2">Search Pad</a>
                                         <?php
                                     }
-                                }?>
-                            </div>
-                            <?php 
-                            if(!empty($get_profile_data->country) || !empty($get_profile_data->city) || !empty($get_profile_data->languages) || !empty($get_profile_data->skill)){
+                                }
                                 ?>
+                            </div>
                                 <ul class="about mb-0 py-3 px-4">
                                     <?php
                                     $all_workplaces_data = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}rz_user_work WHERE user_id = '$user_id'", ARRAY_A);
@@ -350,10 +353,11 @@ function get_all_suggested_users(){
                                         <?php
                                     }
                                     ?>
+                                    <li class="about-list rz-secondary-color list-unstyled my-2">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        <span class="imit-font fz-14">Joined <strong class="rz-color"><?php echo date('F, Y', strtotime($get_user_data->user_registered)); ?></strong></span>
+                                    </li>
                                 </ul>
-                                <?php
-                            }
-                            ?>
                         </div>
                     </div>
                 </li>

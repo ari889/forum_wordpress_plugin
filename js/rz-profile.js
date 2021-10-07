@@ -133,18 +133,15 @@
                         method: 'POST',
                         data: {'action': 'rz_question_asked_posts', 'nonce' : rzAskedQuestion.rz_asked_question_nonce, 'page_num' : page_num, 'user_id' : profile_user_id},
                         success: function(data){
-                            console.log(data);
                             if(data == 'profileFeedReachmax'){
                                 postReachMax = true;
                                 if(action == 'html'){
                                     $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                    '                                    <i class="fas fa-blog"></i>\n' +
-                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No more posts available to show.</p>\n' +
                                     '                                </li>');
                                 }else{
                                     $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                    '                                    <i class="fas fa-blog"></i>\n' +
-                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No more posts available to show.</p>\n' +
                                     '                                </li>');
                                 }
                             }else{
@@ -174,18 +171,15 @@
                         method: 'POST',
                         data: {'action': 'rz_question_answered_posts', 'nonce' : rzAnsweredQuestion.rz_answered_question_nonce, 'page_num' : page_num, 'user_id': profile_user_id},
                         success: function(data){
-                            console.log(data);
                             if(data == 'answeredFeedReachmax'){
                                 postReachMax = true;
                                 if(action == 'html'){
                                     $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                    '                                    <i class="fas fa-blog"></i>\n' +
-                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No more posts available to show.</p>\n' +
                                     '                                </li>');
                                 }else{
                                     $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                    '                                    <i class="fas fa-blog"></i>\n' +
-                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No more posts available to show.</p>\n' +
                                     '                                </li>');
                                 }
                             }else{
@@ -215,18 +209,15 @@
                         method: 'POST',
                         data: {'action': 'rz_voted_questions_posts', 'nonce' : rzVotedQuestions.rz_voted_questions_nonce, 'page_num' : page_num, 'user_id' : profile_user_id},
                         success: function(data){
-                            console.log(data);
                             if(data == 'profileVOtedQuestionsReachmax'){
                                 postReachMax = true;
                                 if(action == 'html'){
                                     $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                    '                                    <i class="fas fa-blog"></i>\n' +
-                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No more posts available to show.</p>\n' +
                                     '                                </li>');
                                 }else{
                                     $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                    '                                    <i class="fas fa-blog"></i>\n' +
-                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No more posts available to show.</p>\n' +
                                     '                                </li>');
                                 }
                             }else{
@@ -256,18 +247,15 @@
                         method: 'POST',
                         data: {'action': 'rz_commented_questions_posts', 'nonce' : rzCommentedQuestion.rz_commented_questions_nonce, 'page_num' : page_num, 'user_id' : profile_user_id},
                         success: function(data){
-                            console.log(data);
                             if(data == 'profileCommentedQeustionsReachmax'){
                                 postReachMax = true;
                                 if(action == 'html'){
                                     $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                    '                                    <i class="fas fa-blog"></i>\n' +
-                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No more posts available to show.</p>\n' +
                                     '                                </li>');
                                 }else{
                                     $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                    '                                    <i class="fas fa-blog"></i>\n' +
-                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No more posts available to show.</p>\n' +
                                     '                                </li>');
                                 }
                             }else{
@@ -297,13 +285,12 @@
                         method: 'POST',
                         data: {'action': 'rz_following_users_posts', 'nonce' : rzFollowingUser.rz_following_user_nonce, 'start' : start, 'limit' : limit, 'user_id' : user_id},
                         success: function(data){
-                            console.log(data);
                             if(data == 'profileFollowingUserReachmax'){
                                 postReachMax = true;
                                 if(action == 'html'){
-                                    $('#'+target+' #'+target+'-ul').append('<li class="col-md-12 list-unstyled text-center"><div class="bg-light p-4 rz-br rz-border mt-3"><i class="fas fa-user"></i><p class="mb-0 imit-font fz-16 rz-secondary-color">No users to show.</p></div></li>');
+                                    $('#'+target+' #'+target+'-ul').append('<li class="col-md-12 list-unstyled text-center"><div class="bg-light p-4 rz-br rz-border mt-3"><p class="mb-0 imit-font fz-16 rz-secondary-color">No users to show.</p></div></li>');
                                 }else{
-                                    $('#'+target+' #'+target+'-ul').append('<li class="col-md-12 list-unstyled text-center"><div class="bg-light p-4 rz-br rz-border mt-3"><i class="fas fa-user"></i><p class="mb-0 imit-font fz-16 rz-secondary-color">No users to show.</p></div></li>');
+                                    $('#'+target+' #'+target+'-ul').append('<li class="col-md-12 list-unstyled text-center"><div class="bg-light p-4 rz-br rz-border mt-3"><p class="mb-0 imit-font fz-16 rz-secondary-color">No users to show.</p></div></li>');
                                 }
                             }else{
                                 if(action == 'html'){
@@ -320,6 +307,39 @@
             }
 
 
+            /**
+         * add dairy
+         */
+        $(document).on('submit', '#add-dairy', function(e){
+            e.preventDefault();
+            let form_data = new FormData(this);
+            let form = $(this);
+            form_data.append('action', 'imit_rz_add_dairy');
+            form_data.append('nonce', rzAddDairy.rz_add_dairy_nonce);
+            $.ajax({
+                url: rzAddDairy.ajax_url,
+                method: 'POST',
+                data: form_data,
+                contentType: false,
+                processData: false,
+                beforeSend: function(){
+                    $('#add-dairy button[type="submit"]').addClass('disabled');
+                },
+                success: function(data){
+                    form[0].reset();
+                    $('#dairy-message').html(data);
+                    $('#add-dairy button[type="submit"]').removeClass('disabled');
+                    page_num = 1;
+                    postReachMax = false;
+                    get_user_dairy('user-dairy');
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $("#user-dairy-ul").offset().top
+                    }, 1000);
+                }
+            });
+        });
+
+
             /***
             *  get user dairy
             */
@@ -332,18 +352,15 @@
                         method: 'POST',
                         data: {'action': 'rz_user_dairy_posts', 'nonce' : rzUserDairy.rz_user_dairy_nonce, 'page_num' : page_num, 'user_id': profile_user_id},
                         success: function(data){
-                            console.log(data);
                             if(data == 'userDairyReachmax'){
                                 postReachMax = true;
                                 if(action == 'html'){
                                     $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                    '                                    <i class="fas fa-blog"></i>\n' +
-                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No more posts available to show.</p>\n' +
                                     '                                </li>');
                                 }else{
                                     $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                    '                                    <i class="fas fa-blog"></i>\n' +
-                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No more posts available to show.</p>\n' +
                                     '                                </li>');
                                 }
                             }else{
@@ -372,18 +389,15 @@
                         method: 'POST',
                         data: {'action': 'rz_get_all_following_questions', 'nonce' : rzFollowingQuestions.rz_get_following_questions, 'start' : start, 'limit' : limit, 'user_id': profile_user_id},
                         success: function(data){
-                            console.log(data);
                             if(data == 'followingQuestionReachmax'){
                                 postReachMax = true;
                                 if(action == 'html'){
                                     $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                    '                                    <i class="fas fa-blog"></i>\n' +
-                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No more posts available to show.</p>\n' +
                                     '                                </li>');
                                 }else{
                                     $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                    '                                    <i class="fas fa-blog"></i>\n' +
-                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No posts to show.</p>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No more posts available to show.</p>\n' +
                                     '                                </li>');
                                 }
                             }else{
@@ -413,18 +427,15 @@
                         method: 'POST',
                         data: {'action': 'rz_get_all_following_tags', 'nonce' : rzFollowingTags.rz_get_following_tags, 'start' : start, 'limit' : limit, 'user_id': profile_user_id},
                         success: function(data){
-                            console.log(data);
                             if(data == 'followingTagReachMax'){
                                 postReachMax = true;
                                 if(action == 'html'){
                                     $('#'+target+' #'+target+'-ul').html('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                    '                                    <i class="fas fa-tags"></i>\n' +
-                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No tags to show.</p>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No more posts available to show.</p>\n' +
                                     '                                </li>');
                                 }else{
                                     $('#'+target+' #'+target+'-ul').append('<li class="bg-light rz-br rz-border p-5 text-center list-unstyled mt-3">\n' +
-                                    '                                    <i class="fas fa-tags"></i>\n' +
-                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No tags to show.</p>\n' +
+                                    '                                    <p class="mb-0 imit-font fz-16 rz-secondary-color">No more posts available to show.</p>\n' +
                                     '                                </li>');
                                 }
                             }else{
@@ -446,6 +457,48 @@
 
 
         }
+
+
+        $(document).on('submit', '#change_password_form', function(e){
+            e.preventDefault();
+            let form_data = new FormData(this);
+            form_data.append('action', 'rz_change_password_data');
+            form_data.append('nonce', rzChangePassword.rz_change_password);
+
+
+            let logged_in = $('#change_password_form input[name="logged-in"]:checked').val();
+
+
+            let redirect;
+            if(logged_in == 'yes'){
+                redirect = false;
+            }else{
+                redirect = true;
+            }
+
+            $.ajax({
+                url: rzChangePassword.ajax_url,
+                method: 'POST',
+                data: form_data,
+                contentType: false,
+                processData: false,
+                dataType: 'JSON',
+                beforeSend: function(){
+                    $('#change_password_form button[type="submit"]').addClass('disabled');
+                },
+                success: function(data){
+                    if(data.error == true){
+                        $('#change_password_form #change_password_error').html(data.message);
+                    }else{
+                        $('#change_password_form #change_password_error').html(data.message);
+                        if(redirect == true){
+                            window.location.href = data.logout_url;
+                        }
+                    }
+                    $('#change_password_form button[type="submit"]').removeClass('disabled');
+                }
+            });
+        });
 
 
     });
